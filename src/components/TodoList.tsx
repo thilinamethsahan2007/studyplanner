@@ -11,10 +11,16 @@ interface TodoListProps {
 
 const TodoList: React.FC<TodoListProps> = ({ todos, onToggle, subjects, onStartPomodoro }) => {
     
+  // Sort todos so incomplete ones are at the top
+  const sortedTodos = [...todos].sort((a, b) => {
+    if (a.done === b.done) return 0;
+    return a.done ? 1 : -1;
+  });
+
   return (
     <div className="space-y-3">
       <AnimatePresence>
-        {todos.map(todo => {
+        {sortedTodos.map(todo => {
           const subject = subjects.find(s => s.id === todo.subjectId);
           const isStudyTask = ['physics', 'chemistry', 'combined'].includes(todo.subjectId);
           
