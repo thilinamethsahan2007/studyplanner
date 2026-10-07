@@ -258,7 +258,12 @@ const TodoPage: React.FC<TodoPageProps> = ({ day, onDayChange, classes, logs, on
 
   return (
     <div className="mx-auto max-w-3xl w-full">
-      {isAllDone && <Confetti width={width} height={height} recycle={false} numberOfPieces={800} gravity={0.15} />}
+              {isAllDone && <Confetti width={width} height={height} recycle={false} numberOfPieces={800} gravity={0.15} />}
+        <JournalModal 
+            isOpen={isJournalModalOpen}
+            onClose={() => setIsJournalModalOpen(false)}
+            day={day}
+        />
         <LogTimeModal 
             isOpen={isLogModalOpen}
             task={taskToLog}
@@ -331,6 +336,38 @@ const TodoPage: React.FC<TodoPageProps> = ({ day, onDayChange, classes, logs, on
 
         {/* New Smart Input */}
         <SmartTodoInput onAddTodos={addTodos} />
+
+                {/* Time-Gated Journal Prompt (9:00 PM - 11:30 PM) */}
+        {(() => {
+            const hours = currentTime.getHours();
+            const mins = currentTime.getMinutes();
+            const timeInMins = hours * 60 + mins;
+            const isTimeWindow = timeInMins >= 21 * 60 && timeInMins <= 23 * 60 + 30;
+            const isToday = day.date === new Date().toISOString().split('T')[0];
+            
+            if (isTimeWindow && isToday) {
+                return (
+                    <div className="bg-gradient-to-r from-indigo-500/10 to-purple-500/10 border border-indigo-200 dark:border-indigo-500/30 rounded-2xl p-6 mb-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+                        <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 rounded-full flex items-center justify-center shrink-0">
+                                <BookHeart className="w-6 h-6" />
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">How was your day?</h3>
+                                <p className="text-slate-600 dark:text-slate-400 text-sm">Take a moment to reflect and write down your thoughts before bed.</p>
+                            </div>
+                        </div>
+                        <button 
+                            onClick={() => setIsJournalModalOpen(true)}
+                            className="shrink-0 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 px-6 rounded-xl shadow-lg shadow-indigo-600/30 transition-all active:scale-95"
+                        >
+                            Write Journal
+                        </button>
+                    </div>
+                );
+            }
+            return null;
+        })()}
 
         {/* Todo List Container */}
         <div className="bg-white/50 dark:bg-slate-800/50 backdrop-blur-xl border border-white/40 dark:border-slate-700/50 p-4 sm:p-6 rounded-3xl shadow-xl shadow-black/5 mb-8 max-h-[60vh] overflow-y-auto scrollbar-hide">
