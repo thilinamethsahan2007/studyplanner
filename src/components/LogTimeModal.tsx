@@ -5,18 +5,20 @@ interface LogTimeModalProps {
   isOpen: boolean;
   task: TodoItem | null;
   onClose: () => void;
-  onSubmit: (taskId: string, startTime: string, endTime: string) => void;
+  onSubmit: (taskId: string, startTime: string, endTime: string, breakMinutes: number) => void;
 }
 
 const LogTimeModal: React.FC<LogTimeModalProps> = ({ isOpen, task, onClose, onSubmit }) => {
   const [startTime, setStartTime] = useState('');
   const [endTime, setEndTime] = useState('');
+  const [breakMinutes, setBreakMinutes] = useState(0);
   const [error, setError] = useState('');
 
   useEffect(() => {
     if (task) {
       setStartTime('');
       setEndTime('');
+      setBreakMinutes(0);
       setError('');
     }
   }, [task]);
@@ -52,7 +54,7 @@ const LogTimeModal: React.FC<LogTimeModalProps> = ({ isOpen, task, onClose, onSu
     }
 
     setError('');
-    onSubmit(task.id, startTime, endTime);
+    onSubmit(task.id, startTime, endTime, breakMinutes);
   };
 
   if (!isOpen || !task) {
@@ -96,7 +98,21 @@ const LogTimeModal: React.FC<LogTimeModalProps> = ({ isOpen, task, onClose, onSu
             </div>
           </div>
           
+
+          <div className="mb-6">
+            <label htmlFor="breaks" className="block text-sm font-semibold text-slate-600 dark:text-slate-300 mb-1">Breaks (minutes)</label>
+            <input
+              id="breaks"
+              type="number"
+              min="0"
+              value={breakMinutes}
+              onChange={(e) => setBreakMinutes(parseInt(e.target.value) || 0)}
+              className="block w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm px-4 py-3 text-sm text-slate-800 dark:text-slate-200 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+            />
+          </div>
+          
           {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+
 
           <div className="flex justify-end gap-4">
             <button

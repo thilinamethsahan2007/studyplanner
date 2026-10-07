@@ -65,6 +65,7 @@ export interface LogEntry {
   subjectId: string;
   startTime: string; // HH:MM
   endTime: string; // HH:MM
+  breakMinutes?: number;
   durationMinutes: number;
 }
 

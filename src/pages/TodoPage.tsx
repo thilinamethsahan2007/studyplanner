@@ -156,14 +156,15 @@ const TodoPage: React.FC<TodoPageProps> = ({ day, onDayChange, classes, logs, on
     return currentTime.getTime() < classEndTime.getTime();
   });
   
-  const handleLogSubmit = (taskId: string, startTime: string, endTime: string) => {
+  const handleLogSubmit = (taskId: string, startTime: string, endTime: string, breakMinutes: number) => {
     const task = day?.items.find(item => item.id === taskId);
     if (!task || !day) return;
 
     const start = new Date(`1970-01-01T${startTime}`);
     const end = new Date(`1970-01-01T${endTime}`);
     
-    const durationMinutes = Math.round((end.getTime() - start.getTime()) / 60000);
+    let durationMinutes = Math.round((end.getTime() - start.getTime()) / 60000);
+    durationMinutes = Math.max(0, durationMinutes - (breakMinutes || 0));
 
     const newLog: LogEntry = {
         id: `log-${Date.now()}`,
@@ -172,6 +173,10 @@ const TodoPage: React.FC<TodoPageProps> = ({ day, onDayChange, classes, logs, on
         todoItemTitle: task.title,
         subjectId: task.subjectId,
         startTime,
+        endTime,
+        durationMinutes,
+        breakMinutes
+    };
         endTime,
         durationMinutes,
     };
