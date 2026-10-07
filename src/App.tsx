@@ -242,8 +242,7 @@ const App: React.FC = () => {
                         </div>
                         <div className="flex-1 overflow-y-auto flex flex-col gap-2">
                             <SidebarLink to="/" icon={<LayoutDashboard className="w-6 h-6" />} label="Today" onClick={() => setMobileMenuOpen(false)} />
-                            <SidebarLink to="/weekly" icon={<CalendarDays className="w-6 h-6" />} label="Weekly" onClick={() => setMobileMenuOpen(false)} />
-                            <div className="my-4 border-t border-black/10 dark:border-white/10" />
+                                                        <div className="my-4 border-t border-black/10 dark:border-white/10" />
                             {academicSubjects.map(subject => (
                                 <SidebarLink key={subject.id} to={`/subjects/${subject.id}`} icon={getSubjectIcon(subject.id)} label={subject.name} onClick={() => setMobileMenuOpen(false)} />
                             ))}
