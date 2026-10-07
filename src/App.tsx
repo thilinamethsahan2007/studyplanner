@@ -6,6 +6,7 @@ import SubjectPage from './pages/SubjectPage';
 import AnalyticsPage from './pages/AnalyticsPage';
 import LogBookPage from './pages/LogBookPage';
 import CmsPage from './pages/CmsPage';
+import JournalPage from './pages/JournalPage';
 import { mockSubjects } from './mockData';
 import { Syllabus, Test, Class, LogEntry, WeeklySummary, Day } from './types';
 import ThemeSwitcher from './components/ThemeSwitcher';
@@ -207,6 +208,7 @@ const App: React.FC = () => {
                         <div className="px-3 mb-2 text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">Tracking</div>
                         
                         <SidebarLink to="/logbook" icon={<BookOpen className="w-5 h-5" />} label="Log Book" />
+                        <SidebarLink to="/journal" icon={<BookOpen className="w-5 h-5" />} label="Diary" />
                         <SidebarLink to="/analytics" icon={<BarChart2 className="w-5 h-5" />} label="Analytics" />
                     </div>
                     
@@ -248,6 +250,7 @@ const App: React.FC = () => {
                             ))}
                             <div className="my-4 border-t border-black/10 dark:border-white/10" />
                             <SidebarLink to="/logbook" icon={<BookOpen className="w-6 h-6" />} label="Log Book" onClick={() => setMobileMenuOpen(false)} />
+                            <SidebarLink to="/journal" icon={<BookOpen className="w-6 h-6" />} label="Diary" onClick={() => setMobileMenuOpen(false)} />
                             <SidebarLink to="/analytics" icon={<BarChart2 className="w-6 h-6" />} label="Analytics" onClick={() => setMobileMenuOpen(false)} />
                             <SidebarLink to="/cms" icon={<Settings className="w-6 h-6" />} label="Settings" onClick={() => setMobileMenuOpen(false)} />
                         </div>
@@ -266,6 +269,7 @@ const App: React.FC = () => {
                                 element={<SubjectPage syllabusData={syllabusData} subjects={mockSubjects} onSyllabusChange={handleSyllabusChange} />} 
                             />
                             <Route path="/logbook" element={<LogBookPage logs={logsData} weeklySummaries={weeklySummaries} subjects={mockSubjects} />} />
+                            <Route path="/journal" element={<JournalPage />} />
                             <Route path="/analytics" element={<AnalyticsPage tests={testsData} subjects={mockSubjects} syllabusData={syllabusData} logs={logsData} weeklySummaries={weeklySummaries} />} />
                             <Route 
                                 path="/cms" 

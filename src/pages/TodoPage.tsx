@@ -6,6 +6,8 @@ import Confetti from 'react-confetti';
 import { useWindowSize } from 'react-use';
 import LogTimeModal from '../components/LogTimeModal';
 import PomodoroTimer from '../components/PomodoroTimer';
+import JournalModal from '../components/JournalModal';
+import { BookHeart } from 'lucide-react';
 import { mockSubjects } from '../mockData';
 
 interface TodoPageProps {
@@ -28,6 +30,7 @@ const TodoPage: React.FC<TodoPageProps> = ({ day, onDayChange, classes, logs, on
   const [isPomodoroOpen, setIsPomodoroOpen] = useState(false);
   const [taskForPomodoro, setTaskForPomodoro] = useState<TodoItem | null>(null);
   const [pomodoroDuration, setPomodoroDuration] = useState(45); // in minutes
+  const [isJournalModalOpen, setIsJournalModalOpen] = useState(false);
 
   useEffect(() => {
     const timer = setInterval(() => {

@@ -74,3 +74,10 @@ export interface WeeklySummary {
   averageMinutesPerDay: number;
   subjectAverages: { [subjectId: string]: number }; // average minutes per day
 }
+export interface JournalEntry {
+  id: string;
+  date: string;
+  content: string;
+  photos: string[]; // Base64 data URLs
+  completedTasks: { title: string, subjectId: string }[];
+}
