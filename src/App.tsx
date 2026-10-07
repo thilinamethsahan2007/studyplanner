@@ -260,7 +260,7 @@ const App: React.FC = () => {
                 {/* Main Viewport Window */}
                 <main className="flex-1 relative bg-white dark:bg-slate-950 rounded-none md:rounded-[2rem] shadow-none md:shadow-2xl ring-0 md:ring-1 ring-black/5 md:dark:ring-white/10 overflow-hidden flex flex-col ">
                     <CommandPalette />
-                    <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-10 w-full h-full relative z-0 scrollbar-hide flex flex-col">
+                    <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-10 w-full h-full relative z-0 scrollbar-hide">
                         <Routes>
                             <Route path="/weekly" element={<WeeklyPlannerPage />} />
                             <Route path="/" element={<TodoPage day={day} onDayChange={handleDayChange} classes={classesData} logs={logsData} onLogsChange={handleLogsChange} />} />
