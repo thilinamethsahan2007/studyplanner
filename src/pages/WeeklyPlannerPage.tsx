@@ -133,7 +133,7 @@ const WeeklyPlannerPage: React.FC = () => {
   return (
     <div className="p-4 md:p-8 max-w-7xl mx-auto h-[calc(100vh-4rem)] overflow-hidden flex flex-col">
       <div className="mb-6 shrink-0">
-        <h1 className="text-2xl md:text-3xl font-bold text-slate-800 dark:text-slate-100">Weekly Backlog Planner</h1>
+        <h1 className="text-3xl md:text-4xl font-black bg-gradient-to-r from-indigo-400 via-indigo-500 to-purple-500 bg-clip-text text-transparent drop-shadow-sm tracking-tight">Weekly Backlog Planner</h1>
         <p className="text-slate-500 dark:text-slate-400 mt-1">Brain dump your workload into the Inbox, then drag and drop to schedule!</p>
       </div>
       
@@ -154,10 +154,10 @@ const WeeklyPlannerPage: React.FC = () => {
               }
 
               return (
-                <div key={col.dateStr} className={`${bentoClasses} flex flex-col min-h-[250px] overflow-hidden bg-white dark:bg-slate-800 rounded-xl shadow-sm border ${isToday ? 'border-indigo-500 ring-1 ring-indigo-500' : isInbox ? 'border-dashed border-2 border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-800/50' : 'border-slate-200 dark:border-slate-700'}`}>
+                <div key={col.dateStr} className={`${bentoClasses} flex flex-col min-h-[250px] overflow-hidden bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl rounded-3xl shadow-xl shadow-black/5 border transition-all ${isToday ? 'border-indigo-500 ring-2 ring-indigo-500/50 shadow-[0_0_15px_rgba(20,184,166,0.4)]' : isInbox ? 'border-dashed border-2 border-slate-300 dark:border-slate-600/70 bg-slate-100/50 dark:bg-slate-700/40' : 'border-white/50 dark:border-slate-700/50 hover:bg-white/70 dark:hover:bg-slate-800/80'}`}>
                   
                   {/* Header */}
-                  <div className={`shrink-0 p-4 border-b border-slate-100 dark:border-slate-700 rounded-t-xl ${isToday ? 'bg-indigo-50 dark:bg-indigo-900/20' : ''}`}>
+                  <div className={`shrink-0 p-4 border-b border-slate-100/50 dark:border-slate-700/50 rounded-t-3xl ${isToday ? 'bg-indigo-500/10 dark:bg-indigo-500/20' : 'bg-white/30 dark:bg-slate-900/30'}`}>
                     <h3 className="font-semibold text-slate-800 dark:text-slate-100 flex items-center justify-between">
                       {col.title}
                       <span className="text-xs bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded-full">{items.length}</span>
@@ -168,12 +168,12 @@ const WeeklyPlannerPage: React.FC = () => {
                   </div>
 
                   {/* Smart Input (Top of list) */}
-                  <div className="shrink-0 p-3 border-b border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80">
+                  <div className="shrink-0 p-3 border-b border-slate-100/50 dark:border-slate-700/50 bg-white/40 dark:bg-slate-900/40">
                     <form onSubmit={(e) => handleSmartAdd(col.dateStr, e)}>
                       <input
                         type="text"
                         placeholder={isInbox ? "Dump workload here..." : "Add specific task..."}
-                        className="w-full text-sm px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 dark:text-slate-200 shadow-sm transition-all placeholder-slate-400"
+                        className="w-full text-sm px-4 py-3 bg-white/70 dark:bg-slate-950/70 backdrop-blur-md border border-slate-200/50 dark:border-slate-700/50 rounded-2xl focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/50 dark:text-slate-200 shadow-inner transition-all placeholder-slate-400/80 dark:placeholder-slate-500/80"
                         value={inputs[col.dateStr] || ''}
                         onChange={e => setInputs({ ...inputs, [col.dateStr]: e.target.value })}
                       />
