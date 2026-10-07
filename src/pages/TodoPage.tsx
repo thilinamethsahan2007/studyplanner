@@ -21,7 +21,7 @@ interface TodoPageProps {
 const TodoPage: React.FC<TodoPageProps> = ({ day, onDayChange, classes, logs, onLogsChange }) => {
   const { width, height } = useWindowSize();
   const isAllDone = day?.items?.length > 0 && day.items.every(item => item.done);
-  const [countdown, setCountdown] = useState({ months: 0, days: 0 });
+  const [countdown, setCountdown] = useState({ months: 0, days: 0, totalDays: 0 });
   const [currentTime, setCurrentTime] = useState(new Date());
 
   const [isLogModalOpen, setIsLogModalOpen] = useState(false);
@@ -73,7 +73,8 @@ const TodoPage: React.FC<TodoPageProps> = ({ day, onDayChange, classes, logs, on
         
         const totalMonths = diffYears * 12 + diffMonths;
 
-        setCountdown({ months: totalMonths, days: diffDays });
+        const totalDays = Math.ceil((examDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+        setCountdown({ months: totalMonths, days: diffDays, totalDays });
     };
 
     calculateCountdown();
@@ -301,7 +302,7 @@ const TodoPage: React.FC<TodoPageProps> = ({ day, onDayChange, classes, logs, on
                 </div>
             </div>
              <p className="text-sm text-slate-600 dark:text-slate-300 mt-3 font-medium">
-                {`That's ${countdown.months} months and ${countdown.days} days to go.`}
+                {`That's ${countdown.totalDays} days to go.`}
             </p>
         </div>
 
