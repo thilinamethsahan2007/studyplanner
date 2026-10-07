@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { HashRouter, Routes, Route, NavLink, useLocation } from 'react-router-dom';
+import { HashRouter, Routes, Route, NavLink, Link, useLocation } from 'react-router-dom';
 import TodoPage from './pages/TodoPage';
 import WeeklyPlannerPage from './pages/WeeklyPlannerPage';
 import SubjectPage from './pages/SubjectPage';
@@ -222,10 +222,10 @@ const App: React.FC = () => {
 
                 {/* Mobile Header & Overlay Menu */}
                 <div className="md:hidden fixed top-0 left-0 right-0 h-14 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-black/5 dark:border-white/10 z-40 flex items-center justify-between px-4">
-                    <div className="flex items-center gap-2">
+                    <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
                         <div className="w-8 h-8 bg-gradient-to-tr from-indigo-500 to-purple-500 rounded-lg shadow-sm flex items-center justify-center text-white font-black text-sm">TR</div>
                         <span className="font-bold text-slate-800 dark:text-slate-100">Tracker</span>
-                    </div>
+                    </Link>
                     <div className="flex items-center gap-2">
                         <ThemeSwitcher />
                         <button onClick={() => setMobileMenuOpen(true)} className="p-2 text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 rounded-lg">
