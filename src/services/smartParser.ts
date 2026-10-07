@@ -30,7 +30,43 @@ mockSyllabus.forEach(subjectSyllabus => {
     });
 });
 
+const SHORTHAND_MAP: Record<string, string> = {
+    'py': 'physics',
+    'com': 'combined',
+    'ch': 'chemistry',
+    'p': 'personal',
+    'pr': 'personal',
+    'ex': 'exercise',
+    'en': 'entertainment'
+};
+
 export const generateTodoSuggestions = async (text: string): Promise<Partial<TodoItem>[]> => {
+    // 0. Check for explicit shorthand mode
+    if (text.trim().startsWith('.')) {
+        const results: Partial<TodoItem>[] = [];
+        const tokens = text.split(/(?=\.[a-zA-Z]+\s)/);
+        
+        tokens.forEach(token => {
+            const match = token.trim().match(/^\.([a-zA-Z]+)\s+(.*)/);
+            if (match) {
+                const code = match[1].toLowerCase();
+                const content = match[2];
+                const subjectId = SHORTHAND_MAP[code] || 'personal';
+                
+                const items = content.split(',').map(s => s.trim()).filter(s => s.length > 0);
+                items.forEach(item => {
+                    results.push({
+                        title: item.charAt(0).toUpperCase() + item.slice(1),
+                        subjectId: subjectId,
+                        note: ''
+                    });
+                });
+            }
+        });
+        
+        if (results.length > 0) return results;
+    }
+
     // 1. Split the text into separate tasks.
     const splitRegex = /(?:\b(?:and|then|also)\b|\s*,\s*|\s*\.\s*|\s*;\s*)/i;
     let rawTasks = text.split(splitRegex)
