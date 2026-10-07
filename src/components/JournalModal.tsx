@@ -14,6 +14,7 @@ const JournalModal: React.FC<JournalModalProps> = ({ isOpen, onClose, day }) => 
     const [content, setContent] = useState('');
     const [photos, setPhotos] = useState<string[]>([]);
     const [isSaved, setIsSaved] = useState(false);
+    const [isUploading, setIsUploading] = useState(false);
     
     useEffect(() => {
         if (isOpen && day) {
@@ -31,19 +32,35 @@ const JournalModal: React.FC<JournalModalProps> = ({ isOpen, onClose, day }) => 
         }
     }, [isOpen, day]);
 
-    const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files;
-        if (!files) return;
+        if (!files || files.length === 0) return;
 
-        Array.from(files).forEach(file => {
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                if (event.target?.result) {
-                    setPhotos(prev => [...prev, event.target!.result as string]);
+        setIsUploading(true);
+        const newPhotos: string[] = [];
+
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('upload_preset', 'splanner');
+
+            try {
+                const res = await fetch('https://api.cloudinary.com/v1_1/nb8n7zxk/image/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await res.json();
+                if (data.secure_url) {
+                    newPhotos.push(data.secure_url);
                 }
-            };
-            reader.readAsDataURL(file);
-        });
+            } catch (err) {
+                console.error("Cloudinary upload error", err);
+            }
+        }
+        
+        setPhotos(prev => [...prev, ...newPhotos]);
+        setIsUploading(false);
     };
 
     const handleSave = () => {
@@ -100,7 +117,8 @@ const JournalModal: React.FC<JournalModalProps> = ({ isOpen, onClose, day }) => 
                             <label className="cursor-pointer flex items-center gap-2 text-sm font-bold text-indigo-500 hover:text-indigo-600 bg-indigo-50 dark:bg-indigo-500/10 px-3 py-1.5 rounded-lg transition-colors">
                                 <ImageIcon className="w-4 h-4" />
                                 Add Photo
-                                <input type="file" accept="image/*" multiple onChange={handlePhotoUpload} className="hidden" />
+                                <input type="file" accept="image/*" multiple onChange={handlePhotoUpload} className="hidden" disabled={isUploading} />
+                                {isUploading && <span className="ml-2 animate-pulse text-xs">Uploading...</span>}
                             </label>
                         </div>
                         
@@ -126,7 +144,7 @@ const JournalModal: React.FC<JournalModalProps> = ({ isOpen, onClose, day }) => 
                 <div className="p-6 border-t border-slate-100 dark:border-slate-800 shrink-0 bg-slate-50 dark:bg-slate-900 rounded-b-3xl">
                     <button 
                         onClick={handleSave}
-                        disabled={!content.trim()}
+                        disabled={!content.trim() || isUploading}
                         className="w-full flex items-center justify-center gap-2 py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-black text-lg rounded-2xl shadow-xl shadow-indigo-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         {isSaved ? <><CheckCircle2 className="w-6 h-6" /> Saved!</> : 'Save Entry'}
