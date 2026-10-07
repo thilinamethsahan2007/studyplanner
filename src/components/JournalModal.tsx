@@ -112,7 +112,7 @@ const JournalModal: React.FC<JournalModalProps> = ({ isOpen, onClose, day }) => 
     const handleSave = () => {
         const completedTasks = (day.items || []).filter(i => i.done).map(i => ({ title: i.title, subjectId: i.subjectId }));
         const entry: JournalEntry = {
-            id: journal-,
+            id: "journal-" + Date.now(),
             date: day.dateStr,
             content,
             photos,
