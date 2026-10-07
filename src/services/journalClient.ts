@@ -17,10 +17,12 @@ const MOCK_ENTRY: JournalEntry = {
 };
 
 export const getJournalEntries = async (): Promise<JournalEntry[]> => {
+    let entries: JournalEntry[] = [];
+    
     if (supabase) {
         const { data, error } = await supabase.from('journal_entries').select('*').order('date', { ascending: false });
         if (!error && data) {
-            return data.map(d => ({
+            entries = data.map(d => ({
                 id: d.id,
                 date: d.date,
                 content: d.content,
@@ -30,16 +32,24 @@ export const getJournalEntries = async (): Promise<JournalEntry[]> => {
         }
     }
     
-    // Fallback to local storage
-    try {
-        const data = localStorage.getItem(STORAGE_KEY);
-        if (data) {
-            return JSON.parse(data);
+    // If Supabase returned nothing, check local storage
+    if (entries.length === 0) {
+        try {
+            const localData = localStorage.getItem(STORAGE_KEY);
+            if (localData) {
+                entries = JSON.parse(localData);
+            }
+        } catch (e) {
+            console.error('Failed to load journals', e);
         }
-    } catch (e) {
-        console.error('Failed to load journals', e);
     }
-    return [MOCK_ENTRY];
+    
+    // If absolutely nothing exists, return the mock entry to show them what it looks like
+    if (entries.length === 0) {
+        return [MOCK_ENTRY];
+    }
+    
+    return entries;
 };
 
 export const saveJournalEntry = async (entry: JournalEntry): Promise<void> => {
