@@ -188,7 +188,7 @@ const App: React.FC = () => {
                             SP
                         </div>
                         <div>
-                            <h1 className="font-black bg-gradient-to-r from-amber-300 via-yellow-500 to-amber-600 bg-clip-text text-transparent drop-shadow-sm leading-tight text-xl tracking-tight">Tracker</h1>
+                            <h1 className="font-black bg-gradient-to-r from-indigo-400 via-indigo-500 to-purple-500 bg-clip-text text-transparent drop-shadow-sm leading-tight text-xl tracking-tight">Tracker</h1>
                             
                         </div>
                     </div>
@@ -224,7 +224,7 @@ const App: React.FC = () => {
                 <div className="md:hidden fixed top-0 left-0 right-0 h-14 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-black/5 dark:border-white/10 z-40 flex items-center justify-between px-4">
                     <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
                         <div className="w-8 h-8 bg-gradient-to-tr from-indigo-500 to-purple-500 rounded-lg shadow-sm flex items-center justify-center text-white font-black text-sm">TR</div>
-                        <span className="font-black bg-gradient-to-r from-amber-300 via-yellow-500 to-amber-600 bg-clip-text text-transparent drop-shadow-sm text-lg tracking-tight">Tracker</span>
+                        <span className="font-black bg-gradient-to-r from-indigo-400 via-indigo-500 to-purple-500 bg-clip-text text-transparent drop-shadow-sm text-lg tracking-tight">Tracker</span>
                     </Link>
                     <div className="flex items-center gap-2">
                         <ThemeSwitcher />

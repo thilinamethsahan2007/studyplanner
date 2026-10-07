@@ -103,7 +103,7 @@ const LogBookPage: React.FC<LogBookPageProps> = ({ logs, weeklySummaries, subjec
     return (
         <div className="max-w-4xl mx-auto space-y-12">
             <div>
-                <h1 className="text-2xl sm:text-4xl font-black bg-gradient-to-r from-amber-300 via-yellow-500 to-amber-600 bg-clip-text text-transparent drop-shadow-sm mb-2 tracking-tight">Log Book</h1>
+                <h1 className="text-2xl sm:text-4xl font-black bg-gradient-to-r from-indigo-400 via-indigo-500 to-purple-500 bg-clip-text text-transparent drop-shadow-sm mb-2 tracking-tight">Log Book</h1>
                 <p className="text-slate-500 dark:text-slate-400">Your weekly study journal and historical performance.</p>
             </div>
 

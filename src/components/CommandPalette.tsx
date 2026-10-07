@@ -40,7 +40,7 @@ const CommandPalette: React.FC = () => {
 
     return (
         <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[100] flex items-start justify-center pt-[15vh]">
-            <div className="bg-white dark:bg-slate-800 w-full max-w-lg rounded-xl shadow-2xl overflow-hidden ring-1 ring-black/5 dark:ring-white/10">
+            <div className="bg-white dark:bg-slate-800 w-full max-w-lg mx-4 rounded-xl shadow-2xl overflow-hidden ring-1 ring-black/5 dark:ring-white/10">
                 <div className="flex items-center px-4 border-b border-slate-100 dark:border-slate-700">
                     <svg className="w-5 h-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
                     <input 
