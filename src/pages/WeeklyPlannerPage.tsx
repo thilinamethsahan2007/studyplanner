@@ -133,12 +133,12 @@ const WeeklyPlannerPage: React.FC = () => {
   return (
     <div className="p-4 md:p-8 max-w-7xl mx-auto h-[calc(100vh-4rem)] overflow-hidden flex flex-col">
       <div className="mb-6 shrink-0">
-        <h1 className="text-3xl font-bold text-slate-800 dark:text-slate-100">Weekly Backlog Planner</h1>
+        <h1 className="text-2xl md:text-3xl font-bold text-slate-800 dark:text-slate-100">Weekly Backlog Planner</h1>
         <p className="text-slate-500 dark:text-slate-400 mt-1">Brain dump your workload into the Inbox, then drag and drop to schedule!</p>
       </div>
       
       <DragDropContext onDragEnd={onDragEnd}>
-        <div className="flex-1 overflow-y-auto pb-8 pr-2">
+        <div className="flex-1 overflow-y-auto pb-8">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 auto-rows-fr">
             {weekDays.map((col, index) => {
               const isInbox = index === 0;

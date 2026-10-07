@@ -178,7 +178,7 @@ const App: React.FC = () => {
 
     return (
         <HashRouter>
-            <div className="flex h-screen bg-slate-200 dark:bg-black p-2 md:p-3 gap-2 md:gap-3 font-sans overflow-hidden">
+            <div className="flex h-screen bg-white dark:bg-slate-950 md:bg-slate-200 md:dark:bg-black p-0 pt-14 md:p-3 md:pt-3 gap-0 md:gap-3 font-sans overflow-hidden">
                 
                 {/* Arc-style Floating Sidebar (Desktop) */}
                 <nav className="hidden md:flex w-64 flex-col bg-white/50 dark:bg-slate-900/50 backdrop-blur-2xl border border-white/40 dark:border-white/10 rounded-2xl shadow-xl overflow-hidden transition-all duration-300 relative z-10">
@@ -256,7 +256,7 @@ const App: React.FC = () => {
                 )}
 
                 {/* Main Viewport Window */}
-                <main className="flex-1 relative bg-white dark:bg-slate-950 rounded-2xl md:rounded-[2rem] shadow-2xl ring-1 ring-black/5 dark:ring-white/10 overflow-hidden flex flex-col mt-14 md:mt-0">
+                <main className="flex-1 relative bg-white dark:bg-slate-950 rounded-none md:rounded-[2rem] shadow-none md:shadow-2xl ring-0 md:ring-1 ring-black/5 md:dark:ring-white/10 overflow-hidden flex flex-col ">
                     <CommandPalette />
                     <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-10 w-full h-full relative z-0 scrollbar-hide">
                         <Routes>

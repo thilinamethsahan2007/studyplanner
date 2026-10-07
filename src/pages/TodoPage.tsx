@@ -138,7 +138,7 @@ const TodoPage: React.FC<TodoPageProps> = ({ day, onDayChange, classes, logs, on
       return n + (s[(v - 20) % 10] || s[v] || s[0]);
     };
 
-    return `${getOrdinal(day)} ${weekday} ${yearNum}`;
+    return `${weekday}, ${date.toLocaleDateString('en-US', { month: 'long' })} ${getOrdinal(day)}, ${yearNum}`;
   }
 
   const todayWeekday = currentTime.getDay(); // Sunday - 0, Monday - 1, ...
