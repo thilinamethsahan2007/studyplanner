@@ -258,7 +258,7 @@ const App: React.FC = () => {
                 )}
 
                 {/* Main Viewport Window */}
-                <main className="flex-1 relative bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl rounded-none md:rounded-[2.5rem] shadow-none md:shadow-2xl border border-white/50 dark:border-white/10 overflow-hidden flex flex-col ring-1 ring-white/20 dark:ring-white/5">
+                <main className="flex-1 relative bg-white/20 dark:bg-slate-900/30 backdrop-blur-md rounded-none md:rounded-[2.5rem] shadow-none md:shadow-2xl border border-white/50 dark:border-white/10 overflow-hidden flex flex-col ring-1 ring-white/20 dark:ring-white/5">
                     <CommandPalette />
                     <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-10 w-full h-full relative z-0 scrollbar-hide">
                         <Routes>
