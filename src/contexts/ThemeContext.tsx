@@ -10,16 +10,7 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [theme, setTheme] = useState<Theme>(() => {
-    if (typeof window === 'undefined') {
-      return 'light';
-    }
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'light' || savedTheme === 'dark') {
-      return savedTheme;
-    }
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-  });
+  const [theme, setTheme] = useState<Theme>('dark'); // Locked to dark mode for Navy/Gold aesthetic
 
   useEffect(() => {
     const root = window.document.documentElement;

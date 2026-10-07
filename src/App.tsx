@@ -9,7 +9,6 @@ import CmsPage from './pages/CmsPage';
 import JournalPage from './pages/JournalPage';
 import { mockSubjects } from './mockData';
 import { Syllabus, Test, Class, LogEntry, WeeklySummary, Day } from './types';
-import ThemeSwitcher from './components/ThemeSwitcher';
 import CommandPalette from './components/CommandPalette';
 import apiClient from './services/apiClient';
 // Lucide Icons
@@ -216,7 +215,7 @@ const App: React.FC = () => {
                         <div className="flex-1">
                             <SidebarLink to="/cms" icon={<Settings className="w-5 h-5" />} label="Settings" />
                         </div>
-                        <ThemeSwitcher />
+                        
                     </div>
                 </nav>
 
@@ -227,7 +226,7 @@ const App: React.FC = () => {
                         <span className="font-black bg-gradient-to-r from-indigo-400 via-indigo-500 to-purple-500 bg-clip-text text-transparent drop-shadow-sm text-lg tracking-tight">Tracker</span>
                     </Link>
                     <div className="flex items-center gap-2">
-                        <ThemeSwitcher />
+                        
                         <button onClick={() => setMobileMenuOpen(true)} className="p-2 text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 rounded-lg">
                             <Menu className="w-5 h-5" />
                         </button>
