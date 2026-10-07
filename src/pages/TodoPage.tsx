@@ -257,7 +257,7 @@ const TodoPage: React.FC<TodoPageProps> = ({ day, onDayChange, classes, logs, on
   }
 
   return (
-    <div className="mx-auto max-w-3xl w-full">
+    <div className="mx-auto max-w-3xl w-full h-auto md:h-full flex flex-col pb-4">
               {isAllDone && <Confetti width={width} height={height} recycle={false} numberOfPieces={800} gravity={0.15} />}
         <JournalModal 
             isOpen={isJournalModalOpen}
@@ -281,7 +281,7 @@ const TodoPage: React.FC<TodoPageProps> = ({ day, onDayChange, classes, logs, on
         
 
         {/* Header Section */}
-        <div className="mb-8 flex justify-center">
+        <div className="mb-4 sm:mb-6 shrink-0 flex justify-center">
             <div className="grid grid-cols-[max-content_max-content] items-center gap-x-2 sm:gap-x-4">
                 <div className="row-span-2 text-8xl sm:text-[10rem] font-black bg-gradient-to-r from-purple-400 via-purple-500 to-pink-500 bg-clip-text text-transparent drop-shadow-sm tracking-tighter leading-[0.8]">
                     TO
@@ -296,7 +296,7 @@ const TodoPage: React.FC<TodoPageProps> = ({ day, onDayChange, classes, logs, on
         </div>
 
         {/* Countdown Section */}
-        <div className="text-center mb-8 p-4 bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
+        <div className="shrink-0 text-center mb-4 sm:mb-6 p-4 bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
             <h3 className="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest">A/L Exam Countdown</h3>
             <div className="flex justify-center items-baseline gap-4 mt-2">
                 <div>
@@ -314,7 +314,7 @@ const TodoPage: React.FC<TodoPageProps> = ({ day, onDayChange, classes, logs, on
         </div>
 
         {/* Date, Tags */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
+        <div className="shrink-0 flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
             <div>
                 <p className="text-lg sm:text-xl font-semibold text-slate-600 dark:text-slate-300">
                     {formatDate(day.date)}
@@ -335,7 +335,7 @@ const TodoPage: React.FC<TodoPageProps> = ({ day, onDayChange, classes, logs, on
         </div>
 
         {/* New Smart Input */}
-        <SmartTodoInput onAddTodos={addTodos} />
+        <div className="shrink-0 mb-4 sm:mb-6"><SmartTodoInput onAddTodos={addTodos} /></div>
 
                 {/* Time-Gated Journal Prompt (9:00 PM - 11:30 PM) */}
         {(() => {
@@ -370,7 +370,7 @@ const TodoPage: React.FC<TodoPageProps> = ({ day, onDayChange, classes, logs, on
         })()}
 
         {/* Todo List Container */}
-        <div className="bg-white/50 dark:bg-slate-800/50 backdrop-blur-xl border border-white/40 dark:border-slate-700/50 p-4 sm:p-6 rounded-3xl shadow-xl shadow-black/5 mb-8 max-h-[60vh] overflow-y-auto scrollbar-hide">
+        <div className="flex-1 min-h-[400px] md:min-h-0 bg-white/50 dark:bg-slate-800/50 backdrop-blur-xl border border-white/40 dark:border-slate-700/50 p-4 sm:p-6 rounded-3xl shadow-xl shadow-black/5 overflow-y-auto scrollbar-hide">
             <TodoList todos={day.items} onToggle={toggleTodo} subjects={mockSubjects} onStartPomodoro={handleStartPomodoro} />
         </div>
     </div>
