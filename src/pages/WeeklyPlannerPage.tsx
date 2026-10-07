@@ -133,17 +133,17 @@ const WeeklyPlannerPage: React.FC = () => {
   if (loading) return <div className="p-8 text-center text-slate-500">Loading weekly planner...</div>;
 
   return (
-      <div className="p-4 md:p-6 lg:p-8 max-w-[1600px] mx-auto h-[calc(100vh-4rem)] overflow-hidden flex flex-col">
+      <div className="p-4 md:p-6 lg:p-8 max-w-[1600px] mx-auto min-h-[calc(100vh-4rem)] lg:h-[calc(100vh-4rem)] overflow-y-auto lg:overflow-hidden flex flex-col">
         <div className="mb-6 shrink-0">
           <h1 className="text-3xl md:text-4xl font-black bg-gradient-to-r from-purple-400 via-purple-500 to-pink-500 bg-clip-text text-transparent tracking-tight">Weekly Backlog Planner</h1>
           <p className="text-slate-500 dark:text-slate-400 mt-1">Brain dump your workload into the Inbox, then drag to schedule!</p>
         </div>
         
         <DragDropContext onDragEnd={onDragEnd}>
-          <div className="flex-1 flex flex-col lg:flex-row gap-6 overflow-hidden">
+          <div className="flex-1 flex flex-col lg:flex-row gap-6 lg:overflow-hidden">
             
             {/* LEFT PANE: MASTER INBOX */}
-            <div className="w-full lg:w-1/3 xl:w-1/4 flex flex-col h-full bg-slate-50 dark:bg-slate-800/30 rounded-3xl border-2 border-dashed border-slate-300 dark:border-slate-700 overflow-hidden shrink-0">
+            <div className="w-full lg:w-1/3 xl:w-1/4 flex flex-col h-[50vh] lg:h-full bg-slate-50 dark:bg-slate-800/30 rounded-3xl border-2 border-dashed border-slate-300 dark:border-slate-700 overflow-hidden shrink-0">
               {(() => {
                 const col = weekDays[0];
                 if (!col) return null;
@@ -227,7 +227,7 @@ const WeeklyPlannerPage: React.FC = () => {
             </div>
 
             {/* RIGHT PANE: HORIZONTAL KANBAN DAYS */}
-            <div className="flex-1 flex gap-5 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-slate-700 scrollbar-track-transparent">
+            <div className="flex-1 flex gap-5 overflow-x-auto pb-4 min-h-[50vh] lg:min-h-0 scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-slate-700 scrollbar-track-transparent">
               {weekDays.slice(1).map((col) => {
                 const isToday = new Date().toISOString().split('T')[0] === col.dateStr;
                 const items = weekData[col.dateStr] || [];
