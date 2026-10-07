@@ -3,6 +3,7 @@ import apiClient from '../services/apiClient';
 import { TodoItem } from '../types';
 import { generateTodoSuggestions } from '../services/smartParser';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
+import { CheckCircle2, Circle, Trash2 } from 'lucide-react';
 
 const WeeklyPlannerPage: React.FC = () => {
   const [weekDays, setWeekDays] = useState<{ date: Date, dateStr: string, title: string, subtitle: string }[]>([]);
@@ -131,110 +132,167 @@ const WeeklyPlannerPage: React.FC = () => {
   if (loading) return <div className="p-8 text-center text-slate-500">Loading weekly planner...</div>;
 
   return (
-    <div className="p-4 md:p-8 max-w-7xl mx-auto h-[calc(100vh-4rem)] overflow-hidden flex flex-col">
-      <div className="mb-6 shrink-0">
-        <h1 className="text-3xl md:text-4xl font-black bg-gradient-to-r from-purple-400 via-purple-500 to-pink-500 bg-clip-text text-transparent drop-shadow-sm tracking-tight">Weekly Backlog Planner</h1>
-        <p className="text-slate-500 dark:text-slate-400 mt-1">Brain dump your workload into the Inbox, then drag and drop to schedule!</p>
-      </div>
-      
-      <DragDropContext onDragEnd={onDragEnd}>
-        <div className="flex-1 overflow-y-auto pb-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 auto-rows-fr">
-            {weekDays.map((col, index) => {
-              const isInbox = index === 0;
-              const isToday = !isInbox && new Date().toISOString().split('T')[0] === col.dateStr;
-              const items = weekData[col.dateStr] || [];
+      <div className="p-4 md:p-6 lg:p-8 max-w-[1600px] mx-auto h-[calc(100vh-4rem)] overflow-hidden flex flex-col">
+        <div className="mb-6 shrink-0">
+          <h1 className="text-3xl md:text-4xl font-black bg-gradient-to-r from-purple-400 via-purple-500 to-pink-500 bg-clip-text text-transparent tracking-tight">Weekly Backlog Planner</h1>
+          <p className="text-slate-500 dark:text-slate-400 mt-1">Brain dump your workload into the Inbox, then drag to schedule!</p>
+        </div>
+        
+        <DragDropContext onDragEnd={onDragEnd}>
+          <div className="flex-1 flex flex-col lg:flex-row gap-6 overflow-hidden">
+            
+            {/* LEFT PANE: MASTER INBOX */}
+            <div className="w-full lg:w-1/3 xl:w-1/4 flex flex-col h-full bg-slate-50 dark:bg-slate-800/30 rounded-3xl border-2 border-dashed border-slate-300 dark:border-slate-700 overflow-hidden shrink-0">
+              {(() => {
+                const col = weekDays[0];
+                if (!col) return null;
+                const items = weekData[col.dateStr] || [];
+                return (
+                  <>
+                    <div className="shrink-0 p-5 border-b border-slate-200 dark:border-slate-700 bg-white/50 dark:bg-slate-800/50">
+                      <h3 className="font-bold text-lg text-slate-800 dark:text-slate-100 flex items-center justify-between">
+                        {col.title}
+                        <span className="text-xs bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 px-2.5 py-1 rounded-full font-bold">{items.length}</span>
+                      </h3>
+                      <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                        {col.subtitle}
+                      </p>
+                    </div>
+                    
+                    <div className="shrink-0 p-4 border-b border-slate-200 dark:border-slate-700 bg-white/30 dark:bg-slate-900/20">
+                      <form onSubmit={(e) => handleSmartAdd(col.dateStr, e)}>
+                        <input
+                          type="text"
+                          placeholder="Dump workload here..."
+                          className="w-full text-sm px-4 py-3 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30 dark:text-slate-100 shadow-sm transition-all"
+                          value={inputs[col.dateStr] || ''}
+                          onChange={e => setInputs({ ...inputs, [col.dateStr]: e.target.value })}
+                        />
+                      </form>
+                    </div>
 
-              // Bento Grid logic
-              let bentoClasses = "col-span-1";
-              if (isInbox) {
-                bentoClasses = "md:col-span-2 md:row-span-2"; // 2x2 massive block
-              } else if (index === 7) {
-                bentoClasses = "md:col-span-2 lg:col-span-2"; // Sunday stretches 2 cols on bottom
-              }
-
-              return (
-                <div key={col.dateStr} className={`${bentoClasses} flex flex-col min-h-[250px] overflow-hidden bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl rounded-3xl shadow-xl shadow-black/5 border transition-all ${isToday ? 'border-indigo-500 ring-2 ring-indigo-500/50 shadow-[0_0_15px_rgba(20,184,166,0.4)]' : isInbox ? 'border-dashed border-2 border-slate-300 dark:border-slate-600/70 bg-slate-100/50 dark:bg-slate-700/40' : 'border-white/50 dark:border-slate-700/50 hover:bg-white/70 dark:hover:bg-slate-800/80'}`}>
-                  
-                  {/* Header */}
-                  <div className={`shrink-0 p-4 border-b border-slate-100/50 dark:border-slate-700/50 rounded-t-3xl ${isToday ? 'bg-indigo-500/10 dark:bg-indigo-500/20' : 'bg-white/30 dark:bg-slate-900/30'}`}>
-                    <h3 className="font-semibold text-slate-800 dark:text-slate-100 flex items-center justify-between">
-                      {col.title}
-                      <span className="text-xs bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded-full">{items.length}</span>
-                    </h3>
-                    <p className="text-sm text-slate-500 dark:text-slate-400">
-                      {col.subtitle}
-                    </p>
-                  </div>
-
-                  {/* Smart Input (Top of list) */}
-                  <div className="shrink-0 p-3 border-b border-slate-100/50 dark:border-slate-700/50 bg-white/40 dark:bg-slate-900/40">
-                    <form onSubmit={(e) => handleSmartAdd(col.dateStr, e)}>
-                      <input
-                        type="text"
-                        placeholder={isInbox ? "Dump workload here..." : "Add specific task..."}
-                        className="w-full text-sm px-4 py-3 bg-white/70 dark:bg-slate-950/70 backdrop-blur-md border border-slate-200/50 dark:border-slate-700/50 rounded-2xl focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/50 dark:text-slate-200 shadow-inner transition-all placeholder-slate-400/80 dark:placeholder-slate-500/80"
-                        value={inputs[col.dateStr] || ''}
-                        onChange={e => setInputs({ ...inputs, [col.dateStr]: e.target.value })}
-                      />
-                    </form>
-                  </div>
-
-                  {/* Task List (Droppable) */}
-                  <Droppable droppableId={col.dateStr}>
-                    {(provided, snapshot) => (
-                      <div 
-                        ref={provided.innerRef} 
-                        {...provided.droppableProps}
-                        className={`flex-1 overflow-y-auto p-3 space-y-3 transition-colors ${snapshot.isDraggingOver ? 'bg-slate-100 dark:bg-slate-700/30' : ''}`}
-                      >
-                        {items.map((item, index) => (
-                          <Draggable key={item.id} draggableId={item.id} index={index}>
-                            {(provided, snapshot) => (
-                              <div
-                                ref={provided.innerRef}
-                                {...provided.draggableProps}
-                                {...provided.dragHandleProps}
-                                className={`group bg-white dark:bg-slate-700 p-3 rounded-lg border shadow-sm ${snapshot.isDragging ? 'shadow-lg border-indigo-300 ring-1 ring-indigo-300' : 'border-slate-200 dark:border-slate-600'} relative`}
-                              >
-                                <div className="flex items-start gap-3">
-                                  <button onClick={() => handleToggleDone(col.dateStr, item.id)} className="mt-0.5 shrink-0">
-                                    {item.done ? (
-                                      <div className="w-5 h-5 rounded-full bg-indigo-500 flex items-center justify-center">
-                                        <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
-                                      </div>
-                                    ) : (
-                                      <div className="w-5 h-5 rounded-full border-2 border-slate-300 dark:border-slate-500" />
-                                    )}
-                                  </button>
-                                  <div className="min-w-0 flex-1">
-                                    <p className={`text-sm font-medium break-words ${item.done ? 'text-slate-400 line-through' : 'text-slate-700 dark:text-slate-200'}`}>
-                                      {item.title}
-                                    </p>
-                                    <span className={`inline-block mt-1.5 px-2 py-0.5 rounded-full text-[10px] font-medium uppercase tracking-wider ${getSubjectColor(item.subjectId)}`}>
-                                      {item.subjectId}
-                                    </span>
+                    <Droppable droppableId={col.dateStr}>
+                      {(provided, snapshot) => (
+                        <div
+                          ref={provided.innerRef}
+                          {...provided.droppableProps}
+                          className={`flex-1 p-4 overflow-y-auto scrollbar-hide transition-colors ${snapshot.isDraggingOver ? 'bg-blue-50/50 dark:bg-blue-900/10' : ''}`}
+                        >
+                          {items.map((item, index) => (
+                            <Draggable key={item.id} draggableId={item.id} index={index}>
+                              {(provided, snapshot) => (
+                                <div
+                                  ref={provided.innerRef}
+                                  {...provided.draggableProps}
+                                  {...provided.dragHandleProps}
+                                  className={`p-4 mb-3 rounded-2xl text-sm border shadow-sm transition-all ${snapshot.isDragging ? 'bg-white dark:bg-slate-800 border-blue-400 dark:border-blue-500 shadow-xl scale-105 rotate-2 z-50' : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-500 hover:shadow-md'}`}
+                                >
+                                  <div className="flex items-start gap-3">
+                                    <button onClick={() => handleToggleDone(col.dateStr, item.id)} className="mt-0.5 shrink-0 text-slate-400 hover:text-blue-500 transition-colors">
+                                      {item.done ? <CheckCircle2 className="w-5 h-5 text-blue-500" /> : <Circle className="w-5 h-5" />}
+                                    </button>
+                                    <div className="flex-1 min-w-0">
+                                      <p className={`font-semibold truncate ${item.done ? 'text-slate-400 line-through' : 'text-slate-700 dark:text-slate-200'}`}>
+                                        {item.title}
+                                      </p>
+                                    </div>
+                                    <button onClick={() => handleDelete(col.dateStr, item.id)} className="shrink-0 text-slate-300 hover:text-rose-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                                      <Trash2 className="w-4 h-4" />
+                                    </button>
                                   </div>
                                 </div>
-                              </div>
-                            )}
-                          </Draggable>
-                        ))}
-                        {provided.placeholder}
-                        {items.length === 0 && !snapshot.isDraggingOver && (
-                          <p className="text-sm text-center text-slate-400 dark:text-slate-500 mt-6 italic">Drop tasks here</p>
-                        )}
-                      </div>
-                    )}
-                  </Droppable>
-                </div>
-              );
-            })}
+                              )}
+                            </Draggable>
+                          ))}
+                          {provided.placeholder}
+                        </div>
+                      )}
+                    </Droppable>
+                  </>
+                );
+              })()}
+            </div>
+
+            {/* RIGHT PANE: HORIZONTAL KANBAN DAYS */}
+            <div className="flex-1 flex gap-5 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-slate-700 scrollbar-track-transparent">
+              {weekDays.slice(1).map((col) => {
+                const isToday = new Date().toISOString().split('T')[0] === col.dateStr;
+                const items = weekData[col.dateStr] || [];
+
+                return (
+                  <div key={col.dateStr} className={`w-[320px] min-w-[320px] flex flex-col h-full bg-white dark:bg-slate-800 rounded-3xl shadow-sm border transition-all ${isToday ? 'border-blue-500 ring-2 ring-blue-500/20 shadow-lg' : 'border-slate-200 dark:border-slate-700'}`}>
+                    
+                    {/* Header */}
+                    <div className={`shrink-0 p-5 border-b border-slate-100 dark:border-slate-700 rounded-t-3xl ${isToday ? 'bg-blue-50 dark:bg-blue-900/20' : 'bg-slate-50 dark:bg-slate-900/40'}`}>
+                      <h3 className="font-bold text-lg text-slate-800 dark:text-slate-100 flex items-center justify-between">
+                        {col.title}
+                        <span className="text-xs bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded-full font-bold shadow-sm">{items.length}</span>
+                      </h3>
+                      <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                        {col.subtitle}
+                      </p>
+                    </div>
+
+                    {/* Smart Input */}
+                    <div className="shrink-0 p-3 border-b border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800">
+                      <form onSubmit={(e) => handleSmartAdd(col.dateStr, e)}>
+                        <input
+                          type="text"
+                          placeholder="Add task..."
+                          className="w-full text-sm px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:text-slate-200 transition-all placeholder-slate-400"
+                          value={inputs[col.dateStr] || ''}
+                          onChange={e => setInputs({ ...inputs, [col.dateStr]: e.target.value })}
+                        />
+                      </form>
+                    </div>
+
+                    {/* Droppable Area */}
+                    <Droppable droppableId={col.dateStr}>
+                      {(provided, snapshot) => (
+                        <div
+                          ref={provided.innerRef}
+                          {...provided.droppableProps}
+                          className={`flex-1 p-3 overflow-y-auto scrollbar-hide transition-colors ${snapshot.isDraggingOver ? 'bg-slate-50 dark:bg-slate-700/30' : ''}`}
+                        >
+                          {items.map((item, index) => (
+                            <Draggable key={item.id} draggableId={item.id} index={index}>
+                              {(provided, snapshot) => (
+                                <div
+                                  ref={provided.innerRef}
+                                  {...provided.draggableProps}
+                                  {...provided.dragHandleProps}
+                                  className={`group p-3 mb-2 rounded-2xl text-sm border shadow-sm transition-all ${snapshot.isDragging ? 'bg-white dark:bg-slate-800 border-blue-400 shadow-[0_10px_20px_rgba(0,0,0,0.15)] scale-105 rotate-2 z-50' : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-500 hover:shadow-md'}`}
+                                >
+                                  <div className="flex items-start gap-3">
+                                    <button onClick={() => handleToggleDone(col.dateStr, item.id)} className="mt-0.5 shrink-0 text-slate-400 hover:text-blue-500 transition-colors">
+                                      {item.done ? <CheckCircle2 className="w-5 h-5 text-blue-500" /> : <Circle className="w-5 h-5" />}
+                                    </button>
+                                    <div className="flex-1 min-w-0">
+                                      <p className={`font-semibold leading-snug ${item.done ? 'text-slate-400 line-through' : 'text-slate-700 dark:text-slate-200'}`}>
+                                        {item.title}
+                                      </p>
+                                    </div>
+                                    <button onClick={() => handleDelete(col.dateStr, item.id)} className="shrink-0 text-slate-300 hover:text-rose-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                                      <Trash2 className="w-4 h-4" />
+                                    </button>
+                                  </div>
+                                </div>
+                              )}
+                            </Draggable>
+                          ))}
+                          {provided.placeholder}
+                        </div>
+                      )}
+                    </Droppable>
+                  </div>
+                );
+              })}
+            </div>
+            
           </div>
-        </div>
-      </DragDropContext>
-    </div>
-  );
+        </DragDropContext>
+      </div>
+    );
 };
 
 export default WeeklyPlannerPage;
