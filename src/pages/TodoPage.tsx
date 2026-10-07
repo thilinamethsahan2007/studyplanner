@@ -255,7 +255,7 @@ const TodoPage: React.FC<TodoPageProps> = ({ day, onDayChange, classes, logs, on
   }
 
   return (
-    <div className="mx-auto max-w-3xl w-full">
+    <div className="mx-auto max-w-3xl w-full h-full flex flex-col">
       {isAllDone && <Confetti width={width} height={height} recycle={false} numberOfPieces={800} gravity={0.15} />}
         <LogTimeModal 
             isOpen={isLogModalOpen}
@@ -274,7 +274,7 @@ const TodoPage: React.FC<TodoPageProps> = ({ day, onDayChange, classes, logs, on
         
 
         {/* Header Section */}
-        <div className="mb-8 flex justify-center">
+        <div className="mb-8 flex justify-center shrink-0">
             <div className="grid grid-cols-[max-content_max-content] items-center gap-x-2 sm:gap-x-4">
                 <div className="row-span-2 text-8xl sm:text-[10rem] font-bold text-indigo-600 dark:text-indigo-400 tracking-tighter leading-[0.8]">
                     TO
@@ -289,7 +289,7 @@ const TodoPage: React.FC<TodoPageProps> = ({ day, onDayChange, classes, logs, on
         </div>
 
         {/* Countdown Section */}
-        <div className="text-center mb-8 p-4 bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
+        <div className="text-center mb-8 p-4 shrink-0 bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
             <h3 className="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest">A/L Exam Countdown</h3>
             <div className="flex justify-center items-baseline gap-4 mt-2">
                 <div>
@@ -307,7 +307,7 @@ const TodoPage: React.FC<TodoPageProps> = ({ day, onDayChange, classes, logs, on
         </div>
 
         {/* Date, Tags */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 shrink-0">
             <div>
                 <p className="text-lg sm:text-xl font-semibold text-slate-600 dark:text-slate-300">
                     {formatDate(day.date)}
@@ -328,10 +328,10 @@ const TodoPage: React.FC<TodoPageProps> = ({ day, onDayChange, classes, logs, on
         </div>
 
         {/* New Smart Input */}
-        <SmartTodoInput onAddTodos={addTodos} />
+        <div className="shrink-0"><SmartTodoInput onAddTodos={addTodos} /></div>
 
         {/* Todo List Container */}
-        <div className="bg-white dark:bg-slate-800 p-4 sm:p-6 rounded-2xl shadow-sm mb-8">
+        <div className="flex-1 min-h-0 overflow-y-auto bg-white dark:bg-slate-800 p-4 sm:p-6 rounded-2xl shadow-sm mb-8 scrollbar-hide">
             <TodoList todos={day.items} onToggle={toggleTodo} subjects={mockSubjects} onStartPomodoro={handleStartPomodoro} />
         </div>
     </div>
