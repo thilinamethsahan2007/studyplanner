@@ -72,7 +72,7 @@ const SubunitChecklist: React.FC<SubunitChecklistProps> = ({ subjectId, unit, on
 
       <div className="mb-6">
         <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2.5">
-          <div className="bg-indigo-600 h-2.5 rounded-full" style={{ width: `${progress}%` }}></div>
+          <div className="bg-indigo-600 h-2.5 rounded-full shadow-[0_0_10px_rgba(20,184,166,0.6)] transition-all duration-1000 ease-out" style={{ width: `${progress}%` }}></div>
         </div>
         <p className="text-right text-sm text-slate-500 dark:text-slate-400 mt-1">{progress}% Complete</p>
       </div>
