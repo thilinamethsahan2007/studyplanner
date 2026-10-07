@@ -169,7 +169,7 @@ const App: React.FC = () => {
             <div className="flex items-center justify-center h-screen w-screen bg-slate-200 dark:bg-black">
                 <div className="animate-pulse flex flex-col items-center">
                     <div className="w-16 h-16 bg-indigo-500 rounded-2xl shadow-lg shadow-indigo-500/50 flex items-center justify-center mb-4">
-                        <span className="text-white font-black text-2xl">SP</span>
+                        <span className="text-white font-black text-2xl">TR</span>
                     </div>
                      <p className="text-slate-500 dark:text-slate-400 font-medium tracking-wide uppercase text-sm">Initializing Space...</p>
                 </div>
@@ -188,7 +188,7 @@ const App: React.FC = () => {
                             SP
                         </div>
                         <div>
-                            <h1 className="font-bold text-slate-800 dark:text-slate-100 leading-tight">StudyPlanner</h1>
+                            <h1 className="font-bold text-slate-800 dark:text-slate-100 leading-tight">Tracker</h1>
                             <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Arc Edition</p>
                         </div>
                     </div>
@@ -223,8 +223,8 @@ const App: React.FC = () => {
                 {/* Mobile Header & Overlay Menu */}
                 <div className="md:hidden fixed top-0 left-0 right-0 h-14 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-black/5 dark:border-white/10 z-40 flex items-center justify-between px-4">
                     <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 bg-gradient-to-tr from-indigo-500 to-purple-500 rounded-lg shadow-sm flex items-center justify-center text-white font-black text-sm">SP</div>
-                        <span className="font-bold text-slate-800 dark:text-slate-100">StudyPlanner</span>
+                        <div className="w-8 h-8 bg-gradient-to-tr from-indigo-500 to-purple-500 rounded-lg shadow-sm flex items-center justify-center text-white font-black text-sm">TR</div>
+                        <span className="font-bold text-slate-800 dark:text-slate-100">Tracker</span>
                     </div>
                     <div className="flex items-center gap-2">
                         <ThemeSwitcher />
