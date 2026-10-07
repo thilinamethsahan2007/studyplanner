@@ -177,7 +177,7 @@ const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ tests, subjects, syllabus
                     <h2 className="text-xl font-bold mb-4 dark:text-slate-200">This Week's Time Distribution</h2>
                      <ResponsiveContainer width="100%" height="100%">
                         <PieChart>
-                             <Pie data={pieData} dataKey="value" nameKey="name" cx="50%" cy="45%" outerRadius={100} labelLine={false} label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}>
+                             <Pie data={pieData} dataKey="value" nameKey="name" cx="50%" cy="45%" outerRadius={100} labelLine={false} label={({ name, percent }) => `${name} ${(Number(percent) * 100).toFixed(0)}%`}>
                                 {pieData.map((entry) => <Cell key={`cell-${entry.name}`} fill={entry.color} />)}
                             </Pie>
                             <Tooltip formatter={(value) => formatDuration(Number(value))} />

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Unit } from '../types';
+import { playPopSound, playSuccessChime } from '../utils/sound';
 
 interface SubunitChecklistProps {
   subjectId: string;
@@ -37,7 +38,25 @@ const SubunitChecklist: React.FC<SubunitChecklistProps> = ({ subjectId, unit, on
     }
   };
 
-  const statusInfo = getStatusInfo(unit.status);
+  const getDerivedStatus = (unit: Unit): 'not-started' | 'ongoing' | 'completed' => {
+      const totalTasks = unit.subunits.reduce((acc, sub) => {
+          if (sub.tuteDone !== undefined) acc++;
+          if (sub.pastDone !== undefined) acc++;
+          return acc;
+      }, 0);
+      const completedTasks = unit.subunits.reduce((acc, sub) => {
+          if (sub.tuteDone) acc++;
+          if (sub.pastDone) acc++;
+          return acc;
+      }, 0);
+
+      if (totalTasks === 0) return 'not-started';
+      if (completedTasks === 0) return 'not-started';
+      if (completedTasks === totalTasks) return 'completed';
+      return 'ongoing';
+  };
+
+  const statusInfo = getStatusInfo(getDerivedStatus(unit));
 
   return (
     <div>
@@ -73,7 +92,9 @@ const SubunitChecklist: React.FC<SubunitChecklistProps> = ({ subjectId, unit, on
                                 <input
                                     type="checkbox"
                                     checked={subunit.tuteDone}
-                                    onChange={(e) => onSubunitChange(unit.id, subunit.id, 'tuteDone', e.target.checked)}
+                                    onChange={(e) => {
+                                      if (e.target.checked) playPopSound();
+                                      onSubunitChange(unit.id, subunit.id, 'tuteDone', e.target.checked); }}
                                     className="h-5 w-5 rounded border-slate-300 dark:bg-slate-900 dark:border-slate-600 text-indigo-600 focus:ring-indigo-500"
                                 />
                                 Tutorial
@@ -84,7 +105,9 @@ const SubunitChecklist: React.FC<SubunitChecklistProps> = ({ subjectId, unit, on
                                 <input
                                     type="checkbox"
                                     checked={subunit.pastDone}
-                                    onChange={(e) => onSubunitChange(unit.id, subunit.id, 'pastDone', e.target.checked)}
+                                    onChange={(e) => {
+                                      if (e.target.checked) playPopSound();
+                                      onSubunitChange(unit.id, subunit.id, 'pastDone', e.target.checked); }}
                                     className="h-5 w-5 rounded border-slate-300 dark:bg-slate-900 dark:border-slate-600 text-indigo-600 focus:ring-indigo-500"
                                 />
                                 Past Papers

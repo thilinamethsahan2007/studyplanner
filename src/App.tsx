@@ -1,265 +1,291 @@
 import React, { useState, useEffect } from 'react';
-import { HashRouter, Routes, Route, NavLink } from 'react-router-dom';
+import { HashRouter, Routes, Route, NavLink, useLocation } from 'react-router-dom';
 import TodoPage from './pages/TodoPage';
+import WeeklyPlannerPage from './pages/WeeklyPlannerPage';
 import SubjectPage from './pages/SubjectPage';
 import AnalyticsPage from './pages/AnalyticsPage';
-import CmsPage from './pages/CmsPage';
 import LogBookPage from './pages/LogBookPage';
+import CmsPage from './pages/CmsPage';
 import { mockSubjects } from './mockData';
 import { Syllabus, Test, Class, LogEntry, WeeklySummary, Day } from './types';
 import ThemeSwitcher from './components/ThemeSwitcher';
-import apiService from './services/apiService';
+import CommandPalette from './components/CommandPalette';
+import apiClient from './services/apiClient';
+// Lucide Icons
+import { LayoutDashboard, CalendarDays, BookOpen, BarChart2, Settings, FlaskConical, Atom, Calculator, Dumbbell, Gamepad2, Menu, X } from 'lucide-react';
 
-const NavIcon = ({ path, label }: { path: string; label: string }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mx-auto" fill="none" viewBox="0 0 24" stroke="currentColor">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={path} />
-  </svg>
+
+const getStartOfWeek = (date: Date) => {
+    const d = new Date(date);
+    const day = d.getDay();
+    const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+    const start = new Date(d.setDate(diff));
+    start.setHours(0,0,0,0);
+    return start;
+};
+
+const getSubjectIcon = (id: string) => {
+    switch(id) {
+        case 'physics': return <Atom className="w-5 h-5" />;
+        case 'chemistry': return <FlaskConical className="w-5 h-5" />;
+        case 'combined': return <Calculator className="w-5 h-5" />;
+        case 'exercise': return <Dumbbell className="w-5 h-5" />;
+        case 'entertainment': return <Gamepad2 className="w-5 h-5" />;
+        default: return <BookOpen className="w-5 h-5" />;
+    }
+}
+
+const SidebarLink: React.FC<{ to: string, icon: React.ReactNode, label: string, onClick?: () => void }> = ({ to, icon, label, onClick }) => (
+    <NavLink 
+        to={to} 
+        onClick={onClick}
+        className={({ isActive }) => `flex items-center p-3 md:px-3 md:py-2.5 rounded-xl transition-all duration-300 ${
+            isActive 
+            ? 'bg-indigo-500 text-white shadow-md shadow-indigo-500/20' 
+            : 'text-slate-600 dark:text-slate-400 hover:bg-white/50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-200'
+        }`}
+    >
+        <div className="shrink-0">{icon}</div>
+        <span className="ml-3 font-medium whitespace-nowrap overflow-hidden transition-all">{label}</span>
+    </NavLink>
 );
 
-const getSubjectIconPath = (subjectId: string): string => {
-    switch (subjectId) {
-        case 'physics':
-            return 'M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z';
-        case 'chemistry':
-            return 'M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a4 4 0 000-8h-4l-4 4z';
-        case 'combined':
-            return 'M3 3v18h18M5 16l4-4 3 3 5-7';
-        default:
-            return 'M12 6.253v11.494m-9-5.747l9 5.747 9-5.747-9-5.747z';
-    }
-};
-
-const getStartOfWeek = (date: Date): Date => {
-    const d = new Date(date);
-    const day = d.getDay(); // Sunday - 0, Monday - 1, ...
-    const diff = d.getDate() - day;
-    d.setHours(0, 0, 0, 0);
-    return new Date(d.setDate(diff));
-};
-
 const App: React.FC = () => {
-  const [syllabusData, setSyllabusData] = useState<Syllabus[]>([]);
-  const [testsData, setTestsData] = useState<Test[]>([]);
-  const [classesData, setClassesData] = useState<Class[]>([]);
-  const [logsData, setLogsData] = useState<LogEntry[]>([]);
-  const [weeklySummaries, setWeeklySummaries] = useState<WeeklySummary[]>([]);
-  const [day, setDay] = useState<Day | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+    // ... State from original App.tsx
+    const [syllabusData, setSyllabusData] = useState<Syllabus[]>([]);
+    const [testsData, setTestsData] = useState<Test[]>([]);
+    const [classesData, setClassesData] = useState<Class[]>([]);
+    const [logsData, setLogsData] = useState<LogEntry[]>([]);
+    const [weeklySummaries, setWeeklySummaries] = useState<WeeklySummary[]>([]);
+    const [day, setDay] = useState<Day | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  useEffect(() => {
-    const loadData = async () => {
-        setIsLoading(true);
-        try {
-            const [syllabus, tests, classes, logs, summaries, todayTodos] = await Promise.all([
-                apiService.getSyllabus(),
-                apiService.getTests(),
-                apiService.getClasses(),
-                apiService.getLogs(),
-                apiService.getWeeklySummaries(),
-                apiService.getTodayTodos(),
-            ]);
+    useEffect(() => {
+        const loadData = async () => {
+            try {
+                const [syllabus, tests, classes, logs, summaries, todayTodos] = await Promise.all([
+                    apiClient.getSyllabus(),
+                    apiClient.getTests(),
+                    apiClient.getClasses(),
+                    apiClient.getLogs(),
+                    apiClient.getWeeklySummaries(),
+                    apiClient.getTodayTodos(),
+                ]);
 
-            // --- Weekly Log Processing Logic ---
-            const today = new Date();
-            const startOfThisWeek = getStartOfWeek(today);
+                // Weekly Log Processing
+                const today = new Date();
+                const startOfThisWeek = getStartOfWeek(today);
 
-            const logsToProcess = logs.filter(log => new Date(log.date) < startOfThisWeek);
-            const currentWeekLogs = logs.filter(log => new Date(log.date) >= startOfThisWeek);
-
-            if (logsToProcess.length > 0) {
-                const weeksToSummarize: { [weekStartString: string]: LogEntry[] } = logsToProcess.reduce((acc, log) => {
-                    const logDate = new Date(log.date);
-                    const weekStart = getStartOfWeek(logDate);
-                    const weekStartString = weekStart.toISOString().split('T')[0];
-                    
-                    if (!acc[weekStartString]) acc[weekStartString] = [];
-                    acc[weekStartString].push(log);
-                    return acc;
-                }, {} as { [weekStartString: string]: LogEntry[] });
-
-                const newSummaries: WeeklySummary[] = Object.entries(weeksToSummarize).map(([weekStartDate, weekLogs]) => {
-                    const totalMinutes = weekLogs.reduce((sum, log) => sum + log.durationMinutes, 0);
-                    
-                    const subjectTotals = weekLogs.reduce((subAcc, log) => {
-                       subAcc[log.subjectId] = (subAcc[log.subjectId] || 0) + log.durationMinutes;
-                       return subAcc;
-                    }, {} as { [subjectId: string]: number });
-                    
-                    const subjectAverages: { [subjectId: string]: number } = {};
-                    for (const subjectId in subjectTotals) {
-                        subjectAverages[subjectId] = Math.round(subjectTotals[subjectId] / 7);
-                    }
-
-                    return {
-                        weekOf: weekStartDate,
-                        totalMinutes,
-                        averageMinutesPerDay: Math.round(totalMinutes / 7),
-                        subjectAverages,
-                    };
-                });
+                let currentWeekLogs = logs.filter(log => new Date(log.date) >= startOfThisWeek);
+                let pastLogs = logs.filter(log => new Date(log.date) < startOfThisWeek);
                 
-                const updatedSummaries = [...summaries, ...newSummaries];
-                setLogsData(currentWeekLogs);
-                setWeeklySummaries(updatedSummaries);
-                
-                // Save the processed data
-                await apiService.saveLogs(currentWeekLogs);
-                await apiService.saveWeeklySummaries(updatedSummaries);
+                if (pastLogs.length > 0) {
+                    const weeksToSummarize = pastLogs.reduce((acc, log) => {
+                        const logDate = new Date(log.date);
+                        const weekStart = getStartOfWeek(logDate);
+                        const weekStartStr = weekStart.toISOString().split('T')[0];
+                        if (!acc[weekStartStr]) {
+                            acc[weekStartStr] = [];
+                        }
+                        acc[weekStartStr].push(log);
+                        return acc;
+                    }, {} as { [weekStartString: string]: LogEntry[] });
 
-            } else {
-                setLogsData(logs);
-                setWeeklySummaries(summaries);
+                    const newSummaries: WeeklySummary[] = Object.entries(weeksToSummarize).map(([weekStartDate, weekLogs]) => {
+                        const totalMinutes = weekLogs.reduce((sum, log) => sum + log.durationMinutes, 0);
+                        const subjectMinutes = weekLogs.reduce((acc, log) => {
+                            acc[log.subjectId] = (acc[log.subjectId] || 0) + log.durationMinutes;
+                            return acc;
+                        }, {} as { [subjectId: string]: number });
+                        
+                        return {
+                            id: `summary-${weekStartDate}`,
+                            weekOf: weekStartDate,
+                            totalMinutes,
+                            averageMinutesPerDay: Math.round(totalMinutes / 7),
+                            subjectAverages: Object.fromEntries(Object.entries(subjectMinutes).map(([k, v]) => [k, Math.round(v / 7)]))
+                        };
+                    });
+
+                    const updatedSummaries = [...summaries, ...newSummaries];
+                    setLogsData(currentWeekLogs);
+                    setWeeklySummaries(updatedSummaries);
+                    await apiClient.saveLogs(currentWeekLogs);
+                    await apiClient.saveWeeklySummaries(updatedSummaries);
+                } else {
+                    setLogsData(logs);
+                    setWeeklySummaries(summaries);
+                }
+
+                setSyllabusData(syllabus);
+                setTestsData(tests);
+                setClassesData(classes);
+                
+                const todayStr = new Date().toISOString().split('T')[0];
+                const newDay = todayTodos || { date: todayStr, items: [] };
+                setDay(newDay);
+
+            } catch (error) {
+                console.error("Failed to load initial data", error);
+            } finally {
+                setIsLoading(false);
             }
+        };
 
-            setSyllabusData(syllabus);
-            setTestsData(tests);
-            setClassesData(classes);
-            setDay(todayTodos);
+        loadData();
+    }, []);
 
-        } catch (error) {
-            console.error("Failed to load initial data", error);
-        } finally {
-            setIsLoading(false);
-        }
+    const handleSyllabusChange = async (newData: Syllabus[]) => {
+        setSyllabusData(newData);
+        await apiClient.saveSyllabus(newData);
     };
-    loadData();
-  }, []);
 
-  const handleSyllabusChange = async (newSyllabus: Syllabus[]) => {
-      setSyllabusData(newSyllabus);
-      try {
-          await apiService.saveSyllabus(newSyllabus);
-      } catch (error) {
-          console.error("Failed to save syllabus data", error);
-      }
-  };
+    const handleTestsChange = async (newData: Test[]) => {
+        setTestsData(newData);
+        await apiClient.saveTests(newData);
+    };
 
-  const handleTestsChange = async (newTests: Test[]) => {
-      setTestsData(newTests);
-      try {
-          await apiService.saveTests(newTests);
-      } catch (error) {
-          console.error("Failed to save tests data", error);
-      }
-  };
+    const handleClassesChange = async (newData: Class[]) => {
+        setClassesData(newData);
+        await apiClient.saveClasses(newData);
+    };
+    
+    const handleLogsChange = async (newLogs: LogEntry[]) => {
+        setLogsData(newLogs);
+        await apiClient.saveLogs(newLogs);
+    }
 
-  const handleClassesChange = async (newClasses: Class[]) => {
-      setClassesData(newClasses);
-      try {
-          await apiService.saveClasses(newClasses);
-      } catch (error) {
-          console.error("Failed to save classes data", error);
-      }
-  };
-  
-  const handleLogsChange = async (newLogs: LogEntry[]) => {
-      setLogsData(newLogs);
-      try {
-          await apiService.saveLogs(newLogs);
-      } catch (error) {
-          console.error("Failed to save logs data", error);
-      }
-  };
+    const handleDayChange = async (newDay: Day) => {
+        setDay(newDay);
+        await apiClient.saveTodayTodos(newDay);
+    };
 
-  const handleDayChange = async (newDay: Day) => {
-      setDay(newDay);
-      try {
-          await apiService.saveTodayTodos(newDay);
-      } catch (error) {
-          console.error("Failed to save today's todos", error);
-      }
-  };
+    const academicSubjects = mockSubjects.filter(s => ['physics', 'chemistry', 'combined'].includes(s.id));
 
-  const academicSubjects = mockSubjects.filter(s => ['physics', 'chemistry', 'combined'].includes(s.id));
-  const logbookIconPath = "M4 6a2 2 0 012-2h12a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm4 5h8v2H8v-2z";
-
-  const mobileNavLinks = [
-    { to: "/", title: "Today", path: "M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" },
-    ...academicSubjects.map(subject => ({
-      to: `/subjects/${subject.id}`,
-      title: subject.name,
-      path: getSubjectIconPath(subject.id),
-    })),
-    { to: "/logbook", title: "Log Book", path: logbookIconPath },
-    { to: "/analytics", title: "Analytics", path: "M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" },
-    { to: "/cms", title: "CMS", path: "M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065zM15 12a3 3 0 11-6 0 3 3 0 016 0z" }
-  ];
-
-  if (isLoading) {
-    return (
-        <div className="flex items-center justify-center h-screen w-screen bg-slate-100 dark:bg-slate-900">
-            <div className="text-center">
-                <div className="text-indigo-600 dark:text-indigo-400 font-bold text-4xl mb-2">SP</div>
-                 <p className="text-slate-600 dark:text-slate-300">Loading Study Planner...</p>
+    if (isLoading) {
+        return (
+            <div className="flex items-center justify-center h-screen w-screen bg-slate-200 dark:bg-black">
+                <div className="animate-pulse flex flex-col items-center">
+                    <div className="w-16 h-16 bg-indigo-500 rounded-2xl shadow-lg shadow-indigo-500/50 flex items-center justify-center mb-4">
+                        <span className="text-white font-black text-2xl">SP</span>
+                    </div>
+                     <p className="text-slate-500 dark:text-slate-400 font-medium tracking-wide uppercase text-sm">Initializing Space...</p>
+                </div>
             </div>
-        </div>
-    );
-  }
+        );
+    }
 
-  return (
-    <HashRouter>
-      <div className="flex flex-col md:flex-row h-screen bg-slate-100 dark:bg-slate-800 font-sans">
-        {/* Desktop Sidebar */}
-        <nav className="w-20 bg-white border-r border-slate-200 hidden md:flex flex-col items-center py-6 dark:bg-slate-900 dark:border-slate-700">
-          <div className="text-indigo-600 dark:text-indigo-400 font-bold text-xl mb-6">SP</div>
-          <div className="flex flex-col space-y-4">
-            <NavLink to="/" className={({ isActive }) => `p-3 rounded-lg ${isActive ? 'bg-indigo-100 text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-400' : 'text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700'}`} title="Today">
-              <NavIcon path="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" label="Today" />
-            </NavLink>
-            {academicSubjects.map(subject => (
-              <NavLink key={subject.id} to={`/subjects/${subject.id}`} className={({ isActive }) => `p-3 rounded-lg ${isActive ? 'bg-indigo-100 text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-400' : 'text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700'}`} title={subject.name}>
-                <NavIcon path={getSubjectIconPath(subject.id)} label={subject.name} />
-              </NavLink>
-            ))}
-            <NavLink to="/logbook" className={({ isActive }) => `p-3 rounded-lg ${isActive ? 'bg-indigo-100 text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-400' : 'text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700'}`} title="Log Book">
-              <NavIcon path={logbookIconPath} label="Log Book" />
-            </NavLink>
-            <NavLink to="/analytics" className={({ isActive }) => `p-3 rounded-lg ${isActive ? 'bg-indigo-100 text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-400' : 'text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700'}`} title="Analytics">
-              <NavIcon path="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" label="Analytics" />
-            </NavLink>
-          </div>
-          <div className="mt-auto">
-             <NavLink to="/cms" className={({ isActive }) => `p-3 rounded-lg ${isActive ? 'bg-indigo-100 text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-400' : 'text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700'}`} title="CMS">
-              <NavIcon path="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065zM15 12a3 3 0 11-6 0 3 3 0 016 0z" label="CMS" />
-            </NavLink>
-          </div>
-        </nav>
-        <main className="flex-1 p-4 sm:p-8 overflow-y-auto pb-24 md:pb-8">
-          <Routes>
-            <Route path="/" element={<TodoPage day={day} onDayChange={handleDayChange} classes={classesData} logs={logsData} onLogsChange={handleLogsChange} />} />
-            <Route 
-              path="/subjects/:subjectId" 
-              element={<SubjectPage syllabusData={syllabusData} subjects={mockSubjects} onSyllabusChange={handleSyllabusChange} />} 
-            />
-             <Route path="/logbook" element={<LogBookPage logs={logsData} weeklySummaries={weeklySummaries} subjects={mockSubjects} />} />
-            <Route path="/analytics" element={<AnalyticsPage tests={testsData} subjects={mockSubjects} syllabusData={syllabusData} logs={logsData} weeklySummaries={weeklySummaries} />} />
-            <Route 
-              path="/cms" 
-              element={<CmsPage 
-                subjects={mockSubjects} 
-                syllabus={syllabusData}
-                tests={testsData}
-                classes={classesData}
-                onSyllabusChange={handleSyllabusChange}
-                onTestsChange={handleTestsChange}
-                onClassesChange={handleClassesChange}
-              />} 
-            />
-          </Routes>
-        </main>
-        {/* Mobile Bottom Nav */}
-        <nav className="md:hidden fixed bottom-0 left-0 w-full bg-white border-t border-slate-200 flex justify-around items-center z-50 h-16 shadow-lg dark:bg-slate-900 dark:border-slate-700">
-           {mobileNavLinks.map(link => (
-                <NavLink key={link.to} to={link.to} className={({ isActive }) => `flex flex-col items-center justify-center text-center p-1 w-full h-full ${isActive ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-500 dark:text-slate-400'}`} title={link.title}>
-                    <NavIcon path={link.path} label={link.title} />
-                    <span className="text-xs mt-1 truncate">{link.title === "Combined Maths" ? "Maths" : link.title}</span>
-                </NavLink>
-            ))}
-        </nav>
-        <ThemeSwitcher />
-      </div>
-    </HashRouter>
-  );
+    return (
+        <HashRouter>
+            <div className="flex h-screen bg-slate-200 dark:bg-black p-2 md:p-3 gap-2 md:gap-3 font-sans overflow-hidden">
+                
+                {/* Arc-style Floating Sidebar (Desktop) */}
+                <nav className="hidden md:flex w-64 flex-col bg-white/50 dark:bg-slate-900/50 backdrop-blur-2xl border border-white/40 dark:border-white/10 rounded-2xl shadow-xl overflow-hidden transition-all duration-300 relative z-10">
+                    <div className="p-5 flex items-center gap-3 border-b border-black/5 dark:border-white/5 bg-white/30 dark:bg-black/20">
+                        <div className="w-10 h-10 bg-gradient-to-tr from-indigo-500 to-purple-500 rounded-xl shadow-lg flex items-center justify-center text-white font-black text-lg">
+                            SP
+                        </div>
+                        <div>
+                            <h1 className="font-bold text-slate-800 dark:text-slate-100 leading-tight">StudyPlanner</h1>
+                            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Arc Edition</p>
+                        </div>
+                    </div>
+                    
+                    <div className="flex-1 overflow-y-auto py-4 px-3 flex flex-col gap-1.5 scrollbar-hide">
+                        <SidebarLink to="/" icon={<LayoutDashboard className="w-5 h-5" />} label="Today" />
+                        <SidebarLink to="/weekly" icon={<CalendarDays className="w-5 h-5" />} label="Weekly" />
+                        
+                        <div className="my-3 border-t border-black/5 dark:border-white/5" />
+                        <div className="px-3 mb-2 text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">Curriculum</div>
+                        
+                        {academicSubjects.map(subject => (
+                            <SidebarLink key={subject.id} to={`/subjects/${subject.id}`} icon={getSubjectIcon(subject.id)} label={subject.name} />
+                        ))}
+                        
+                        <div className="my-3 border-t border-black/5 dark:border-white/5" />
+                        <div className="px-3 mb-2 text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">Tracking</div>
+                        
+                        <SidebarLink to="/logbook" icon={<BookOpen className="w-5 h-5" />} label="Log Book" />
+                        <SidebarLink to="/analytics" icon={<BarChart2 className="w-5 h-5" />} label="Analytics" />
+                    </div>
+                    
+                    <div className="p-3 border-t border-black/5 dark:border-white/5 bg-white/30 dark:bg-black/20 flex gap-2">
+                        <div className="flex-1">
+                            <SidebarLink to="/cms" icon={<Settings className="w-5 h-5" />} label="Settings" />
+                        </div>
+                        <ThemeSwitcher />
+                    </div>
+                </nav>
+
+                {/* Mobile Header & Overlay Menu */}
+                <div className="md:hidden fixed top-0 left-0 right-0 h-14 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-black/5 dark:border-white/10 z-40 flex items-center justify-between px-4">
+                    <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 bg-gradient-to-tr from-indigo-500 to-purple-500 rounded-lg shadow-sm flex items-center justify-center text-white font-black text-sm">SP</div>
+                        <span className="font-bold text-slate-800 dark:text-slate-100">StudyPlanner</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <ThemeSwitcher />
+                        <button onClick={() => setMobileMenuOpen(true)} className="p-2 text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 rounded-lg">
+                            <Menu className="w-5 h-5" />
+                        </button>
+                    </div>
+                </div>
+
+                {/* Mobile Full-Screen Menu */}
+                {mobileMenuOpen && (
+                    <div className="md:hidden fixed inset-0 bg-slate-200/90 dark:bg-black/90 backdrop-blur-2xl z-50 flex flex-col p-4 animate-in fade-in slide-in-from-bottom-4 duration-300">
+                        <div className="flex justify-end mb-8">
+                            <button onClick={() => setMobileMenuOpen(false)} className="p-3 bg-white dark:bg-slate-800 rounded-full shadow-xl">
+                                <X className="w-6 h-6 text-slate-800 dark:text-slate-200" />
+                            </button>
+                        </div>
+                        <div className="flex-1 overflow-y-auto flex flex-col gap-2">
+                            <SidebarLink to="/" icon={<LayoutDashboard className="w-6 h-6" />} label="Today" onClick={() => setMobileMenuOpen(false)} />
+                            <SidebarLink to="/weekly" icon={<CalendarDays className="w-6 h-6" />} label="Weekly" onClick={() => setMobileMenuOpen(false)} />
+                            <div className="my-4 border-t border-black/10 dark:border-white/10" />
+                            {academicSubjects.map(subject => (
+                                <SidebarLink key={subject.id} to={`/subjects/${subject.id}`} icon={getSubjectIcon(subject.id)} label={subject.name} onClick={() => setMobileMenuOpen(false)} />
+                            ))}
+                            <div className="my-4 border-t border-black/10 dark:border-white/10" />
+                            <SidebarLink to="/logbook" icon={<BookOpen className="w-6 h-6" />} label="Log Book" onClick={() => setMobileMenuOpen(false)} />
+                            <SidebarLink to="/analytics" icon={<BarChart2 className="w-6 h-6" />} label="Analytics" onClick={() => setMobileMenuOpen(false)} />
+                            <SidebarLink to="/cms" icon={<Settings className="w-6 h-6" />} label="Settings" onClick={() => setMobileMenuOpen(false)} />
+                        </div>
+                    </div>
+                )}
+
+                {/* Main Viewport Window */}
+                <main className="flex-1 relative bg-white dark:bg-slate-950 rounded-2xl md:rounded-[2rem] shadow-2xl ring-1 ring-black/5 dark:ring-white/10 overflow-hidden flex flex-col mt-14 md:mt-0">
+                    <CommandPalette />
+                    <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-10 w-full h-full relative z-0 scrollbar-hide">
+                        <Routes>
+                            <Route path="/weekly" element={<WeeklyPlannerPage />} />
+                            <Route path="/" element={<TodoPage day={day} onDayChange={handleDayChange} classes={classesData} logs={logsData} onLogsChange={handleLogsChange} />} />
+                            <Route 
+                                path="/subjects/:subjectId" 
+                                element={<SubjectPage syllabusData={syllabusData} subjects={mockSubjects} onSyllabusChange={handleSyllabusChange} />} 
+                            />
+                            <Route path="/logbook" element={<LogBookPage logs={logsData} weeklySummaries={weeklySummaries} subjects={mockSubjects} />} />
+                            <Route path="/analytics" element={<AnalyticsPage tests={testsData} subjects={mockSubjects} syllabusData={syllabusData} logs={logsData} weeklySummaries={weeklySummaries} />} />
+                            <Route 
+                                path="/cms" 
+                                element={<CmsPage 
+                                    subjects={mockSubjects} 
+                                    syllabus={syllabusData}
+                                    tests={testsData}
+                                    classes={classesData}
+                                    onSyllabusChange={handleSyllabusChange}
+                                    onTestsChange={handleTestsChange}
+                                    onClassesChange={handleClassesChange}
+                                />} 
+                            />
+                        </Routes>
+                    </div>
+                </main>
+            </div>
+        </HashRouter>
+    );
 };
 
 export default App;

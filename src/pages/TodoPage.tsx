@@ -2,6 +2,8 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { TodoItem, Day, Class, LogEntry } from '../types';
 import TodoList from '../components/TodoList';
 import SmartTodoInput from '../components/SmartTodoInput';
+import Confetti from 'react-confetti';
+import { useWindowSize } from 'react-use';
 import LogTimeModal from '../components/LogTimeModal';
 import PomodoroTimer from '../components/PomodoroTimer';
 import { mockSubjects } from '../mockData';
@@ -15,6 +17,8 @@ interface TodoPageProps {
 }
 
 const TodoPage: React.FC<TodoPageProps> = ({ day, onDayChange, classes, logs, onLogsChange }) => {
+  const { width, height } = useWindowSize();
+  const isAllDone = day?.items?.length > 0 && day.items.every(item => item.done);
   const [countdown, setCountdown] = useState({ months: 0, days: 0 });
   const [currentTime, setCurrentTime] = useState(new Date());
 
@@ -37,10 +41,10 @@ const TodoPage: React.FC<TodoPageProps> = ({ day, onDayChange, classes, logs, on
     const calculateCountdown = () => {
         const today = new Date();
         let examYear = today.getFullYear();
-        // Month is 0-indexed, 7 = August. Target is Aug 10.
-        let examDate = new Date(examYear, 7, 10);
+        // Month is 0-indexed, 7 = August. Target is Aug 3.
+        let examDate = new Date(examYear, 7, 3);
 
-        // If today is after Aug 10, target next year's exam.
+        // If today is after Aug 3, target next year's exam.
         if (today.getTime() > examDate.getTime()) {
             examDate.setFullYear(examYear + 1);
         }
@@ -248,6 +252,7 @@ const TodoPage: React.FC<TodoPageProps> = ({ day, onDayChange, classes, logs, on
 
   return (
     <div className="mx-auto max-w-3xl w-full">
+      {isAllDone && <Confetti width={width} height={height} recycle={false} numberOfPieces={800} gravity={0.15} />}
         <LogTimeModal 
             isOpen={isLogModalOpen}
             task={taskToLog}
@@ -262,6 +267,7 @@ const TodoPage: React.FC<TodoPageProps> = ({ day, onDayChange, classes, logs, on
             onLog={handlePomodoroLog}
             onDurationChange={setPomodoroDuration}
         />
+        
 
         {/* Header Section */}
         <div className="mb-8 flex justify-center">
@@ -329,3 +335,9 @@ const TodoPage: React.FC<TodoPageProps> = ({ day, onDayChange, classes, logs, on
 };
 
 export default TodoPage;
+
+
+
+
+
+

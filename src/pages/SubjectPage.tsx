@@ -61,14 +61,37 @@ const SubjectPage: React.FC<SubjectPageProps> = ({ syllabusData, subjects, onSyl
                 ...syllabus,
                 units: syllabus.units.map(unit => {
                     if (unit.id === unitId) {
+                        const newSubunits = unit.subunits.map(subunit => {
+                            if (subunit.id === subunitId) {
+                                return { ...subunit, [field]: value };
+                            }
+                            return subunit;
+                        });
+
+                        let newStatus: 'not-started' | 'ongoing' | 'completed' = 'not-started';
+                        const totalTasks = newSubunits.reduce((acc, sub) => {
+                            if (sub.tuteDone !== undefined) acc++;
+                            if (sub.pastDone !== undefined) acc++;
+                            return acc;
+                        }, 0);
+                        const completedTasks = newSubunits.reduce((acc, sub) => {
+                            if (sub.tuteDone) acc++;
+                            if (sub.pastDone) acc++;
+                            return acc;
+                        }, 0);
+
+                        if (totalTasks > 0) {
+                            if (completedTasks === 0) newStatus = 'not-started';
+                            else if (completedTasks === totalTasks) newStatus = 'completed';
+                            else newStatus = 'ongoing';
+                        } else {
+                            newStatus = 'not-started';
+                        }
+
                         return {
                             ...unit,
-                            subunits: unit.subunits.map(subunit => {
-                                if (subunit.id === subunitId) {
-                                    return { ...subunit, [field]: value };
-                                }
-                                return subunit;
-                            })
+                            status: newStatus,
+                            subunits: newSubunits
                         };
                     }
                     return unit;
@@ -87,7 +110,7 @@ const SubjectPage: React.FC<SubjectPageProps> = ({ syllabusData, subjects, onSyl
         return acc;
     }, 0);
 
-    if (totalTasks === 0) return 100;
+    if (totalTasks === 0) return 0;
 
     const completedTasks = unit.subunits.reduce((acc, sub) => {
         if (sub.tuteDone) acc++;
@@ -96,6 +119,24 @@ const SubjectPage: React.FC<SubjectPageProps> = ({ syllabusData, subjects, onSyl
     }, 0);
 
     return Math.round((completedTasks / totalTasks) * 100);
+  };
+
+  const getDerivedStatus = (unit: Unit): 'not-started' | 'ongoing' | 'completed' => {
+      const totalTasks = unit.subunits.reduce((acc, sub) => {
+          if (sub.tuteDone !== undefined) acc++;
+          if (sub.pastDone !== undefined) acc++;
+          return acc;
+      }, 0);
+      const completedTasks = unit.subunits.reduce((acc, sub) => {
+          if (sub.tuteDone) acc++;
+          if (sub.pastDone) acc++;
+          return acc;
+      }, 0);
+
+      if (totalTasks === 0) return 'not-started';
+      if (completedTasks === 0) return 'not-started';
+      if (completedTasks === totalTasks) return 'completed';
+      return 'ongoing';
   };
 
   const getStatusColor = (status: Unit['status']) => {
@@ -157,7 +198,7 @@ const SubjectPage: React.FC<SubjectPageProps> = ({ syllabusData, subjects, onSyl
               <UnitSidePanel unit={unit} progress={calculateProgress(unit)}/>
               <div className="flex-grow">
                  <div className="flex items-center gap-2">
-                    <span className={`h-1.5 w-1.5 rounded-full ${getStatusColor(unit.status)}`}></span>
+                    <span className={`h-1.5 w-1.5 rounded-full ${getStatusColor(getDerivedStatus(unit))}`}></span>
                     <p className="font-semibold text-slate-800 dark:text-slate-200">{unit.name}</p>
                  </div>
                  <p className="text-sm text-slate-500 dark:text-slate-400 ml-4">{unit.sinhala_name}</p>

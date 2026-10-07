@@ -12,12 +12,17 @@
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {
-    "@google/genai": "^1.25.0",
+    "@hello-pangea/dnd": "^18.0.1",
+    "@supabase/supabase-js": "^2.117.2",
+    "framer-motion": "^14.0.0",
     "html-to-image": "1.11.11",
+    "lucide-react": "^1.52.0",
     "react": "^19.2.0",
+    "react-confetti": "^6.4.0",
     "react-dom": "^19.2.0",
     "react-markdown": "9.0.1",
     "react-router-dom": "^7.9.4",
+    "react-use": "^17.6.1",
     "recharts": "^3.2.1",
     "rehype-katex": "7.0.0",
     "remark-math": "6.0.0"
@@ -26,6 +31,7 @@
     "@types/node": "^22.14.0",
     "@vitejs/plugin-react": "^5.0.0",
     "gh-pages": "^6.3.0",
+    "ts-node": "^10.9.2",
     "typescript": "~5.8.2",
     "vite": "^6.2.0"
   }

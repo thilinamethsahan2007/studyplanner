@@ -5,8 +5,8 @@ interface CircularProgressProps {
 }
 
 const CircularProgress: React.FC<CircularProgressProps> = ({ percent }) => {
-  const radius = 20;
-  const stroke = 4;
+  const radius = 24;
+  const stroke = 5;
   const normalizedRadius = radius - stroke * 2;
   const circumference = normalizedRadius * 2 * Math.PI;
   const strokeDashoffset = circumference - (percent / 100) * circumference;
@@ -46,9 +46,9 @@ const CircularProgress: React.FC<CircularProgressProps> = ({ percent }) => {
           cy={radius}
         />
       </svg>
-      <span className={`absolute text-[10px] font-bold ${colorClass}`}>
+      <div className={`absolute inset-0 flex items-center justify-center text-[11px] font-black tracking-tighter ${colorClass}`}>
         {percent}%
-      </span>
+      </div>
     </div>
   );
 };

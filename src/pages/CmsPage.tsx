@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { Subject, Syllabus, Test, Class, Unit, Subunit } from '../types';
-
-// Password for CMS
-const ADMIN_PASSWORD = 'admin';
+import { BookOpen, FileSignature, CalendarClock, Plus, Trash2, Settings } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface CmsPageProps {
     subjects: Subject[];
@@ -14,17 +13,9 @@ interface CmsPageProps {
     onClassesChange: (data: Class[]) => void;
 }
 
-const Section: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
-    <div className="bg-white dark:bg-slate-800/50 p-4 sm:p-6 rounded-2xl shadow-lg shadow-slate-200/50 dark:shadow-black/20 ring-1 ring-slate-200 dark:ring-slate-700">
-        <h2 className="text-xl font-bold mb-4 text-slate-800 dark:text-slate-100">{title}</h2>
-        <div className="border-t border-slate-200 dark:border-slate-700 pt-4">
-            {children}
-        </div>
-    </div>
-);
-
 const SyllabusManager: React.FC<Pick<CmsPageProps, 'syllabus' | 'subjects' | 'onSyllabusChange'>> = ({ syllabus, subjects, onSyllabusChange }) => {
-    const [selectedSubjectId, setSelectedSubjectId] = useState<string>(subjects[0]?.id || '');
+    const academicSubjects = subjects.filter(s => ['physics', 'chemistry', 'combined'].includes(s.id));
+    const [selectedSubjectId, setSelectedSubjectId] = useState<string>(academicSubjects[0]?.id || '');
     
     const [newUnit, setNewUnit] = useState({ english: '', sinhala: '' });
     const [newSubunit, setNewSubunit] = useState<{ [key: string]: { english: string; sinhala: string} }>({});
@@ -82,89 +73,106 @@ const SyllabusManager: React.FC<Pick<CmsPageProps, 'syllabus' | 'subjects' | 'on
             return s;
         });
         onSyllabusChange(updatedSyllabus);
-        setNewSubunit(prev => ({...prev, [unitId]: { english: '', sinhala: '' }}));
+        setNewSubunit({ ...newSubunit, [unitId]: { english: '', sinhala: '' } });
     };
 
-    const handleStatusChange = (unitId: string, status: Unit['status']) => {
-        if (!currentSyllabus) return;
+    const handleDeleteUnit = (unitId: string) => {
+        if(!currentSyllabus) return;
         const updatedSyllabus = syllabus.map(s => {
             if (s.subjectId === currentSyllabus.subjectId) {
+                return { ...s, units: s.units.filter(u => u.id !== unitId) };
+            }
+            return s;
+        });
+        onSyllabusChange(updatedSyllabus);
+    };
+
+    const handleDeleteSubunit = (unitId: string, subunitId: string) => {
+        if(!currentSyllabus) return;
+        const updatedSyllabus = syllabus.map(s => {
+            if(s.subjectId === currentSyllabus.subjectId) {
                 return {
                     ...s,
-                    units: s.units.map(u => u.id === unitId ? { ...u, status } : u)
+                    units: s.units.map(u => {
+                        if(u.id === unitId) {
+                            return { ...u, subunits: u.subunits.filter(su => su.id !== subunitId) };
+                        }
+                        return u;
+                    })
                 };
             }
             return s;
         });
         onSyllabusChange(updatedSyllabus);
     };
-    
-    const academicSubjects = subjects.filter(s => ['physics', 'chemistry', 'combined'].includes(s.id));
 
     return (
-        <div>
-            <label className="block mb-6">
-                <span className="cms-label">Select Subject to Manage</span>
-                <select value={selectedSubjectId} onChange={e => setSelectedSubjectId(e.target.value)} className="select-field">
-                    {academicSubjects.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-                </select>
-            </label>
+        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div className="flex gap-4 mb-6 bg-slate-100 dark:bg-slate-800/50 p-2 rounded-2xl border border-slate-200 dark:border-slate-700/50 overflow-x-auto scrollbar-hide">
+                {academicSubjects.map(subject => (
+                    <button
+                        key={subject.id}
+                        onClick={() => setSelectedSubjectId(subject.id)}
+                        className={`px-6 py-2.5 rounded-xl font-bold text-sm whitespace-nowrap transition-all duration-300 ${
+                            selectedSubjectId === subject.id
+                                ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/30'
+                                : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
+                        }`}
+                    >
+                        {subject.name}
+                    </button>
+                ))}
+            </div>
 
-            <div className="p-4 bg-slate-100 dark:bg-slate-900/50 rounded-lg border border-slate-200 dark:border-slate-700 mb-6">
-                <h4 className="font-bold mb-2 text-slate-700 dark:text-slate-200">Add New Unit</h4>
-                <div className="grid grid-cols-1 md:grid-cols-[1fr,1fr,auto] gap-3 items-end">
-                    <div>
-                        <label className="cms-label">English Name</label>
-                        <input type="text" placeholder="e.g., Mechanics" value={newUnit.english} onChange={e => setNewUnit({...newUnit, english: e.target.value})} className="input-field" />
-                    </div>
-                    <div>
-                        <label className="cms-label">Sinhala Name</label>
-                        <input type="text" placeholder="e.g., යාන්ත්‍ර විද්‍යාව" value={newUnit.sinhala} onChange={e => setNewUnit({...newUnit, sinhala: e.target.value})} className="input-field" />
-                    </div>
-                    <button onClick={handleAddUnit} className="btn-primary">Add Unit</button>
+            <div className="bg-slate-50 dark:bg-slate-800/80 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm">
+                <h3 className="font-bold text-lg text-slate-800 dark:text-slate-100 mb-4 flex items-center gap-2">
+                    <Plus className="w-5 h-5 text-indigo-500" /> Add New Unit
+                </h3>
+                <div className="flex flex-col sm:flex-row gap-4">
+                    <input 
+                        placeholder="Unit Name (English)" 
+                        value={newUnit.english} 
+                        onChange={e => setNewUnit({ ...newUnit, english: e.target.value })} 
+                        className="block w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm px-4 py-3 text-sm text-slate-800 dark:text-slate-200 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all" 
+                    />
+                    <input 
+                        placeholder="Unit Name (Sinhala)" 
+                        value={newUnit.sinhala} 
+                        onChange={e => setNewUnit({ ...newUnit, sinhala: e.target.value })} 
+                        className="block w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm px-4 py-3 text-sm text-slate-800 dark:text-slate-200 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all" 
+                    />
+                    <button onClick={handleAddUnit} className="flex items-center justify-center gap-2 px-6 py-3 bg-indigo-600 text-white font-bold rounded-xl shadow-lg shadow-indigo-600/30 hover:bg-indigo-500 hover:scale-[1.02] hover:shadow-indigo-500/40 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap px-8">Add Unit</button>
                 </div>
             </div>
 
             <div className="space-y-4">
                 {currentSyllabus?.units.map(unit => (
-                    <div key={unit.id} className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700">
-                        <div className="flex flex-wrap justify-between items-center gap-2">
-                            <div>
-                                <p className="font-semibold text-slate-800 dark:text-slate-200">{unit.name}</p>
-                                <p className="text-sm text-slate-500 dark:text-slate-400">{unit.sinhala_name}</p>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <select 
-                                    value={unit.status || 'not-started'} 
-                                    onChange={(e) => handleStatusChange(unit.id, e.target.value as Unit['status'])}
-                                    className="select-field-sm"
-                                >
-                                    <option value="not-started">Not Started</option>
-                                    <option value="ongoing">Ongoing</option>
-                                    <option value="completed">Completed</option>
-                                </select>
+                    <div key={unit.id} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 shadow-sm">
+                        <div className="flex justify-between items-center mb-4">
+                            <h4 className="font-black text-lg text-slate-800 dark:text-slate-100">{unit.name} <span className="text-sm font-medium text-slate-500 dark:text-slate-400 ml-2">({unit.sinhala_name})</span></h4>
+                            <button onClick={() => handleDeleteUnit(unit.id)} className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors">
+                                <Trash2 className="w-5 h-5" />
+                            </button>
+                        </div>
+                        
+                        <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 mb-4 border border-slate-100 dark:border-slate-800">
+                            <div className="flex flex-col sm:flex-row gap-3">
+                                <input placeholder="Subunit (English)" value={newSubunit[unit.id]?.english || ''} onChange={e => setNewSubunit({ ...newSubunit, [unit.id]: { ...newSubunit[unit.id], english: e.target.value }})} className="block w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg shadow-sm px-3 py-2 text-sm text-slate-800 dark:text-slate-200 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all" />
+                                <input placeholder="Subunit (Sinhala)" value={newSubunit[unit.id]?.sinhala || ''} onChange={e => setNewSubunit({ ...newSubunit, [unit.id]: { ...newSubunit[unit.id], sinhala: e.target.value }})} className="block w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg shadow-sm px-3 py-2 text-sm text-slate-800 dark:text-slate-200 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all" />
+                                <button onClick={() => handleAddSubunit(unit.id)} className="flex items-center justify-center gap-2 px-4 py-2 bg-indigo-600 text-white font-bold text-xs rounded-lg shadow-md shadow-indigo-600/30 hover:bg-indigo-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap">Add Subunit</button>
                             </div>
                         </div>
-                        <div className="mt-4 pl-4 border-l-2 border-slate-200 dark:border-slate-600 space-y-2">
-                            <div className="divide-y divide-slate-200 dark:divide-slate-700">
-                                {unit.subunits.map(su => (
-                                    <div key={su.id} className="flex justify-between items-center py-2">
-                                         <div>
-                                            <p className="text-sm text-slate-700 dark:text-slate-300">{su.name}</p>
-                                            <p className="text-xs text-slate-500 dark:text-slate-400">{su.sinhala_name}</p>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                             <div className="pt-2">
-                                <h5 className="font-semibold text-sm mb-2 text-slate-600 dark:text-slate-300">Add Subunit to {unit.name}</h5>
-                                 <div className="grid grid-cols-1 md:grid-cols-[1fr,1fr,auto] gap-2 items-end">
-                                    <input type="text" placeholder="English Name" value={newSubunit[unit.id]?.english || ''} onChange={e => setNewSubunit(prev => ({...prev, [unit.id]: {...prev[unit.id], english: e.target.value}}))} className="input-field-sm" />
-                                    <input type="text" placeholder="Sinhala Name" value={newSubunit[unit.id]?.sinhala || ''} onChange={e => setNewSubunit(prev => ({...prev, [unit.id]: {...prev[unit.id], sinhala: e.target.value}}))} className="input-field-sm" />
-                                    <button onClick={() => handleAddSubunit(unit.id)} className="btn-primary-sm">Add</button>
-                                 </div>
-                            </div>
-                        </div>
+
+                        <ul className="space-y-2">
+                            {unit.subunits.map(su => (
+                                <li key={su.id} className="flex justify-between items-center p-3 bg-slate-100/50 dark:bg-slate-800 rounded-lg group">
+                                    <span className="font-medium text-slate-700 dark:text-slate-300">{su.name} <span className="text-slate-400 text-sm ml-2">({su.sinhala_name})</span></span>
+                                    <button onClick={() => handleDeleteSubunit(unit.id, su.id)} className="text-slate-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all">
+                                        <Trash2 className="w-4 h-4" />
+                                    </button>
+                                </li>
+                            ))}
+                        </ul>
                     </div>
                 ))}
             </div>
@@ -172,22 +180,22 @@ const SyllabusManager: React.FC<Pick<CmsPageProps, 'syllabus' | 'subjects' | 'on
     );
 };
 
-
 const TestManager: React.FC<Pick<CmsPageProps, 'tests' | 'subjects' | 'onTestsChange'>> = ({ tests, subjects, onTestsChange }) => {
-    const [newTest, setNewTest] = useState({ name: '', subjectId: subjects[0]?.id || '', date: '', score: '', total: '' });
+    const academicSubjects = subjects.filter(s => ['physics', 'chemistry', 'combined'].includes(s.id));
+    const [newTest, setNewTest] = useState({ subjectId: academicSubjects[0]?.id || '', name: '', date: '', score: '', total: '' });
 
     const handleAddTest = () => {
-        if (!newTest.name || !newTest.date || !newTest.score || !newTest.total) return;
+        if (!newTest.subjectId || !newTest.name || !newTest.date || !newTest.score || !newTest.total) return;
         const testToAdd: Test = {
             id: `t-${Date.now()}`,
-            name: newTest.name,
             subjectId: newTest.subjectId,
+            name: newTest.name,
             date: newTest.date,
             score: Number(newTest.score),
             total: Number(newTest.total)
         };
         onTestsChange([...tests, testToAdd]);
-        setNewTest({ name: '', subjectId: subjects[0]?.id || '', date: '', score: '', total: '' });
+        setNewTest({ subjectId: academicSubjects[0]?.id || '', name: '', date: '', score: '', total: '' });
     };
 
     const handleDeleteTest = (id: string) => {
@@ -195,42 +203,50 @@ const TestManager: React.FC<Pick<CmsPageProps, 'tests' | 'subjects' | 'onTestsCh
     };
 
     return (
-        <div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-[2fr,1fr,1fr,1fr,1fr] gap-4 mb-4 items-end">
-                <div>
-                    <label className="cms-label">Test Name</label>
-                    <input type="text" placeholder="e.g., Physics MCQ 02" value={newTest.name} onChange={e => setNewTest({ ...newTest, name: e.target.value })} className="input-field" />
-                </div>
-                 <div>
-                    <label className="cms-label">Subject</label>
-                    <select value={newTest.subjectId} onChange={e => setNewTest({ ...newTest, subjectId: e.target.value })} className="select-field">
-                        {subjects.filter(s => ['physics', 'chemistry', 'combined'].includes(s.id)).map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+             <div className="bg-slate-50 dark:bg-slate-800/80 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
+                <div className="lg:col-span-1">
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">Subject</label>
+                    <select value={newTest.subjectId} onChange={e => setNewTest({ ...newTest, subjectId: e.target.value })} className="block w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm px-4 py-3 text-sm text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all appearance-none cursor-pointer">
+                        {academicSubjects.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                     </select>
                 </div>
-                 <div>
-                    <label className="cms-label">Date</label>
-                    <input type="date" value={newTest.date} onChange={e => setNewTest({ ...newTest, date: e.target.value })} className="input-field" />
+                <div className="lg:col-span-1">
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">Test Name</label>
+                    <input placeholder="e.g., Term Test 1" value={newTest.name} onChange={e => setNewTest({ ...newTest, name: e.target.value })} className="block w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm px-4 py-3 text-sm text-slate-800 dark:text-slate-200 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all" />
                 </div>
-                 <div>
-                    <label className="cms-label">Score</label>
-                    <input type="number" placeholder="85" value={newTest.score} onChange={e => setNewTest({ ...newTest, score: e.target.value })} className="input-field" />
+                 <div className="lg:col-span-1">
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">Date</label>
+                    <input type="date" value={newTest.date} onChange={e => setNewTest({ ...newTest, date: e.target.value })} className="block w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm px-4 py-3 text-sm text-slate-800 dark:text-slate-200 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all" />
                 </div>
-                 <div>
-                    <label className="cms-label">Total</label>
-                    <input type="number" placeholder="100" value={newTest.total} onChange={e => setNewTest({ ...newTest, total: e.target.value })} className="input-field" />
+                 <div className="lg:col-span-1">
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">Score</label>
+                    <input type="number" placeholder="85" value={newTest.score} onChange={e => setNewTest({ ...newTest, score: e.target.value })} className="block w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm px-4 py-3 text-sm text-slate-800 dark:text-slate-200 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all" />
+                </div>
+                 <div className="lg:col-span-1">
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">Total</label>
+                    <input type="number" placeholder="100" value={newTest.total} onChange={e => setNewTest({ ...newTest, total: e.target.value })} className="block w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm px-4 py-3 text-sm text-slate-800 dark:text-slate-200 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all" />
+                </div>
+                <div className="lg:col-span-5 flex justify-end mt-2">
+                    <button onClick={handleAddTest} className="flex items-center justify-center gap-2 px-6 py-3 bg-indigo-600 text-white font-bold rounded-xl shadow-lg shadow-indigo-600/30 hover:bg-indigo-500 hover:scale-[1.02] hover:shadow-indigo-500/40 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto px-8">Add Test Result</button>
                 </div>
             </div>
-            <button onClick={handleAddTest} className="btn-primary w-full sm:w-auto">Add Test Result</button>
-            <div className="mt-6 space-y-2">
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {tests.map(test => (
-                    <div key={test.id} className="flex flex-wrap justify-between items-center p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
-                        <div>
-                            <p className="font-semibold text-slate-700 dark:text-slate-300">{test.name}</p>
-                            <p className="text-sm text-slate-500 dark:text-slate-400">
-                                {subjects.find(s=>s.id === test.subjectId)?.name} | {test.date} | Score: {test.score}/{test.total}
-                            </p>
+                    <div key={test.id} className="relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 shadow-sm group">
+                        <button onClick={() => handleDeleteTest(test.id)} className="absolute top-4 right-4 p-2 text-slate-300 dark:text-slate-600 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-all opacity-0 group-hover:opacity-100">
+                            <Trash2 className="w-5 h-5" />
+                        </button>
+                        <h4 className="font-bold text-lg text-slate-800 dark:text-slate-100 mb-1 pr-8">{test.name}</h4>
+                        <div className="flex flex-col gap-1 text-sm text-slate-500 dark:text-slate-400">
+                            <span className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-indigo-500"></div> {subjects.find(s=>s.id === test.subjectId)?.name}</span>
+                            <span className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-slate-300 dark:bg-slate-600"></div> {test.date}</span>
                         </div>
-                        <button onClick={() => handleDeleteTest(test.id)} className="btn-danger-sm">Delete</button>
+                        <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-between items-end">
+                            <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Score</span>
+                            <span className="font-black text-2xl text-indigo-500">{test.score}<span className="text-lg text-slate-400">/{test.total}</span></span>
+                        </div>
                     </div>
                 ))}
             </div>
@@ -240,12 +256,7 @@ const TestManager: React.FC<Pick<CmsPageProps, 'tests' | 'subjects' | 'onTestsCh
 
 const ClassManager: React.FC<Pick<CmsPageProps, 'classes' | 'onClassesChange'>> = ({ classes, onClassesChange }) => {
     const weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-    const [newClass, setNewClass] = useState({
-        name: '',
-        weekday: '0',
-        start: '',
-        end: '',
-    });
+    const [newClass, setNewClass] = useState({ name: '', weekday: '0', start: '', end: '' });
 
     const handleAddClass = () => {
         if (!newClass.name || !newClass.start || !newClass.end) return;
@@ -257,56 +268,52 @@ const ClassManager: React.FC<Pick<CmsPageProps, 'classes' | 'onClassesChange'>> 
             end: newClass.end,
         };
         onClassesChange([...classes, classToAdd]);
-        setNewClass({
-             name: '',
-             weekday: '0',
-             start: '',
-             end: '',
-        });
+        setNewClass({ name: '', weekday: '0', start: '', end: '' });
     };
 
-    const handleDeleteClass = (id: string) => {
-        onClassesChange(classes.filter(c => c.id !== id));
-    };
+    const handleDeleteClass = (id: string) => onClassesChange(classes.filter(c => c.id !== id));
     
      return (
-        <div>
-             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-4 items-end">
+        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+             <div className="bg-slate-50 dark:bg-slate-800/80 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
                 <div>
-                    <label className="cms-label">Class Name</label>
-                    <input 
-                        type="text"
-                        placeholder="e.g., Physics"
-                        value={newClass.name}
-                        onChange={e => setNewClass({ ...newClass, name: e.target.value })}
-                        className="input-field"
-                    />
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">Class Name</label>
+                    <input placeholder="e.g., Physics Masterclass" value={newClass.name} onChange={e => setNewClass({ ...newClass, name: e.target.value })} className="block w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm px-4 py-3 text-sm text-slate-800 dark:text-slate-200 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all" />
                 </div>
                 <div>
-                    <label className="cms-label">Day of Week</label>
-                    <select value={newClass.weekday} onChange={e => setNewClass({ ...newClass, weekday: e.target.value })} className="select-field">
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">Day of Week</label>
+                    <select value={newClass.weekday} onChange={e => setNewClass({ ...newClass, weekday: e.target.value })} className="block w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm px-4 py-3 text-sm text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all appearance-none cursor-pointer">
                         {weekdays.map((day, index) => <option key={index} value={index}>{day}</option>)}
                     </select>
                 </div>
                  <div>
-                    <label className="cms-label">Start Time</label>
-                    <input type="time" value={newClass.start} onChange={e => setNewClass({ ...newClass, start: e.target.value })} className="input-field" />
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">Start Time</label>
+                    <input type="time" value={newClass.start} onChange={e => setNewClass({ ...newClass, start: e.target.value })} className="block w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm px-4 py-3 text-sm text-slate-800 dark:text-slate-200 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all" />
                 </div>
                  <div>
-                    <label className="cms-label">End Time</label>
-                    <input type="time" value={newClass.end} onChange={e => setNewClass({ ...newClass, end: e.target.value })} className="input-field" />
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">End Time</label>
+                    <input type="time" value={newClass.end} onChange={e => setNewClass({ ...newClass, end: e.target.value })} className="block w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm px-4 py-3 text-sm text-slate-800 dark:text-slate-200 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all" />
+                </div>
+                <div className="lg:col-span-4 flex justify-end mt-2">
+                    <button onClick={handleAddClass} className="flex items-center justify-center gap-2 px-6 py-3 bg-indigo-600 text-white font-bold rounded-xl shadow-lg shadow-indigo-600/30 hover:bg-indigo-500 hover:scale-[1.02] hover:shadow-indigo-500/40 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto px-8">Add Schedule</button>
                 </div>
             </div>
-            <button onClick={handleAddClass} className="btn-primary w-full sm:w-auto">Add Class</button>
 
-            <div className="mt-6 space-y-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {classes.sort((a,b) => a.weekday - b.weekday).map(c => (
-                    <div key={c.id} className="flex justify-between items-center p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
-                        <div>
-                            <p className="font-semibold text-slate-700 dark:text-slate-200">{c.name}</p>
-                            <p className="text-sm text-slate-500 dark:text-slate-400">{weekdays[c.weekday]}, {c.start} - {c.end}</p>
+                    <div key={c.id} className="flex justify-between items-center p-4 bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
+                        <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 bg-indigo-50 dark:bg-indigo-500/10 rounded-xl flex flex-col items-center justify-center text-indigo-600 dark:text-indigo-400">
+                                <span className="text-xs font-black uppercase">{weekdays[c.weekday].substring(0,3)}</span>
+                            </div>
+                            <div>
+                                <p className="font-bold text-slate-800 dark:text-slate-100">{c.name}</p>
+                                <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{c.start} - {c.end}</p>
+                            </div>
                         </div>
-                        <button onClick={() => handleDeleteClass(c.id)} className="btn-danger-sm">Delete</button>
+                        <button onClick={() => handleDeleteClass(c.id)} className="p-2 text-slate-300 dark:text-slate-600 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-all">
+                            <Trash2 className="w-5 h-5" />
+                        </button>
                     </div>
                 ))}
             </div>
@@ -315,89 +322,73 @@ const ClassManager: React.FC<Pick<CmsPageProps, 'classes' | 'onClassesChange'>> 
 }
 
 const CmsPage: React.FC<CmsPageProps> = (props) => {
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
+    const [activeTab, setActiveTab] = useState<'syllabus' | 'tests' | 'classes'>('syllabus');
 
-    const handleLogin = (e: React.FormEvent) => {
-        e.preventDefault();
-        if (password === ADMIN_PASSWORD) {
-            setIsAuthenticated(true);
-            setError('');
-        } else {
-            setError('Incorrect password.');
-        }
-    };
+    const tabs = [
+        { id: 'syllabus', label: 'Syllabus Editor', icon: BookOpen },
+        { id: 'tests', label: 'Test Records', icon: FileSignature },
+        { id: 'classes', label: 'Class Schedule', icon: CalendarClock },
+    ] as const;
 
-    if (!isAuthenticated) {
-        return (
-            <div className="flex items-center justify-center h-full">
-                <div className="w-full max-w-sm">
-                    <form onSubmit={handleLogin} className="bg-white dark:bg-slate-800 shadow-xl rounded-2xl p-8">
-                        <div className="flex justify-center mb-4">
-                            <div className="p-3 bg-indigo-100 dark:bg-indigo-500/20 rounded-full">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-indigo-600 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7a8 4 0 0116 0M12 11a8 4 0 00-8 4" />
-                                </svg>
-                            </div>
-                        </div>
-                        <h1 className="text-2xl font-bold text-center mb-1 text-slate-800 dark:text-slate-100">CMS Access</h1>
-                        <p className="text-center text-slate-500 dark:text-slate-400 mb-6 text-sm">Enter password to manage content</p>
-                         <div className="mb-4">
-                            <label className="block text-slate-700 dark:text-slate-300 text-sm font-bold mb-2" htmlFor="password">
-                                Password
-                            </label>
-                            <input
-                                className="input-field w-full"
-                                id="password"
-                                type="password"
-                                placeholder="Enter admin password"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                            />
-                        </div>
-                        {error && <p className="text-red-500 text-xs italic mb-4">{error}</p>}
-                        <button className="btn-primary w-full" type="submit">
-                            Sign In
-                        </button>
-                    </form>
+    return (
+        <div className="max-w-5xl mx-auto flex flex-col h-full min-h-[80vh]">
+            
+
+            <div className="flex items-center gap-4 mb-8">
+                <div className="w-12 h-12 bg-slate-800 dark:bg-white rounded-2xl shadow-xl flex items-center justify-center rotate-3">
+                    <Settings className="w-6 h-6 text-white dark:text-slate-900" />
+                </div>
+                <div>
+                    <h1 className="text-3xl font-black text-slate-800 dark:text-slate-100 tracking-tight">Configuration</h1>
+                    <p className="text-slate-500 dark:text-slate-400 font-medium">Manage backend data and schedules.</p>
                 </div>
             </div>
-        );
-    }
-    
 
-  return (
-    <div className="max-w-5xl mx-auto space-y-8">
-      <div>
-        <h1 className="text-2xl sm:text-3xl font-bold text-slate-800 dark:text-slate-100">Content Management System</h1>
-        <p className="text-slate-500 dark:text-slate-400">Manage your study planner's data.</p>
-      </div>
+            {/* Glowing Gamified Tabs */}
+            <div className="flex gap-2 p-1.5 bg-slate-200/50 dark:bg-slate-800/50 backdrop-blur-md rounded-2xl mb-8 border border-white/20 dark:border-white/5 w-fit">
+                {tabs.map(tab => {
+                    const isActive = activeTab === tab.id;
+                    const Icon = tab.icon;
+                    return (
+                        <button
+                            key={tab.id}
+                            onClick={() => setActiveTab(tab.id)}
+                            className={`relative flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 z-10 ${
+                                isActive ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
+                            }`}
+                        >
+                            {isActive && (
+                                <motion.div
+                                    layoutId="cms-tab-pill"
+                                    className="absolute inset-0 bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200/50 dark:border-slate-700/50 -z-10"
+                                    transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
+                                />
+                            )}
+                            <Icon className="w-4 h-4" />
+                            {tab.label}
+                        </button>
+                    )
+                })}
+            </div>
 
-      <style>{`
-        .cms-label { @apply block text-sm font-semibold text-slate-600 dark:text-slate-300 mb-1; }
-        .input-field { @apply block w-full bg-slate-50 dark:bg-slate-700/50 border border-slate-300 dark:border-slate-600 rounded-lg shadow-sm px-3 py-2 text-sm text-slate-800 dark:text-slate-200 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition; }
-        .input-field-sm { @apply text-sm block w-full bg-slate-50 dark:bg-slate-700/50 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm px-2 py-1 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition; }
-        .select-field { @apply block w-full bg-slate-50 dark:bg-slate-700/50 border border-slate-300 dark:border-slate-600 rounded-lg shadow-sm px-3 py-2 text-sm text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition; }
-        .select-field-sm { @apply text-sm block w-full bg-slate-50 dark:bg-slate-700/50 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition; }
-        .btn-primary { @apply inline-flex items-center justify-center px-4 py-2 bg-indigo-600 text-white font-semibold text-sm rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-slate-900 transition-colors disabled:opacity-50 disabled:cursor-not-allowed; }
-        .btn-primary-sm { @apply inline-flex items-center justify-center px-3 py-1.5 bg-indigo-600 text-white font-semibold text-xs rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-slate-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed; }
-        .btn-danger-sm { @apply inline-flex items-center justify-center p-1.5 bg-red-500 text-white font-bold text-xs rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 dark:focus:ring-offset-slate-800 transition-colors; }
-      `}</style>
-
-      <Section title="Manage Syllabus">
-        <SyllabusManager {...props} />
-      </Section>
-      
-      <Section title="Manage Tests">
-        <TestManager {...props} />
-      </Section>
-
-      <Section title="Class Schedule">
-        <ClassManager {...props} />
-      </Section>
-    </div>
-  );
+            {/* Content Area */}
+            <div className="flex-1">
+                <AnimatePresence mode="wait">
+                    <motion.div
+                        key={activeTab}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ duration: 0.2 }}
+                    >
+                        {activeTab === 'syllabus' && <SyllabusManager {...props} />}
+                        {activeTab === 'tests' && <TestManager {...props} />}
+                        {activeTab === 'classes' && <ClassManager {...props} />}
+                    </motion.div>
+                </AnimatePresence>
+            </div>
+        </div>
+    );
 };
 
 export default CmsPage;
