@@ -1,4 +1,5 @@
-﻿import { JournalEntry } from '../types';
+import { JournalEntry } from '../types';
+import { supabase } from './apiClient';
 
 const STORAGE_KEY = 'sp_journal_entries';
 const PIN_KEY = 'sp_journal_pin';
@@ -15,7 +16,21 @@ const MOCK_ENTRY: JournalEntry = {
     ]
 };
 
-export const getJournalEntries = (): JournalEntry[] => {
+export const getJournalEntries = async (): Promise<JournalEntry[]> => {
+    if (supabase) {
+        const { data, error } = await supabase.from('journal_entries').select('*').order('date', { ascending: false });
+        if (!error && data) {
+            return data.map(d => ({
+                id: d.id,
+                date: d.date,
+                content: d.content,
+                photos: d.photos || [],
+                completedTasks: d.completed_tasks || []
+            }));
+        }
+    }
+    
+    // Fallback to local storage
     try {
         const data = localStorage.getItem(STORAGE_KEY);
         if (data) {
@@ -27,8 +42,23 @@ export const getJournalEntries = (): JournalEntry[] => {
     return [MOCK_ENTRY];
 };
 
-export const saveJournalEntry = (entry: JournalEntry) => {
-    const entries = getJournalEntries();
+export const saveJournalEntry = async (entry: JournalEntry): Promise<void> => {
+    if (supabase) {
+        const { error } = await supabase
+            .from('journal_entries')
+            .upsert({
+                date: entry.date,
+                content: entry.content,
+                photos: entry.photos,
+                completed_tasks: entry.completedTasks
+            }, { onConflict: 'date' });
+            
+        if (!error) return;
+        console.error("Supabase journal save error", error);
+    }
+
+    // Fallback to local storage
+    const entries = await getJournalEntries();
     const existingIndex = entries.findIndex(e => e.date === entry.date);
     if (existingIndex >= 0) {
         entries[existingIndex] = entry;

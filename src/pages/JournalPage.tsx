@@ -18,7 +18,7 @@ const JournalPage: React.FC = () => {
         setHasPinSet(!!existingPin);
     }, []);
 
-    const handleAuth = (e: React.FormEvent) => {
+    const handleAuth = async (e: React.FormEvent) => {
         e.preventDefault();
         const existingPin = getJournalPin();
         
@@ -27,12 +27,12 @@ const JournalPage: React.FC = () => {
                 setJournalPin(pinInput);
                 setHasPinSet(true);
                 setIsAuthenticated(true);
-                setEntries(getJournalEntries());
+                setEntries(await getJournalEntries());
             }
         } else {
             if (pinInput === existingPin) {
                 setIsAuthenticated(true);
-                setEntries(getJournalEntries());
+                setEntries(await getJournalEntries());
             } else {
                 alert("Incorrect PIN");
             }

@@ -61,16 +61,19 @@ const JournalModal: React.FC<JournalModalProps> = ({ isOpen, onClose, day }) => 
     useEffect(() => {
         if (isOpen && day) {
             // Check if entry already exists for today
-            const entries = getJournalEntries();
-            const existing = entries.find(e => e.date === day.dateStr);
-            if (existing) {
-                setContent(existing.content);
-                setPhotos(existing.photos || []);
-            } else {
-                setContent('');
-                setPhotos([]);
-            }
-            setIsSaved(false);
+            const fetchEntries = async () => {
+                const entries = await getJournalEntries();
+                const existing = entries.find(e => e.date === day.dateStr);
+                if (existing) {
+                    setContent(existing.content);
+                    setPhotos(existing.photos || []);
+                } else {
+                    setContent('');
+                    setPhotos([]);
+                }
+                setIsSaved(false);
+            };
+            fetchEntries();
         }
     }, [isOpen, day]);
 
