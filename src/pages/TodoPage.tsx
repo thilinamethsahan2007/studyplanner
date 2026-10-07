@@ -278,10 +278,10 @@ const TodoPage: React.FC<TodoPageProps> = ({ day, onDayChange, classes, logs, on
         {/* Header Section */}
         <div className="mb-8 flex justify-center">
             <div className="grid grid-cols-[max-content_max-content] items-center gap-x-2 sm:gap-x-4">
-                <div className="row-span-2 text-8xl sm:text-[10rem] font-bold text-indigo-600 dark:text-indigo-400 tracking-tighter leading-[0.8]">
+                <div className="row-span-2 text-8xl sm:text-[10rem] font-black bg-gradient-to-r from-amber-300 via-yellow-500 to-amber-600 bg-clip-text text-transparent drop-shadow-sm tracking-tighter leading-[0.8]">
                     TO
                 </div>
-                <div className="self-end text-4xl sm:text-6xl font-bold text-slate-800 dark:text-slate-100 tracking-tighter leading-none">
+                <div className="self-end text-4xl sm:text-6xl font-black text-slate-800 dark:text-slate-100 tracking-tighter leading-none">
                     DAY
                 </div>
                 <div className="self-start text-4xl sm:text-6xl font-bold text-slate-700 dark:text-slate-300 tracking-tighter leading-none">
