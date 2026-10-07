@@ -148,7 +148,7 @@ const JournalPage: React.FC = () => {
         <div className="max-w-5xl mx-auto w-full flex flex-col gap-8 pb-12 h-full">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl md:text-4xl font-black bg-gradient-to-r from-indigo-400 via-indigo-500 to-purple-500 bg-clip-text text-transparent drop-shadow-sm tracking-tight drop-shadow-md">Private Diary</h1>
+                    <h1 className="text-3xl md:text-4xl font-black bg-gradient-to-r from-purple-400 via-purple-500 to-pink-500 bg-clip-text text-transparent drop-shadow-sm tracking-tight drop-shadow-md">Private Diary</h1>
                     <p className="text-slate-500 dark:text-slate-400 font-medium mt-1">Select a highlighted day to view its journal entry.</p>
                 </div>
                 <button onClick={() => setIsAuthenticated(false)} className="shrink-0 flex items-center gap-2 px-4 py-2 bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold rounded-xl hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors">

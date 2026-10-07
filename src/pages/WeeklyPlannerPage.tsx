@@ -133,7 +133,7 @@ const WeeklyPlannerPage: React.FC = () => {
   return (
     <div className="p-4 md:p-8 max-w-7xl mx-auto h-[calc(100vh-4rem)] overflow-hidden flex flex-col">
       <div className="mb-6 shrink-0">
-        <h1 className="text-3xl md:text-4xl font-black bg-gradient-to-r from-indigo-400 via-indigo-500 to-purple-500 bg-clip-text text-transparent drop-shadow-sm tracking-tight">Weekly Backlog Planner</h1>
+        <h1 className="text-3xl md:text-4xl font-black bg-gradient-to-r from-purple-400 via-purple-500 to-pink-500 bg-clip-text text-transparent drop-shadow-sm tracking-tight">Weekly Backlog Planner</h1>
         <p className="text-slate-500 dark:text-slate-400 mt-1">Brain dump your workload into the Inbox, then drag and drop to schedule!</p>
       </div>
       

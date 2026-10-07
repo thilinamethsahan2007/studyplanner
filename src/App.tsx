@@ -165,7 +165,7 @@ const App: React.FC = () => {
 
     if (isLoading) {
         return (
-            <div className="flex items-center justify-center h-screen w-screen bg-transparent">
+            <div className="flex items-center justify-center h-screen w-screen bg-slate-200 dark:bg-black">
                 <div className="animate-pulse flex flex-col items-center">
                     <div className="w-16 h-16 bg-indigo-500 rounded-2xl shadow-lg shadow-indigo-500/50 flex items-center justify-center mb-4">
                         <span className="text-white font-black text-2xl">TR</span>
@@ -178,16 +178,16 @@ const App: React.FC = () => {
 
     return (
         <HashRouter>
-            <div className="flex h-screen bg-transparent p-0 pt-14 md:p-3 md:pt-3 gap-0 md:gap-3 font-sans overflow-hidden">
+            <div className="flex h-screen bg-white dark:bg-slate-950 md:bg-slate-200 md:dark:bg-black p-0 pt-14 md:p-3 md:pt-3 gap-0 md:gap-3 font-sans overflow-hidden">
                 
                 {/* Arc-style Floating Sidebar (Desktop) */}
-                <nav className="hidden md:flex w-64 flex-col bg-white/80 dark:bg-slate-900/80 backdrop-blur-2xl border border-white/40 dark:border-white/10 rounded-2xl shadow-xl overflow-hidden transition-all duration-300 relative z-10">
+                <nav className="hidden md:flex w-64 flex-col bg-white/50 dark:bg-slate-900/50 backdrop-blur-2xl border border-white/40 dark:border-white/10 rounded-2xl shadow-xl overflow-hidden transition-all duration-300 relative z-10">
                     <div className="p-5 flex items-center gap-3 border-b border-black/5 dark:border-white/5 bg-white/30 dark:bg-black/20">
                         <div className="w-10 h-10 bg-gradient-to-tr from-indigo-500 to-purple-500 rounded-xl shadow-lg flex items-center justify-center text-white font-black text-lg">
                             SP
                         </div>
                         <div>
-                            <h1 className="font-black bg-gradient-to-r from-indigo-400 via-indigo-500 to-purple-500 bg-clip-text text-transparent drop-shadow-sm leading-tight text-xl tracking-tight">Tracker</h1>
+                            <h1 className="font-black bg-gradient-to-r from-purple-400 via-purple-500 to-pink-500 bg-clip-text text-transparent drop-shadow-sm leading-tight text-xl tracking-tight">Tracker</h1>
                             
                         </div>
                     </div>
@@ -223,7 +223,7 @@ const App: React.FC = () => {
                 <div className="md:hidden fixed top-0 left-0 right-0 h-14 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-black/5 dark:border-white/10 z-40 flex items-center justify-between px-4">
                     <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
                         <div className="w-8 h-8 bg-gradient-to-tr from-indigo-500 to-purple-500 rounded-lg shadow-sm flex items-center justify-center text-white font-black text-sm">TR</div>
-                        <span className="font-black bg-gradient-to-r from-indigo-400 via-indigo-500 to-purple-500 bg-clip-text text-transparent drop-shadow-sm text-lg tracking-tight">Tracker</span>
+                        <span className="font-black bg-gradient-to-r from-purple-400 via-purple-500 to-pink-500 bg-clip-text text-transparent drop-shadow-sm text-lg tracking-tight">Tracker</span>
                     </Link>
                     <div className="flex items-center gap-2">
                         
@@ -257,7 +257,7 @@ const App: React.FC = () => {
                 )}
 
                 {/* Main Viewport Window */}
-                <main className="flex-1 relative bg-white/20 dark:bg-slate-900/30 backdrop-blur-md rounded-none md:rounded-[2.5rem] shadow-none md:shadow-2xl border border-white/50 dark:border-white/10 overflow-hidden flex flex-col ring-1 ring-white/20 dark:ring-white/5">
+                <main className="flex-1 relative bg-white dark:bg-slate-950 rounded-none md:rounded-[2rem] shadow-none md:shadow-2xl ring-0 md:ring-1 ring-black/5 md:dark:ring-white/10 overflow-hidden flex flex-col ">
                     <CommandPalette />
                     <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-10 w-full h-full relative z-0 scrollbar-hide">
                         <Routes>

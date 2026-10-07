@@ -178,7 +178,7 @@ const SubjectPage: React.FC<SubjectPageProps> = ({ syllabusData, subjects, onSyl
       {/* Unit List View */}
       <div className={`w-full lg:w-1/3 ${selectedUnit ? 'hidden lg:block' : 'block'}`}>
         <div className="flex justify-between items-center mb-4">
-          <h1 className="text-3xl sm:text-4xl font-black bg-gradient-to-r from-indigo-400 via-indigo-500 to-purple-500 bg-clip-text text-transparent drop-shadow-sm tracking-tight">{subject.name}</h1>
+          <h1 className="text-3xl sm:text-4xl font-black bg-gradient-to-r from-purple-400 via-purple-500 to-pink-500 bg-clip-text text-transparent drop-shadow-sm tracking-tight">{subject.name}</h1>
           {subjectId === 'combined' && <ToggleSwitch options={combinedToggleOptions} value={combinedMode} onChange={(val) => setCombinedMode(val as 'pure' | 'applied')} />}
         </div>
 
