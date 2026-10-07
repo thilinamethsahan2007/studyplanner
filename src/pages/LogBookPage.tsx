@@ -108,7 +108,7 @@ const LogBookPage: React.FC<LogBookPageProps> = ({ logs, weeklySummaries, subjec
             </div>
 
             {/* Current Week Section */}
-            <div className="bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl border border-white/40 dark:border-slate-700/50 p-4 sm:p-6 rounded-3xl shadow-xl shadow-black/5">
+            <div className="bg-white dark:bg-slate-800 p-4 sm:p-6 rounded-2xl shadow-sm">
                 <div className="flex flex-col sm:flex-row justify-between sm:items-center border-b border-slate-200 dark:border-slate-700 pb-4 mb-4">
                     <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100">Current Week</h2>
                     <div className="text-left sm:text-right mt-2 sm:mt-0">
@@ -154,12 +154,12 @@ const LogBookPage: React.FC<LogBookPageProps> = ({ logs, weeklySummaries, subjec
                                             return (
                                             <div key={categoryKey}>
                                                 <CategoryHeader category={categoryKey} totalMinutes={categoryTotalMinutes} />
-                                                <div className="pl-7 space-y-1 border-l-2 border-indigo-400/30 dark:border-indigo-500/30 shadow-[0_0_10px_rgba(20,184,166,0.1)] ml-2.5 mt-2">
+                                                <div className="pl-7 space-y-1 border-l-2 border-slate-200 dark:border-slate-700 ml-2.5 mt-2">
                                                 {categoryLogs.map(log => {
                                                     const subject = subjects.find(s => s.id === log.subjectId);
                                                     return (
                                                     <div key={log.id} className="pt-2 pl-4 relative">
-                                                        <div className="absolute -left-[5px] top-5 h-2 w-2 rounded-full bg-indigo-500 dark:bg-indigo-400 ring-4 ring-white/50 dark:ring-slate-900/50 shadow-[0_0_10px_rgba(20,184,166,0.5)]"></div>
+                                                        <div className="absolute -left-[5px] top-5 h-2 w-2 rounded-full bg-slate-300 dark:bg-slate-600 ring-4 ring-white dark:ring-slate-800"></div>
 
                                                         <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2">
                                                         <div>
@@ -196,14 +196,14 @@ const LogBookPage: React.FC<LogBookPageProps> = ({ logs, weeklySummaries, subjec
             </div>
 
             {/* Weekly History Section */}
-            <div className="bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl border border-white/40 dark:border-slate-700/50 p-4 sm:p-6 rounded-3xl shadow-xl shadow-black/5">
+            <div className="bg-white dark:bg-slate-800 p-4 sm:p-6 rounded-2xl shadow-sm">
                 <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-4">Weekly History</h2>
                 {weeklySummaries.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {weeklySummaries.sort((a,b) => new Date(b.weekOf).getTime() - new Date(a.weekOf).getTime()).map(summary => {
                             const subjectAverages = Object.entries(summary.subjectAverages).sort(([, a], [, b]) => (b as number) - (a as number));
                             return (
-                                <div key={summary.weekOf} className="p-4 bg-white/40 dark:bg-slate-800/40 backdrop-blur-md rounded-2xl border border-white/30 dark:border-slate-600/30 shadow-lg shadow-black/5 hover:bg-white/50 dark:hover:bg-slate-800/60 transition-all cursor-default">
+                                <div key={summary.weekOf} className="p-4 bg-slate-50 dark:bg-slate-700/60 rounded-xl border border-slate-200 dark:border-slate-700">
                                     <p className="font-semibold text-slate-700 dark:text-slate-200">Week of {formatDate(summary.weekOf)}</p>
                                     <div className="my-3 text-center">
                                         <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Average Daily Study</p>
