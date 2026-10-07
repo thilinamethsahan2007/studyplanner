@@ -63,7 +63,7 @@ const JournalModal: React.FC<JournalModalProps> = ({ isOpen, onClose, day }) => 
             // Check if entry already exists for today
             const fetchEntries = async () => {
                 const entries = await getJournalEntries();
-                const existing = entries.find(e => e.date === day.dateStr);
+                const existing = entries.find(e => e.date === day.date);
                 if (existing) {
                     setContent(existing.content);
                     setPhotos(existing.photos || []);
@@ -113,7 +113,7 @@ const JournalModal: React.FC<JournalModalProps> = ({ isOpen, onClose, day }) => 
         const completedTasks = (day.items || []).filter(i => i.done).map(i => ({ title: i.title, subjectId: i.subjectId }));
         const entry: JournalEntry = {
             id: "journal-" + Date.now(),
-            date: day.dateStr,
+            date: day.date,
             content,
             photos,
             completedTasks
