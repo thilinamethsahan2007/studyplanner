@@ -189,7 +189,7 @@ const App: React.FC = () => {
                         </div>
                         <div>
                             <h1 className="font-bold text-slate-800 dark:text-slate-100 leading-tight">Tracker</h1>
-                            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Arc Edition</p>
+                            
                         </div>
                     </div>
                     
