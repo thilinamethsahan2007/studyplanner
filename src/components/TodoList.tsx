@@ -32,7 +32,7 @@ const TodoList: React.FC<TodoListProps> = ({ todos, onToggle, subjects, onStartP
               exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.2 } }}
               transition={{ type: "spring", stiffness: 400, damping: 25 }}
               key={todo.id}
-              className={`flex items-start p-4 rounded-xl border ${todo.done ? 'bg-slate-50 dark:bg-slate-800/50 border-slate-100 dark:border-slate-800' : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-sm'}`}
+              className={`flex items-start p-4 rounded-2xl border backdrop-blur-md transition-all duration-300 ${todo.done ? 'bg-slate-100/30 dark:bg-slate-900/30 border-white/20 dark:border-slate-800/30 opacity-60' : 'bg-white/70 dark:bg-slate-800/70 border-white/60 dark:border-slate-700/60 shadow-lg shadow-black/5 hover:shadow-black/10 hover:bg-white/80 dark:hover:bg-slate-800/90'}`}
             >
               <div className="flex-shrink-0 mr-4 pt-0.5">
                 <button 

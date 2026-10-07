@@ -333,7 +333,7 @@ const TodoPage: React.FC<TodoPageProps> = ({ day, onDayChange, classes, logs, on
         <SmartTodoInput onAddTodos={addTodos} />
 
         {/* Todo List Container */}
-        <div className="bg-white dark:bg-slate-800 p-4 sm:p-6 rounded-2xl shadow-sm mb-8 max-h-[60vh] overflow-y-auto scrollbar-hide">
+        <div className="bg-white/50 dark:bg-slate-800/50 backdrop-blur-xl border border-white/40 dark:border-slate-700/50 p-4 sm:p-6 rounded-3xl shadow-xl shadow-black/5 mb-8 max-h-[60vh] overflow-y-auto scrollbar-hide">
             <TodoList todos={day.items} onToggle={toggleTodo} subjects={mockSubjects} onStartPomodoro={handleStartPomodoro} />
         </div>
     </div>

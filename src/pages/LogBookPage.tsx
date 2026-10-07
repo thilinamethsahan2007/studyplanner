@@ -108,7 +108,7 @@ const LogBookPage: React.FC<LogBookPageProps> = ({ logs, weeklySummaries, subjec
             </div>
 
             {/* Current Week Section */}
-            <div className="bg-white dark:bg-slate-800 p-4 sm:p-6 rounded-2xl shadow-sm">
+            <div className="bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl border border-white/40 dark:border-slate-700/50 p-4 sm:p-6 rounded-3xl shadow-xl shadow-black/5">
                 <div className="flex flex-col sm:flex-row justify-between sm:items-center border-b border-slate-200 dark:border-slate-700 pb-4 mb-4">
                     <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100">Current Week</h2>
                     <div className="text-left sm:text-right mt-2 sm:mt-0">
@@ -196,7 +196,7 @@ const LogBookPage: React.FC<LogBookPageProps> = ({ logs, weeklySummaries, subjec
             </div>
 
             {/* Weekly History Section */}
-            <div className="bg-white dark:bg-slate-800 p-4 sm:p-6 rounded-2xl shadow-sm">
+            <div className="bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl border border-white/40 dark:border-slate-700/50 p-4 sm:p-6 rounded-3xl shadow-xl shadow-black/5">
                 <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-4">Weekly History</h2>
                 {weeklySummaries.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
