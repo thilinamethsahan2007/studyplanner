@@ -102,7 +102,7 @@ const JournalPage: React.FC = () => {
                     <ArrowLeft className="w-5 h-5" /> Back to Calendar
                 </button>
 
-                <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 md:p-10 shadow-xl border border-slate-100 dark:border-slate-800 relative overflow-hidden">
+                <div className="bg-white/60 dark:bg-slate-900/60 backdrop-blur-2xl rounded-3xl p-6 md:p-10 shadow-xl border border-white/40 dark:border-slate-700/50 relative overflow-hidden">
                     <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>
                     
                     <div className="flex items-center gap-3 text-indigo-500 mb-8 mt-2">
@@ -156,7 +156,7 @@ const JournalPage: React.FC = () => {
                 </button>
             </div>
 
-            <div className="flex-1 bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-800 p-6 md:p-8 flex flex-col">
+            <div className="flex-1 bg-white/40 dark:bg-slate-800/40 backdrop-blur-xl rounded-3xl shadow-xl shadow-black/5 border border-white/50 dark:border-slate-600/50 p-6 md:p-8 flex flex-col">
                 
                 {/* Calendar Header */}
                 <div className="flex items-center justify-between mb-8">
@@ -195,7 +195,7 @@ const JournalPage: React.FC = () => {
                                 <button
                                     key={dayNum}
                                     onClick={() => setSelectedEntry(entry)}
-                                    className="relative flex flex-col items-center justify-center bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 font-bold rounded-2xl md:rounded-3xl transition-all hover:scale-105 active:scale-95 shadow-sm border border-indigo-200 dark:border-indigo-500/30 group p-2 min-h-[60px] md:min-h-[80px]"
+                                    className="relative flex flex-col items-center justify-center bg-white/70 dark:bg-indigo-900/30 backdrop-blur-md hover:bg-white/90 dark:hover:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 font-bold rounded-2xl md:rounded-3xl transition-all hover:scale-105 active:scale-95 shadow-lg shadow-black/5 border border-white/60 dark:border-indigo-500/40 group p-2 min-h-[60px] md:min-h-[80px]"
                                 >
                                     <span className="text-lg md:text-2xl">{dayNum}</span>
                                     <div className="absolute bottom-2 md:bottom-3 flex gap-1 mt-1">
@@ -209,7 +209,7 @@ const JournalPage: React.FC = () => {
                         return (
                             <div
                                 key={dayNum}
-                                className={`relative flex items-center justify-center text-slate-400 dark:text-slate-600 font-semibold rounded-2xl md:rounded-3xl border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900 p-2 min-h-[60px] md:min-h-[80px] ${isToday ? 'ring-2 ring-rose-500/50 text-slate-700 dark:text-slate-300' : ''}`}
+                                className={`relative flex items-center justify-center text-slate-400 dark:text-slate-500 font-semibold rounded-2xl md:rounded-3xl border border-slate-100/50 dark:border-slate-700/30 bg-white/20 dark:bg-slate-800/20 p-2 min-h-[60px] md:min-h-[80px] ${isToday ? 'ring-2 ring-rose-500/50 text-slate-700 dark:text-slate-300 bg-rose-50/30 dark:bg-rose-900/10' : ''}`}
                             >
                                 <span className="text-lg md:text-xl">{dayNum}</span>
                                 {isToday && <div className="absolute top-2 right-2 w-2 h-2 rounded-full bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.8)]"></div>}
