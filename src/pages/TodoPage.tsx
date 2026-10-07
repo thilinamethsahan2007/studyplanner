@@ -177,9 +177,6 @@ const TodoPage: React.FC<TodoPageProps> = ({ day, onDayChange, classes, logs, on
         durationMinutes,
         breakMinutes
     };
-        endTime,
-        durationMinutes,
-    };
     
     onLogsChange([...logs, newLog]);
     
