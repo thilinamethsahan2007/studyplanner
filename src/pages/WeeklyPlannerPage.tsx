@@ -4,6 +4,7 @@ import { TodoItem } from '../types';
 import { generateTodoSuggestions } from '../services/smartParser';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import { CheckCircle2, Circle, Trash2 } from 'lucide-react';
+import { mockSubjects } from '../mockData';
 
 const WeeklyPlannerPage: React.FC = () => {
   const [weekDays, setWeekDays] = useState<{ date: Date, dateStr: string, title: string, subtitle: string }[]>([]);
@@ -178,32 +179,44 @@ const WeeklyPlannerPage: React.FC = () => {
                           {...provided.droppableProps}
                           className={`flex-1 p-4 overflow-y-auto scrollbar-hide transition-colors ${snapshot.isDraggingOver ? 'bg-blue-50/50 dark:bg-blue-900/10' : ''}`}
                         >
-                          {items.map((item, index) => (
+                          {items.map((item, index) => {
+                            const subject = mockSubjects.find(s => s.id === item.subjectId) || { color: '#94a3b8', name: 'Personal' };
+                            return (
                             <Draggable key={item.id} draggableId={item.id} index={index}>
                               {(provided, snapshot) => (
                                 <div
                                   ref={provided.innerRef}
                                   {...provided.draggableProps}
                                   {...provided.dragHandleProps}
-                                  className={`p-4 mb-3 rounded-2xl text-sm border shadow-sm transition-all ${snapshot.isDragging ? 'bg-white dark:bg-slate-800 border-blue-400 dark:border-blue-500 shadow-xl scale-105 rotate-2 z-50' : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-500 hover:shadow-md'}`}
+                                  style={{ borderLeftColor: subject.color }}
+                                  className={`p-3 mb-3 rounded-xl text-sm border-y border-r border-l-[6px] shadow-sm transition-all overflow-hidden ${snapshot.isDragging ? 'bg-white dark:bg-slate-800 border-y-blue-400 border-r-blue-400 dark:border-y-blue-500 dark:border-r-blue-500 shadow-xl scale-105 rotate-2 z-50' : 'bg-white dark:bg-slate-800 border-y-slate-200 border-r-slate-200 dark:border-y-slate-700 dark:border-r-slate-700 hover:shadow-md'}`}
                                 >
-                                  <div className="flex items-start gap-3">
-                                    <button onClick={() => handleToggleDone(col.dateStr, item.id)} className="mt-0.5 shrink-0 text-slate-400 hover:text-blue-500 transition-colors">
-                                      {item.done ? <CheckCircle2 className="w-5 h-5 text-blue-500" /> : <Circle className="w-5 h-5" />}
-                                    </button>
-                                    <div className="flex-1 min-w-0">
-                                      <p className={`font-semibold truncate ${item.done ? 'text-slate-400 line-through' : 'text-slate-700 dark:text-slate-200'}`}>
-                                        {item.title}
-                                      </p>
+                                  <div className="flex flex-col gap-1.5">
+                                    <div className="flex items-start gap-3">
+                                      <button onClick={() => handleToggleDone(col.dateStr, item.id)} className="mt-0.5 shrink-0 text-slate-400 hover:text-blue-500 transition-colors">
+                                        {item.done ? <CheckCircle2 className="w-5 h-5 text-blue-500" /> : <Circle className="w-5 h-5" />}
+                                      </button>
+                                      <div className="flex-1 min-w-0">
+                                        <p className={`font-semibold text-[13px] leading-tight ${item.done ? 'text-slate-400 line-through' : 'text-slate-700 dark:text-slate-200'}`}>
+                                          {item.title}
+                                        </p>
+                                      </div>
+                                      <button onClick={() => handleDelete(col.dateStr, item.id)} className="shrink-0 text-slate-300 hover:text-rose-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <Trash2 className="w-4 h-4" />
+                                      </button>
                                     </div>
-                                    <button onClick={() => handleDelete(col.dateStr, item.id)} className="shrink-0 text-slate-300 hover:text-rose-500 opacity-0 group-hover:opacity-100 transition-opacity">
-                                      <Trash2 className="w-4 h-4" />
-                                    </button>
+                                    {!item.done && item.subjectId !== 'personal' && (
+                                      <div className="pl-8">
+                                        <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md" style={{ backgroundColor: `${subject.color}15`, color: subject.color }}>
+                                          {subject.name}
+                                        </span>
+                                      </div>
+                                    )}
                                   </div>
                                 </div>
                               )}
                             </Draggable>
-                          ))}
+                          );})}
                           {provided.placeholder}
                         </div>
                       )}
@@ -254,32 +267,44 @@ const WeeklyPlannerPage: React.FC = () => {
                           {...provided.droppableProps}
                           className={`flex-1 p-3 overflow-y-auto scrollbar-hide transition-colors ${snapshot.isDraggingOver ? 'bg-slate-50 dark:bg-slate-700/30' : ''}`}
                         >
-                          {items.map((item, index) => (
+                          {items.map((item, index) => {
+                            const subject = mockSubjects.find(s => s.id === item.subjectId) || { color: '#94a3b8', name: 'Personal' };
+                            return (
                             <Draggable key={item.id} draggableId={item.id} index={index}>
                               {(provided, snapshot) => (
                                 <div
                                   ref={provided.innerRef}
                                   {...provided.draggableProps}
                                   {...provided.dragHandleProps}
-                                  className={`group p-3 mb-2 rounded-2xl text-sm border shadow-sm transition-all ${snapshot.isDragging ? 'bg-white dark:bg-slate-800 border-blue-400 shadow-[0_10px_20px_rgba(0,0,0,0.15)] scale-105 rotate-2 z-50' : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-500 hover:shadow-md'}`}
+                                  style={{ borderLeftColor: subject.color }}
+                                  className={`group p-3 mb-2 rounded-xl text-sm border-y border-r border-l-[6px] shadow-sm transition-all overflow-hidden ${snapshot.isDragging ? 'bg-white dark:bg-slate-800 border-y-blue-400 border-r-blue-400 shadow-[0_10px_20px_rgba(0,0,0,0.15)] scale-105 rotate-2 z-50' : 'bg-white dark:bg-slate-800 border-y-slate-200 border-r-slate-200 dark:border-y-slate-700 dark:border-r-slate-700 hover:shadow-md'}`}
                                 >
-                                  <div className="flex items-start gap-3">
-                                    <button onClick={() => handleToggleDone(col.dateStr, item.id)} className="mt-0.5 shrink-0 text-slate-400 hover:text-blue-500 transition-colors">
-                                      {item.done ? <CheckCircle2 className="w-5 h-5 text-blue-500" /> : <Circle className="w-5 h-5" />}
-                                    </button>
-                                    <div className="flex-1 min-w-0">
-                                      <p className={`font-semibold leading-snug ${item.done ? 'text-slate-400 line-through' : 'text-slate-700 dark:text-slate-200'}`}>
-                                        {item.title}
-                                      </p>
+                                  <div className="flex flex-col gap-1.5">
+                                    <div className="flex items-start gap-3">
+                                      <button onClick={() => handleToggleDone(col.dateStr, item.id)} className="mt-0.5 shrink-0 text-slate-400 hover:text-blue-500 transition-colors">
+                                        {item.done ? <CheckCircle2 className="w-5 h-5 text-blue-500" /> : <Circle className="w-5 h-5" />}
+                                      </button>
+                                      <div className="flex-1 min-w-0">
+                                        <p className={`font-semibold leading-snug ${item.done ? 'text-slate-400 line-through' : 'text-slate-700 dark:text-slate-200'}`}>
+                                          {item.title}
+                                        </p>
+                                      </div>
+                                      <button onClick={() => handleDelete(col.dateStr, item.id)} className="shrink-0 text-slate-300 hover:text-rose-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <Trash2 className="w-4 h-4" />
+                                      </button>
                                     </div>
-                                    <button onClick={() => handleDelete(col.dateStr, item.id)} className="shrink-0 text-slate-300 hover:text-rose-500 opacity-0 group-hover:opacity-100 transition-opacity">
-                                      <Trash2 className="w-4 h-4" />
-                                    </button>
+                                    {!item.done && item.subjectId !== 'personal' && (
+                                      <div className="pl-8 mt-0.5">
+                                        <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md" style={{ backgroundColor: `${subject.color}15`, color: subject.color }}>
+                                          {subject.name}
+                                        </span>
+                                      </div>
+                                    )}
                                   </div>
                                 </div>
                               )}
                             </Draggable>
-                          ))}
+                          );})}
                           {provided.placeholder}
                         </div>
                       )}
