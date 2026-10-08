@@ -68,7 +68,7 @@ export const generateTodoSuggestions = async (text: string): Promise<Partial<Tod
     // 0. Check for explicit shorthand mode
     if (text.trim().startsWith('.')) {
         const results: Partial<TodoItem>[] = [];
-        const tokens = text.split(/(?=\.[a-zA-Z]+\s)/);
+        const tokens = text.split(/(?=\.(?!est\b)[a-zA-Z]+\s)/i);
         
         tokens.forEach(token => {
             const match = token.trim().match(/^\.([a-zA-Z]+)\s+(.*)/);
@@ -95,7 +95,7 @@ export const generateTodoSuggestions = async (text: string): Promise<Partial<Tod
     }
 
     // 1. Split the text into separate tasks.
-    const splitRegex = /(?:\b(?:and|then|also)\b|\s*,\s*|\s*\.\s*|\s*;\s*)/i;
+    const splitRegex = /(?:\b(?:and|then|also)\b|\s*,\s*|\s*\.(?!est\b)\s*|\s*;\s*)/i;
     let rawTasks = text.split(splitRegex)
         .map(t => t.trim())
         .filter(t => t.length > 2); // Ignore empty fragments
