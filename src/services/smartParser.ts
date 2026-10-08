@@ -31,13 +31,12 @@ mockSyllabus.forEach(subjectSyllabus => {
 });
 
 const SHORTHAND_MAP: Record<string, string> = {
-    'py': 'physics',
-    'com': 'combined',
-    'ch': 'chemistry',
-    'p': 'personal',
-    'pr': 'personal',
-    'ex': 'exercise',
-    'en': 'entertainment'
+    'p': 'physics',
+    'm': 'combined',
+    'c': 'chemistry',
+    'e': 'entertainment',
+    'pv': 'personal',
+    'ex': 'exercise'
 };
 
 export const generateTodoSuggestions = async (text: string): Promise<Partial<TodoItem>[]> => {
