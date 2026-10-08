@@ -203,7 +203,7 @@ const WeeklyPlannerPage: React.FC = () => {
                                   ref={provided.innerRef}
                                   {...provided.draggableProps}
                                   {...provided.dragHandleProps}
-                                  style={{ borderLeftColor: subject.color }}
+                                  style={{ ...provided.draggableProps.style, borderLeftColor: subject.color }}
                                   className={`p-3 mb-3 rounded-xl text-sm border-y border-r border-l-[6px] shadow-sm transition-shadow transition-colors overflow-hidden ${snapshot.isDragging ? 'bg-white dark:bg-slate-800 border-y-blue-400 border-r-blue-400 dark:border-y-blue-500 dark:border-r-blue-500 shadow-lg z-50' : 'bg-white dark:bg-slate-800 border-y-slate-200 border-r-slate-200 dark:border-y-slate-700 dark:border-r-slate-700 hover:shadow-md'}`}
                                 >
                                   <div className="flex flex-col gap-1.5">
@@ -296,7 +296,7 @@ const WeeklyPlannerPage: React.FC = () => {
                                   ref={provided.innerRef}
                                   {...provided.draggableProps}
                                   {...provided.dragHandleProps}
-                                  style={{ borderLeftColor: subject.color }}
+                                  style={{ ...provided.draggableProps.style, borderLeftColor: subject.color }}
                                   className={`group p-3 mb-2 rounded-xl text-sm border-y border-r border-l-[6px] shadow-sm transition-shadow transition-colors overflow-hidden ${snapshot.isDragging ? 'bg-white dark:bg-slate-800 border-y-blue-400 border-r-blue-400 dark:border-y-blue-500 dark:border-r-blue-500 shadow-lg z-50' : 'bg-white dark:bg-slate-800 border-y-slate-200 border-r-slate-200 dark:border-y-slate-700 dark:border-r-slate-700 hover:shadow-md'}`}
                                 >
                                   <div className="flex flex-col gap-1.5">
