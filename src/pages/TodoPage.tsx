@@ -116,6 +116,7 @@ const TodoPage: React.FC<TodoPageProps> = ({ day, onDayChange, classes, logs, on
       title: todo.title || 'Untitled AI Task',
       subjectId: todo.subjectId || 'personal',
       note: todo.note || '',
+      estimatedMinutes: todo.estimatedMinutes,
       done: false,
     }));
 

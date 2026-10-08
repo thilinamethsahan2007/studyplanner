@@ -7,6 +7,13 @@ import { CheckCircle2, Circle, Trash2 } from 'lucide-react';
 import { mockSubjects } from '../mockData';
 
 const WeeklyPlannerPage: React.FC = () => {
+  const formatTime = (mins: number) => {
+    const h = Math.floor(mins / 60);
+    const m = mins % 60;
+    if (h > 0 && m > 0) return `${h}h ${m}m`;
+    if (h > 0) return `${h}h`;
+    return `${m}m`;
+};
   const [weekDays, setWeekDays] = useState<{ date: Date, dateStr: string, title: string, subtitle: string }[]>([]);
   const [weekData, setWeekData] = useState<{ [dateStr: string]: TodoItem[] }>({});
   const [loading, setLoading] = useState(true);
@@ -84,6 +91,7 @@ const WeeklyPlannerPage: React.FC = () => {
         title: s.title || 'Untitled',
         subjectId: s.subjectId || 'personal',
         note: s.note || '',
+          estimatedMinutes: s.estimatedMinutes,
         done: false,
       }));
       const existing = weekData[dateStr] || [];
@@ -205,13 +213,18 @@ const WeeklyPlannerPage: React.FC = () => {
                                         <Trash2 className="w-4 h-4" />
                                       </button>
                                     </div>
-                                    {!item.done && item.subjectId !== 'personal' && (
-                                      <div className="pl-8">
+                                    <div className="pl-8 flex flex-wrap gap-1.5 items-center mt-1">
+                                      {!item.done && item.subjectId !== 'personal' && (
                                         <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md" style={{ backgroundColor: `${subject.color}15`, color: subject.color }}>
                                           {subject.name}
                                         </span>
-                                      </div>
-                                    )}
+                                      )}
+                                      {!item.done && item.estimatedMinutes && (
+                                        <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-500 border border-slate-200 dark:border-slate-700">
+                                          ⏳ {formatTime(item.estimatedMinutes)}
+                                        </span>
+                                      )}
+                                    </div>
                                   </div>
                                 </div>
                               )}
@@ -293,13 +306,18 @@ const WeeklyPlannerPage: React.FC = () => {
                                         <Trash2 className="w-4 h-4" />
                                       </button>
                                     </div>
-                                    {!item.done && item.subjectId !== 'personal' && (
-                                      <div className="pl-8 mt-0.5">
+                                    <div className="pl-8 flex flex-wrap gap-1.5 items-center mt-0.5">
+                                      {!item.done && item.subjectId !== 'personal' && (
                                         <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md" style={{ backgroundColor: `${subject.color}15`, color: subject.color }}>
                                           {subject.name}
                                         </span>
-                                      </div>
-                                    )}
+                                      )}
+                                      {!item.done && item.estimatedMinutes && (
+                                        <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-500 border border-slate-200 dark:border-slate-700">
+                                          ⏳ {formatTime(item.estimatedMinutes)}
+                                        </span>
+                                      )}
+                                    </div>
                                   </div>
                                 </div>
                               )}

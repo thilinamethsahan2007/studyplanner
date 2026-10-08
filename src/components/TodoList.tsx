@@ -10,6 +10,13 @@ interface TodoListProps {
 }
 
 const TodoList: React.FC<TodoListProps> = ({ todos, onToggle, subjects, onStartPomodoro }) => {
+  const formatTime = (mins: number) => {
+    const h = Math.floor(mins / 60);
+    const m = mins % 60;
+    if (h > 0 && m > 0) return `${h}h ${m}m`;
+    if (h > 0) return `${h}h`;
+    return `${m}m`;
+};
     
   // Sort todos so incomplete ones are at the top
   const sortedTodos = [...todos].sort((a, b) => {

@@ -33,6 +33,7 @@ export interface TodoItem {
   subjectId: string;
   note: string;
   done: boolean;
+  estimatedMinutes?: number;
 }
 
 export interface Day {

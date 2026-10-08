@@ -41,6 +41,30 @@ const SHORTHAND_MAP: Record<string, string> = {
 };
 
 export const generateTodoSuggestions = async (text: string): Promise<Partial<TodoItem>[]> => {
+    // Helper to extract .est
+    const extractEst = (input: string): { cleanText: string, estimatedMinutes?: number } => {
+        let estimatedMinutes: number | undefined = undefined;
+        let cleanText = input;
+        
+        const estMatch = input.match(/\.est\s+(\d+)(?:\.(\d+))?/i);
+        if (estMatch) {
+            let hrs = parseInt(estMatch[1], 10) || 0;
+            let mins = 0;
+            if (estMatch[2] !== undefined) {
+                mins = parseInt(estMatch[2].padEnd(2, '0').substring(0, 2), 10);
+            } else {
+                if (hrs > 10) {
+                    mins = hrs;
+                    hrs = 0;
+                }
+            }
+            estimatedMinutes = (hrs * 60) + mins;
+            cleanText = input.replace(/\.est\s+(\d+)(?:\.(\d+))?/i, '').trim();
+        }
+        
+        return { cleanText, estimatedMinutes };
+    };
+
     // 0. Check for explicit shorthand mode
     if (text.trim().startsWith('.')) {
         const results: Partial<TodoItem>[] = [];
@@ -50,15 +74,18 @@ export const generateTodoSuggestions = async (text: string): Promise<Partial<Tod
             const match = token.trim().match(/^\.([a-zA-Z]+)\s+(.*)/);
             if (match) {
                 const code = match[1].toLowerCase();
-                const content = match[2];
+                const rawContent = match[2];
                 const subjectId = SHORTHAND_MAP[code] || 'personal';
                 
-                const items = content.split(',').map(s => s.trim()).filter(s => s.length > 0);
+                const { cleanText, estimatedMinutes } = extractEst(rawContent);
+                
+                const items = cleanText.split(',').map(s => s.trim()).filter(s => s.length > 0);
                 items.forEach(item => {
                     results.push({
                         title: item.charAt(0).toUpperCase() + item.slice(1),
                         subjectId: subjectId,
-                        note: ''
+                        note: '',
+                        estimatedMinutes
                     });
                 });
             }
@@ -74,14 +101,14 @@ export const generateTodoSuggestions = async (text: string): Promise<Partial<Tod
         .filter(t => t.length > 2); // Ignore empty fragments
 
     const suggestions = rawTasks.map(taskText => {
+        const { cleanText, estimatedMinutes } = extractEst(taskText);
+        
         let assignedCategory = 'personal';
-        const lowerText = taskText.toLowerCase();
+        const lowerText = cleanText.toLowerCase();
 
         // 2. Keyword matching for categorization
         for (const [category, keywords] of Object.entries(categoryKeywords)) {
             if (keywords.some(keyword => {
-                // For very short generic keywords, ensure word boundaries to avoid false positives (e.g., "run" inside "brunch")
-                // For long phrases from the syllabus, substring match is fine.
                 if (keyword.length <= 5) {
                     const escaped = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
                     return new RegExp(`\\b${escaped}\\b`, 'i').test(lowerText);
@@ -94,18 +121,16 @@ export const generateTodoSuggestions = async (text: string): Promise<Partial<Tod
             }
         }
 
-        // 3. Clean up the title
-        const title = taskText.charAt(0).toUpperCase() + taskText.slice(1);
+        const title = cleanText.charAt(0).toUpperCase() + cleanText.slice(1);
 
         return {
             title: title,
             subjectId: assignedCategory,
-            note: ''
+            note: '',
+            estimatedMinutes
         };
     });
 
-    // Simulate a tiny delay so it feels "smart"
     await new Promise(resolve => setTimeout(resolve, 400));
-
     return suggestions;
 };
