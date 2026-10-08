@@ -78,6 +78,13 @@ const WeeklyPlannerPage: React.FC = () => {
     await apiClient.saveWeekTodos([{ date: dateStr, items: updatedItems }]);
   };
 
+  const handleDelete = async (dateStr: string, itemId: string) => {
+    const dayItems = weekData[dateStr] || [];
+    const updatedItems = dayItems.filter(item => item.id !== itemId);
+    setWeekData({ ...weekData, [dateStr]: updatedItems });
+    await apiClient.deleteTodo(itemId);
+  };
+
   const handleSmartAdd = async (dateStr: string, e: React.FormEvent) => {
     e.preventDefault();
     const text = inputs[dateStr];

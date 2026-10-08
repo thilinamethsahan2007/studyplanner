@@ -234,6 +234,12 @@ export const getWeekTodos = async (startDate: string, endDate: string): Promise<
     });
     return Object.keys(daysMap).map(date => ({ date, items: daysMap[date] }));
 };
+
+export const deleteTodo = async (id: string): Promise<void> => {
+    if (!checkSupabase()) return;
+    await supabase.from('todos').delete().eq('id', id);
+};
+
 export const saveWeekTodos = async (days: Day[]): Promise<void> => {
     if (!checkSupabase()) return;
     const rows: any[] = [];
@@ -350,7 +356,7 @@ export const saveWeeklySummaries = async (data: WeeklySummary[]): Promise<void> 
 
 const apiClient = {
     getSyllabus, saveSyllabus, getTests, saveTests, getClasses, saveClasses,
-    getTodayTodos, saveTodayTodos, getWeekTodos, saveWeekTodos, getLogs, saveLogs, getWeeklySummaries, saveWeeklySummaries,
+    getTodayTodos, saveTodayTodos, getWeekTodos, saveWeekTodos, deleteTodo, getLogs, saveLogs, getWeeklySummaries, saveWeeklySummaries,
 };
 
 export default apiClient;
