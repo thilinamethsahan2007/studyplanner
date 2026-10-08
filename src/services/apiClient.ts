@@ -184,7 +184,8 @@ export const getTodayTodos = async (): Promise<Day> => {
         title: row.title,
         subjectId: row.subject_id,
         note: row.note,
-        done: row.done,
+          done: row.done,
+          estimatedMinutes: row.estimated_minutes,
         _date: row.date
     }));
 
@@ -208,8 +209,9 @@ export const saveTodayTodos = async (day: Day): Promise<void> => {
             title: t.title,
             subject_id: t.subjectId,
             note: t.note,
-            done: t.done
-        }));
+              done: t.done,
+              estimated_minutes: t.estimatedMinutes
+            }));
         await supabase.from('todos').upsert(rows);
     }
 };
@@ -226,7 +228,8 @@ export const getWeekTodos = async (startDate: string, endDate: string): Promise<
             title: row.title,
             subjectId: row.subject_id,
             note: row.note,
-            done: row.done
+          done: row.done,
+          estimatedMinutes: row.estimated_minutes
         });
     });
     return Object.keys(daysMap).map(date => ({ date, items: daysMap[date] }));
@@ -242,7 +245,8 @@ export const saveWeekTodos = async (days: Day[]): Promise<void> => {
                 title: t.title,
                 subject_id: t.subjectId,
                 note: t.note,
-                done: t.done
+              done: t.done,
+              estimated_minutes: t.estimatedMinutes
             });
         });
     });
