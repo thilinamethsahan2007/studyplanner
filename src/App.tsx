@@ -12,7 +12,7 @@ import { Syllabus, Test, Class, LogEntry, WeeklySummary, Day } from './types';
 import CommandPalette from './components/CommandPalette';
 import apiClient from './services/apiClient';
 // Lucide Icons
-import { LayoutDashboard, CalendarDays, BookOpen, BarChart2, Settings, FlaskConical, Atom, Calculator, Dumbbell, Gamepad2, Menu, X } from 'lucide-react';
+import { LayoutDashboard, CalendarDays, BookOpen, BookHeart, BarChart2, Settings, FlaskConical, Atom, Calculator, Dumbbell, Gamepad2, Menu, X } from 'lucide-react';
 
 
 const getStartOfWeek = (date: Date) => {
@@ -220,17 +220,35 @@ const App: React.FC = () => {
                     </div>
                 </nav>
 
-                {/* Mobile Header & Overlay Menu */}
-                <div className="md:hidden fixed top-0 left-0 right-0 h-14 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-black/5 dark:border-white/10 z-40 flex items-center justify-between px-3">
-                    <button onClick={() => setLeftMenuOpen(true)} className="p-2 text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 rounded-lg">
-                        <Menu className="w-5 h-5" />
-                    </button>
-                    <Link to="/" className="flex items-center gap-1.5 hover:opacity-80 transition-opacity">
+                {/* Minimal Top Header (Logo Only) */}
+                <div className="md:hidden fixed top-0 left-0 right-0 h-14 bg-white/90 dark:bg-slate-950/90 backdrop-blur-xl border-b border-black/5 dark:border-white/5 z-40 flex items-center justify-center px-4">
+                    <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
                         <div className="w-7 h-7 bg-gradient-to-tr from-indigo-500 to-purple-500 rounded-md shadow-sm flex items-center justify-center text-white font-black text-xs">TR</div>
-                        <span className="font-black bg-gradient-to-r from-purple-400 via-purple-500 to-pink-500 bg-clip-text text-transparent drop-shadow-sm text-base tracking-tight">Tracker</span>
+                        <span className="font-black bg-gradient-to-r from-purple-400 via-purple-500 to-pink-500 bg-clip-text text-transparent drop-shadow-sm text-lg tracking-tight">Tracker</span>
                     </Link>
-                    <button onClick={() => setRightMenuOpen(true)} className="p-2 text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 rounded-lg">
-                        <Menu className="w-5 h-5" />
+                </div>
+
+                {/* Native Bottom Tab Bar */}
+                <div className="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-white/90 dark:bg-slate-950/90 backdrop-blur-2xl border-t border-black/5 dark:border-white/10 z-40 flex items-center justify-around px-1 pb-1">
+                    <NavLink to="/" className={({ isActive }) => `flex flex-col items-center justify-center w-16 h-14 rounded-2xl transition-all ${isActive ? 'text-indigo-500 dark:text-indigo-400' : 'text-slate-400 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
+                        <LayoutDashboard className="w-5 h-5 mb-1" />
+                        <span className="text-[9px] font-bold">Today</span>
+                    </NavLink>
+                    <NavLink to="/weekly" className={({ isActive }) => `flex flex-col items-center justify-center w-16 h-14 rounded-2xl transition-all ${isActive ? 'text-indigo-500 dark:text-indigo-400' : 'text-slate-400 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
+                        <CalendarDays className="w-5 h-5 mb-1" />
+                        <span className="text-[9px] font-bold">Weekly</span>
+                    </NavLink>
+                    <NavLink to="/journal" className={({ isActive }) => `flex flex-col items-center justify-center w-16 h-14 rounded-2xl transition-all ${isActive ? 'text-indigo-500 dark:text-indigo-400' : 'text-slate-400 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
+                        <BookHeart className="w-5 h-5 mb-1" />
+                        <span className="text-[9px] font-bold">Diary</span>
+                    </NavLink>
+                    <button onClick={() => setLeftMenuOpen(true)} className={`flex flex-col items-center justify-center w-16 h-14 rounded-2xl transition-all ${leftMenuOpen ? 'text-indigo-500 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20' : 'text-slate-400 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
+                        <BookOpen className="w-5 h-5 mb-1" />
+                        <span className="text-[9px] font-bold">Subjects</span>
+                    </button>
+                    <button onClick={() => setRightMenuOpen(true)} className={`flex flex-col items-center justify-center w-16 h-14 rounded-2xl transition-all ${rightMenuOpen ? 'text-indigo-500 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20' : 'text-slate-400 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
+                        <Menu className="w-5 h-5 mb-1" />
+                        <span className="text-[9px] font-bold">More</span>
                     </button>
                 </div>
 
@@ -275,7 +293,7 @@ const App: React.FC = () => {
                 {/* Main Viewport Window */}
                 <main className="flex-1 relative bg-white dark:bg-slate-950 rounded-none md:rounded-[2rem] shadow-none md:shadow-2xl ring-0 md:ring-1 ring-black/5 md:dark:ring-white/10 overflow-hidden flex flex-col ">
                     <CommandPalette />
-                    <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-10 w-full h-full relative z-0 scrollbar-hide">
+                    <div className="flex-1 overflow-y-auto p-4 pb-20 md:pb-4 sm:p-6 lg:p-10 w-full h-full relative z-0 scrollbar-hide">
                         <Routes>
                             <Route path="/weekly" element={<WeeklyPlannerPage />} />
                             <Route path="/" element={<TodoPage day={day} onDayChange={handleDayChange} classes={classesData} logs={logsData} onLogsChange={handleLogsChange} />} />
