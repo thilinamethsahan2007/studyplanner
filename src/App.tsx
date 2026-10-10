@@ -59,7 +59,8 @@ const App: React.FC = () => {
     const [weeklySummaries, setWeeklySummaries] = useState<WeeklySummary[]>([]);
     const [day, setDay] = useState<Day | null>(null);
     const [isLoading, setIsLoading] = useState(true);
-    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [leftMenuOpen, setLeftMenuOpen] = useState(false);
+    const [rightMenuOpen, setRightMenuOpen] = useState(false);
 
     useEffect(() => {
         const loadData = async () => {
@@ -220,39 +221,53 @@ const App: React.FC = () => {
                 </nav>
 
                 {/* Mobile Header & Overlay Menu */}
-                <div className="md:hidden fixed top-0 left-0 right-0 h-14 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-black/5 dark:border-white/10 z-40 flex items-center justify-between px-4">
-                    <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-                        <div className="w-8 h-8 bg-gradient-to-tr from-indigo-500 to-purple-500 rounded-lg shadow-sm flex items-center justify-center text-white font-black text-sm">TR</div>
-                        <span className="font-black bg-gradient-to-r from-purple-400 via-purple-500 to-pink-500 bg-clip-text text-transparent drop-shadow-sm text-lg tracking-tight">Tracker</span>
+                <div className="md:hidden fixed top-0 left-0 right-0 h-14 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-black/5 dark:border-white/10 z-40 flex items-center justify-between px-3">
+                    <button onClick={() => setLeftMenuOpen(true)} className="p-2 text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 rounded-lg">
+                        <Menu className="w-5 h-5" />
+                    </button>
+                    <Link to="/" className="flex items-center gap-1.5 hover:opacity-80 transition-opacity">
+                        <div className="w-7 h-7 bg-gradient-to-tr from-indigo-500 to-purple-500 rounded-md shadow-sm flex items-center justify-center text-white font-black text-xs">TR</div>
+                        <span className="font-black bg-gradient-to-r from-purple-400 via-purple-500 to-pink-500 bg-clip-text text-transparent drop-shadow-sm text-base tracking-tight">Tracker</span>
                     </Link>
-                    <div className="flex items-center gap-2">
-                        
-                        <button onClick={() => setMobileMenuOpen(true)} className="p-2 text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 rounded-lg">
-                            <Menu className="w-5 h-5" />
-                        </button>
-                    </div>
+                    <button onClick={() => setRightMenuOpen(true)} className="p-2 text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 rounded-lg">
+                        <Menu className="w-5 h-5" />
+                    </button>
                 </div>
 
-                {/* Mobile Full-Screen Menu */}
-                {mobileMenuOpen && (
-                    <div className="md:hidden fixed inset-0 bg-slate-200/90 dark:bg-black/90 backdrop-blur-2xl z-50 flex flex-col p-4 animate-in fade-in slide-in-from-bottom-4 duration-300">
-                        <div className="flex justify-end mb-8">
-                            <button onClick={() => setMobileMenuOpen(false)} className="p-3 bg-white dark:bg-slate-800 rounded-full shadow-xl">
+                {/* Mobile Left Menu (Subjects) */}
+                {leftMenuOpen && (
+                    <div className="md:hidden fixed inset-0 bg-slate-200/90 dark:bg-black/90 backdrop-blur-2xl z-50 flex flex-col p-4 animate-in fade-in slide-in-from-left-4 duration-300">
+                        <div className="flex justify-between items-center mb-8 px-2">
+                            <h2 className="text-xl font-black text-slate-800 dark:text-white tracking-tight">Subjects</h2>
+                            <button onClick={() => setLeftMenuOpen(false)} className="p-3 bg-white dark:bg-slate-800 rounded-full shadow-xl">
                                 <X className="w-6 h-6 text-slate-800 dark:text-slate-200" />
                             </button>
                         </div>
                         <div className="flex-1 overflow-y-auto flex flex-col gap-2">
-                            <SidebarLink to="/" icon={<LayoutDashboard className="w-6 h-6" />} label="Today" onClick={() => setMobileMenuOpen(false)} />
-                            <SidebarLink to="/weekly" icon={<CalendarDays className="w-6 h-6" />} label="Weekly" onClick={() => setMobileMenuOpen(false)} />
-                            <div className="my-4 border-t border-black/10 dark:border-white/10" />
                             {academicSubjects.map(subject => (
-                                <SidebarLink key={subject.id} to={`/subjects/${subject.id}`} icon={getSubjectIcon(subject.id)} label={subject.name} onClick={() => setMobileMenuOpen(false)} />
+                                <SidebarLink key={subject.id} to={`/subjects/${subject.id}`} icon={getSubjectIcon(subject.id)} label={subject.name} onClick={() => setLeftMenuOpen(false)} />
                             ))}
+                        </div>
+                    </div>
+                )}
+
+                {/* Mobile Right Menu (Tools) */}
+                {rightMenuOpen && (
+                    <div className="md:hidden fixed inset-0 bg-slate-200/90 dark:bg-black/90 backdrop-blur-2xl z-50 flex flex-col p-4 animate-in fade-in slide-in-from-right-4 duration-300">
+                        <div className="flex justify-between items-center mb-8 px-2">
+                            <h2 className="text-xl font-black text-slate-800 dark:text-white tracking-tight">Menu</h2>
+                            <button onClick={() => setRightMenuOpen(false)} className="p-3 bg-white dark:bg-slate-800 rounded-full shadow-xl">
+                                <X className="w-6 h-6 text-slate-800 dark:text-slate-200" />
+                            </button>
+                        </div>
+                        <div className="flex-1 overflow-y-auto flex flex-col gap-2">
+                            <SidebarLink to="/" icon={<LayoutDashboard className="w-6 h-6" />} label="Today" onClick={() => setRightMenuOpen(false)} />
+                            <SidebarLink to="/weekly" icon={<CalendarDays className="w-6 h-6" />} label="Weekly Planner" onClick={() => setRightMenuOpen(false)} />
+                            <SidebarLink to="/analytics" icon={<BarChart2 className="w-6 h-6" />} label="Analytics" onClick={() => setRightMenuOpen(false)} />
+                            <SidebarLink to="/logbook" icon={<BookOpen className="w-6 h-6" />} label="Log Book" onClick={() => setRightMenuOpen(false)} />
+                            <SidebarLink to="/journal" icon={<BookOpen className="w-6 h-6" />} label="Diary" onClick={() => setRightMenuOpen(false)} />
                             <div className="my-4 border-t border-black/10 dark:border-white/10" />
-                            <SidebarLink to="/logbook" icon={<BookOpen className="w-6 h-6" />} label="Log Book" onClick={() => setMobileMenuOpen(false)} />
-                            <SidebarLink to="/journal" icon={<BookOpen className="w-6 h-6" />} label="Diary" onClick={() => setMobileMenuOpen(false)} />
-                            <SidebarLink to="/analytics" icon={<BarChart2 className="w-6 h-6" />} label="Analytics" onClick={() => setMobileMenuOpen(false)} />
-                            <SidebarLink to="/cms" icon={<Settings className="w-6 h-6" />} label="Settings" onClick={() => setMobileMenuOpen(false)} />
+                            <SidebarLink to="/cms" icon={<Settings className="w-6 h-6" />} label="Settings" onClick={() => setRightMenuOpen(false)} />
                         </div>
                     </div>
                 )}
