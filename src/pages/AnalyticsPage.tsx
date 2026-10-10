@@ -7,6 +7,7 @@ import { Test, Subject, Syllabus, LogEntry, WeeklySummary } from '../types';
 import { useTheme } from '../contexts/ThemeContext';
 import ToggleSwitch from '../components/ToggleSwitch';
 import SyllabusAnalysis from '../components/SyllabusAnalysis';
+import StatisticalAnalysis from '../components/StatisticalAnalysis';
 
 interface AnalyticsPageProps {
   tests: Test[];
@@ -38,7 +39,7 @@ const EmptyState: React.FC<{title: string, message: string}> = ({title, message}
 
 const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ tests, subjects, syllabusData, logs, weeklySummaries }) => {
   const { theme } = useTheme();
-  const [analysisMode, setAnalysisMode] = useState<'marks' | 'syllabus' | 'logs'>('marks');
+  const [analysisMode, setAnalysisMode] = useState<'marks' | 'syllabus' | 'logs' | 'stats'>('marks');
 
   const tickColor = theme === 'dark' ? '#94a3b8' : '#334155';
   const tooltipStyle = theme === 'dark'
@@ -205,6 +206,7 @@ const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ tests, subjects, syllabus
     { value: 'marks', label: 'Marks' },
     { value: 'syllabus', label: 'Progress' },
     { value: 'logs', label: 'Time' },
+    { value: 'stats', label: 'Stats' },
   ];
 
   const getPageDescription = () => {
@@ -212,6 +214,7 @@ const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ tests, subjects, syllabus
           case 'marks': return 'Visualizing your test performance over time.';
           case 'syllabus': return 'Tracking your overall syllabus completion.';
           case 'logs': return 'Analyzing how you spend your time.';
+          case 'stats': return 'Advanced statistical insights and projections.';
           default: return '';
       }
   }
@@ -226,13 +229,14 @@ const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ tests, subjects, syllabus
         <ToggleSwitch 
           options={toggleOptions} 
           value={analysisMode} 
-          onChange={(val) => setAnalysisMode(val as 'marks' | 'syllabus' | 'logs')} 
+          onChange={(val) => setAnalysisMode(val as 'marks' | 'syllabus' | 'logs' | 'stats')} 
         />
       </div>
       
       {analysisMode === 'marks' && <MarkAnalysisView />}
       {analysisMode === 'syllabus' && <SyllabusAnalysis syllabusData={syllabusData} subjects={subjects} />}
       {analysisMode === 'logs' && <LogAnalysisView />}
+        {analysisMode === 'stats' && <StatisticalAnalysis tests={tests} subjects={subjects} syllabusData={syllabusData} logs={logs} />}
     </div>
   );
 };
