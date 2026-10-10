@@ -229,24 +229,24 @@ const App: React.FC = () => {
                 </div>
 
                 {/* Native Bottom Tab Bar */}
-                <div className="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-white/90 dark:bg-slate-950/90 backdrop-blur-2xl border-t border-black/5 dark:border-white/10 z-40 flex items-center justify-around px-1 pb-1">
-                    <NavLink to="/" className={({ isActive }) => `flex flex-col items-center justify-center w-16 h-14 rounded-2xl transition-all ${isActive ? 'text-indigo-500 dark:text-indigo-400' : 'text-slate-400 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
+                <div className="md:hidden fixed bottom-4 left-4 right-4 h-16 bg-white/90 dark:bg-slate-950/90 backdrop-blur-2xl border border-black/5 dark:border-white/10 rounded-[2rem] shadow-2xl z-40 flex items-center justify-around px-2 pb-0">
+                    <NavLink to="/" className={({ isActive }) => `flex flex-col items-center justify-center w-14 h-14 rounded-full transition-all ${isActive ? 'text-indigo-500 dark:text-indigo-400' : 'text-slate-400 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
                         <LayoutDashboard className="w-5 h-5 mb-1" />
                         <span className="text-[9px] font-bold">Today</span>
                     </NavLink>
-                    <NavLink to="/weekly" className={({ isActive }) => `flex flex-col items-center justify-center w-16 h-14 rounded-2xl transition-all ${isActive ? 'text-indigo-500 dark:text-indigo-400' : 'text-slate-400 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
+                    <NavLink to="/weekly" className={({ isActive }) => `flex flex-col items-center justify-center w-14 h-14 rounded-full transition-all ${isActive ? 'text-indigo-500 dark:text-indigo-400' : 'text-slate-400 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
                         <CalendarDays className="w-5 h-5 mb-1" />
                         <span className="text-[9px] font-bold">Weekly</span>
                     </NavLink>
-                    <NavLink to="/journal" className={({ isActive }) => `flex flex-col items-center justify-center w-16 h-14 rounded-2xl transition-all ${isActive ? 'text-indigo-500 dark:text-indigo-400' : 'text-slate-400 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
+                    <NavLink to="/journal" className={({ isActive }) => `flex flex-col items-center justify-center w-14 h-14 rounded-full transition-all ${isActive ? 'text-indigo-500 dark:text-indigo-400' : 'text-slate-400 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
                         <BookHeart className="w-5 h-5 mb-1" />
                         <span className="text-[9px] font-bold">Diary</span>
                     </NavLink>
-                    <button onClick={() => setLeftMenuOpen(true)} className={`flex flex-col items-center justify-center w-16 h-14 rounded-2xl transition-all ${leftMenuOpen ? 'text-indigo-500 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20' : 'text-slate-400 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
+                    <button onClick={() => setLeftMenuOpen(true)} className={`flex flex-col items-center justify-center w-14 h-14 rounded-full transition-all ${leftMenuOpen ? 'text-indigo-500 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20' : 'text-slate-400 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
                         <BookOpen className="w-5 h-5 mb-1" />
                         <span className="text-[9px] font-bold">Subjects</span>
                     </button>
-                    <button onClick={() => setRightMenuOpen(true)} className={`flex flex-col items-center justify-center w-16 h-14 rounded-2xl transition-all ${rightMenuOpen ? 'text-indigo-500 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20' : 'text-slate-400 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
+                    <button onClick={() => setRightMenuOpen(true)} className={`flex flex-col items-center justify-center w-14 h-14 rounded-full transition-all ${rightMenuOpen ? 'text-indigo-500 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20' : 'text-slate-400 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
                         <Menu className="w-5 h-5 mb-1" />
                         <span className="text-[9px] font-bold">More</span>
                     </button>
