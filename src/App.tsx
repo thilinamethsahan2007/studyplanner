@@ -220,14 +220,6 @@ const App: React.FC = () => {
                     </div>
                 </nav>
 
-                {/* Minimal Top Header (Logo Only) */}
-                <div className="md:hidden fixed top-0 left-0 right-0 h-14 bg-white/90 dark:bg-slate-950/90 backdrop-blur-xl border-b border-black/5 dark:border-white/5 z-40 flex items-center justify-center px-4">
-                    <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-                        <div className="w-7 h-7 bg-gradient-to-tr from-indigo-500 to-purple-500 rounded-md shadow-sm flex items-center justify-center text-white font-black text-xs">TR</div>
-                        <span className="font-black bg-gradient-to-r from-purple-400 via-purple-500 to-pink-500 bg-clip-text text-transparent drop-shadow-sm text-lg tracking-tight">Tracker</span>
-                    </Link>
-                </div>
-
                 {/* Native Bottom Tab Bar */}
                 <div className="md:hidden fixed bottom-4 left-4 right-4 h-16 bg-white/90 dark:bg-slate-950/90 backdrop-blur-2xl border border-black/5 dark:border-white/10 rounded-[2rem] shadow-2xl z-40 flex items-center justify-around px-2 pb-0">
                     <NavLink to="/" className={({ isActive }) => `flex flex-col items-center justify-center w-14 h-14 rounded-full transition-all ${isActive ? 'text-indigo-500 dark:text-indigo-400' : 'text-slate-400 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
