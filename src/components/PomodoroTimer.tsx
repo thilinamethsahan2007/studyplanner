@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { TodoItem } from '../types';
-import { playSuccessChime, toggleAmbientNoise } from '../utils/sound';
+import { playSuccessChime } from '../utils/sound';
 import { Headphones, X, RotateCcw, Play, Pause } from 'lucide-react';
 
 interface PomodoroTimerProps {
@@ -37,16 +37,6 @@ const PomodoroTimer: React.FC<PomodoroTimerProps> = ({
     resetTimer();
   }, [duration, task, resetTimer]);
 
-  useEffect(() => {
-    if (!isOpen && ambientNoise) {
-        toggleAmbientNoise(false);
-        setAmbientNoise(false);
-    }
-  }, [isOpen, ambientNoise]);
-
-  useEffect(() => {
-    toggleAmbientNoise(ambientNoise);
-  }, [ambientNoise]);
 
   useEffect(() => {
     let interval: ReturnType<typeof setTimeout> | null = null;
@@ -88,21 +78,32 @@ const PomodoroTimer: React.FC<PomodoroTimerProps> = ({
       role="dialog"
       aria-modal="true"
     >
-      {/* Animated Zen Background */}
-      <div className="absolute inset-0 bg-slate-900 overflow-hidden">
-         <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-indigo-600/30 rounded-full blur-[120px] animate-pulse" style={{ animationDuration: '8s' }}></div>
-         <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-blue-600/20 rounded-full blur-[100px] animate-pulse" style={{ animationDuration: '12s' }}></div>
-      </div>
+      {/* Lofi YouTube Player Background */}
+      {ambientNoise ? (
+         <div className="absolute inset-0 bg-black overflow-hidden pointer-events-none">
+             <iframe 
+               className="absolute top-1/2 left-1/2 w-[150vw] h-[150vh] -translate-x-1/2 -translate-y-1/2 opacity-50" 
+               src="https://www.youtube.com/embed/jfKfPfyJRdk?autoplay=1&mute=0&controls=0&showinfo=0&rel=0&loop=1&playlist=jfKfPfyJRdk" 
+               allow="autoplay; encrypted-media" 
+               frameBorder="0" 
+             />
+         </div>
+      ) : (
+          <div className="absolute inset-0 bg-slate-950 overflow-hidden">
+             <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-indigo-600/30 rounded-full blur-[120px] animate-pulse" style={{ animationDuration: '8s' }}></div>
+             <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-blue-600/20 rounded-full blur-[100px] animate-pulse" style={{ animationDuration: '12s' }}></div>
+          </div>
+      )}
       
       {/* Zen UI Container */}
-      <div className="relative z-10 flex flex-col items-center w-full max-w-2xl px-6">
+      <div className="relative z-10 flex flex-col items-center w-full max-w-2xl px-6 backdrop-blur-[2px]">
         
         {/* Header Controls */}
         <div className="absolute top-8 left-8 right-8 flex justify-between items-center text-white/50">
             <button 
                 onClick={() => setAmbientNoise(!ambientNoise)} 
                 className={`p-3 rounded-2xl transition-all duration-300 ${ambientNoise ? 'bg-white/20 text-white shadow-[0_0_20px_rgba(255,255,255,0.2)]' : 'hover:bg-white/10 hover:text-white'}`}
-                title="Toggle Ambient Noise (Deep Rain)"
+                title="Toggle Lofi Hip Hop Radio"
             >
                 <Headphones className="w-6 h-6" />
             </button>
