@@ -371,22 +371,6 @@ const TodoPage: React.FC<TodoPageProps> = ({ day, onDayChange, classes, logs, on
             >
                 That&apos;s <span className="font-bold text-indigo-600 dark:text-indigo-400"><AnimatedCountdownNumber from={730} value={countdown.totalDays} /></span> days to go.
             </motion.p>
-
-            {/* 2-Year Journey Progress Bar */}
-            <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-700/50">
-                <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1.5 px-0.5">
-                    <span>2 Yrs (730d)</span>
-                    <span className="text-indigo-500 dark:text-indigo-400 font-extrabold">A/L Exam Target</span>
-                </div>
-                <div className="w-full bg-slate-200 dark:bg-slate-700/80 rounded-full h-1.5 overflow-hidden">
-                    <motion.div 
-                        initial={{ width: "0%" }}
-                        animate={{ width: `${Math.min(100, Math.max(0, Math.round(((730 - countdown.totalDays) / 730) * 100)))}%` }}
-                        transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-                        className="bg-gradient-to-r from-indigo-500 to-purple-500 h-1.5 rounded-full"
-                    />
-                </div>
-            </div>
         </motion.div>
 
         {/* Date, Tags */}
