@@ -167,34 +167,12 @@ const App: React.FC = () => {
 
     if (isLoading) {
         return (
-            <div className="flex h-screen bg-slate-200 dark:bg-black p-3 gap-3 font-sans overflow-hidden">
-                {/* Skeleton Sidebar */}
-                <div className="hidden md:flex w-64 flex-col bg-white/50 dark:bg-slate-900/50 rounded-2xl p-5 gap-4">
-                    <div className="flex items-center gap-3 mb-4">
-                        <div className="w-10 h-10 bg-gradient-to-tr from-indigo-500 to-purple-500 rounded-xl shadow-lg animate-pulse flex items-center justify-center text-white font-black text-lg">SP</div>
-                        <div className="skeleton h-6 w-24"></div>
+            <div className="flex items-center justify-center h-screen w-screen bg-slate-200 dark:bg-black">
+                <div className="animate-pulse flex flex-col items-center">
+                    <div className="w-16 h-16 bg-indigo-500 rounded-2xl shadow-lg shadow-indigo-500/50 flex items-center justify-center mb-4">
+                        <span className="text-white font-black text-2xl">TR</span>
                     </div>
-                    <div className="skeleton h-10 w-full"></div>
-                    <div className="skeleton h-10 w-full"></div>
-                    <div className="skeleton h-10 w-3/4 mt-4"></div>
-                    <div className="skeleton h-10 w-full"></div>
-                    <div className="skeleton h-10 w-full"></div>
-                    <div className="skeleton h-10 w-full"></div>
-                    <div className="flex-1"></div>
-                    <div className="skeleton h-10 w-full"></div>
-                </div>
-                {/* Skeleton Main */}
-                <div className="flex-1 bg-white dark:bg-slate-950 rounded-[2rem] shadow-2xl ring-1 ring-black/5 dark:ring-white/10 p-10 flex flex-col gap-6 overflow-hidden">
-                    <div className="flex justify-between items-center">
-                        <div className="skeleton h-8 w-48"></div>
-                        <div className="skeleton h-8 w-32 rounded-full"></div>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div className="skeleton h-28 w-full"></div>
-                        <div className="skeleton h-28 w-full"></div>
-                        <div className="skeleton h-28 w-full"></div>
-                    </div>
-                    <div className="skeleton h-64 w-full flex-1"></div>
+                     <p className="text-slate-500 dark:text-slate-400 font-medium tracking-wide uppercase text-sm">Initializing Space...</p>
                 </div>
             </div>
         );
