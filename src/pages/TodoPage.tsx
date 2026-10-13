@@ -9,6 +9,7 @@ import PomodoroTimer from '../components/PomodoroTimer';
 import JournalModal from '../components/JournalModal';
 import { BookHeart } from 'lucide-react';
 import { mockSubjects } from '../mockData';
+import { motion, useSpring } from 'framer-motion';
 
 interface TodoPageProps {
     day: Day | null;
@@ -17,6 +18,30 @@ interface TodoPageProps {
     logs: LogEntry[];
     onLogsChange: (newLogs: LogEntry[]) => void;
 }
+
+const AnimatedCountdownNumber: React.FC<{ value: number; className?: string }> = ({ value, className = '' }) => {
+    const ref = React.useRef<HTMLSpanElement>(null);
+    const spring = useSpring(0, { stiffness: 60, damping: 20 });
+
+    React.useEffect(() => {
+        spring.set(value);
+    }, [spring, value]);
+
+    React.useEffect(() => {
+        const unsubscribe = spring.on('change', (latest) => {
+            if (ref.current) {
+                ref.current.textContent = `${Math.round(latest)}`;
+            }
+        });
+        return unsubscribe;
+    }, [spring]);
+
+    return (
+        <span ref={ref} className={className}>
+            {value}
+        </span>
+    );
+};
 
 const TodoPage: React.FC<TodoPageProps> = ({ day, onDayChange, classes, logs, onLogsChange }) => {
   const { width, height } = useWindowSize();
@@ -297,22 +322,61 @@ const TodoPage: React.FC<TodoPageProps> = ({ day, onDayChange, classes, logs, on
         </div>
 
         {/* Countdown Section */}
-        <div className="text-center mb-8 p-4 bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
-            <h3 className="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest">A/L Exam Countdown</h3>
-            <div className="flex justify-center items-baseline gap-4 mt-2">
-                <div>
-                    <span className="text-5xl font-bold text-indigo-600 dark:text-indigo-400 tracking-tight">{countdown.months}</span>
-                    <span className="text-lg font-medium text-slate-600 dark:text-slate-300 ml-1">months</span>
-                </div>
-                <div>
-                    <span className="text-5xl font-bold text-indigo-600 dark:text-indigo-400 tracking-tight">{countdown.days}</span>
-                    <span className="text-lg font-medium text-slate-600 dark:text-slate-300 ml-1">days</span>
-                </div>
+        <motion.div 
+            initial={{ opacity: 0, y: 15, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 0.5, ease: 'easeOut' }}
+            className="text-center mb-8 p-5 bg-gradient-to-b from-white to-slate-50/60 dark:from-slate-800 dark:to-slate-800/80 rounded-2xl shadow-sm border border-slate-200/80 dark:border-slate-700/80 relative overflow-hidden"
+        >
+            <div className="flex items-center justify-center gap-2 mb-2">
+                <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
+                </span>
+                <h3 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
+                    A/L Exam Countdown
+                </h3>
             </div>
-             <p className="text-sm text-slate-600 dark:text-slate-300 mt-3 font-medium">
-                {`That's ${countdown.totalDays} days to go.`}
-            </p>
-        </div>
+            
+            <div className="flex justify-center items-baseline gap-6 my-2">
+                <motion.div 
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ duration: 0.45, delay: 0.1 }}
+                    className="flex flex-col items-center"
+                >
+                    <div className="flex items-baseline">
+                        <AnimatedCountdownNumber value={countdown.months} className="text-5xl font-black text-indigo-600 dark:text-indigo-400 tracking-tight" />
+                        <span className="text-sm font-semibold text-slate-500 dark:text-slate-400 ml-1">mo</span>
+                    </div>
+                    <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400 dark:text-slate-500">Months</span>
+                </motion.div>
+
+                <div className="text-2xl font-light text-slate-300 dark:text-slate-600 self-center -mt-3">:</div>
+
+                <motion.div 
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ duration: 0.45, delay: 0.2 }}
+                    className="flex flex-col items-center"
+                >
+                    <div className="flex items-baseline">
+                        <AnimatedCountdownNumber value={countdown.days} className="text-5xl font-black text-indigo-600 dark:text-indigo-400 tracking-tight" />
+                        <span className="text-sm font-semibold text-slate-500 dark:text-slate-400 ml-1">days</span>
+                    </div>
+                    <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400 dark:text-slate-500">Days</span>
+                </motion.div>
+            </div>
+
+            <motion.p 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.45, delay: 0.3 }}
+                className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-2 font-medium"
+            >
+                That&apos;s <span className="font-bold text-indigo-600 dark:text-indigo-400"><AnimatedCountdownNumber value={countdown.totalDays} /></span> days to go.
+            </motion.p>
+        </motion.div>
 
         {/* Date, Tags */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
