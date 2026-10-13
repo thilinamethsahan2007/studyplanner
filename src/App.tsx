@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { HashRouter, Routes, Route, NavLink, Link, useLocation } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import TodoPage from './pages/TodoPage';
 import WeeklyPlannerPage from './pages/WeeklyPlannerPage';
 import SubjectPage from './pages/SubjectPage';
@@ -39,7 +40,7 @@ const SidebarLink: React.FC<{ to: string, icon: React.ReactNode, label: string, 
     <NavLink 
         to={to} 
         onClick={onClick}
-        className={({ isActive }) => `flex items-center p-3 md:px-3 md:py-2.5 rounded-xl transition-all duration-300 ${
+        className={({ isActive }) => `flex items-center p-3 md:px-3 md:py-2.5 rounded-xl transition-all duration-300 press-scale ${
             isActive 
             ? 'bg-indigo-500 text-white shadow-md shadow-indigo-500/20' 
             : 'text-slate-600 dark:text-slate-400 hover:bg-white/50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-200'
@@ -166,16 +167,78 @@ const App: React.FC = () => {
 
     if (isLoading) {
         return (
-            <div className="flex items-center justify-center h-screen w-screen bg-slate-200 dark:bg-black">
-                <div className="animate-pulse flex flex-col items-center">
-                    <div className="w-16 h-16 bg-indigo-500 rounded-2xl shadow-lg shadow-indigo-500/50 flex items-center justify-center mb-4">
-                        <span className="text-white font-black text-2xl">TR</span>
+            <div className="flex h-screen bg-slate-200 dark:bg-black p-3 gap-3 font-sans overflow-hidden">
+                {/* Skeleton Sidebar */}
+                <div className="hidden md:flex w-64 flex-col bg-white/50 dark:bg-slate-900/50 rounded-2xl p-5 gap-4">
+                    <div className="flex items-center gap-3 mb-4">
+                        <div className="w-10 h-10 bg-gradient-to-tr from-indigo-500 to-purple-500 rounded-xl shadow-lg animate-pulse flex items-center justify-center text-white font-black text-lg">SP</div>
+                        <div className="skeleton h-6 w-24"></div>
                     </div>
-                     <p className="text-slate-500 dark:text-slate-400 font-medium tracking-wide uppercase text-sm">Initializing Space...</p>
+                    <div className="skeleton h-10 w-full"></div>
+                    <div className="skeleton h-10 w-full"></div>
+                    <div className="skeleton h-10 w-3/4 mt-4"></div>
+                    <div className="skeleton h-10 w-full"></div>
+                    <div className="skeleton h-10 w-full"></div>
+                    <div className="skeleton h-10 w-full"></div>
+                    <div className="flex-1"></div>
+                    <div className="skeleton h-10 w-full"></div>
+                </div>
+                {/* Skeleton Main */}
+                <div className="flex-1 bg-white dark:bg-slate-950 rounded-[2rem] shadow-2xl ring-1 ring-black/5 dark:ring-white/10 p-10 flex flex-col gap-6 overflow-hidden">
+                    <div className="flex justify-between items-center">
+                        <div className="skeleton h-8 w-48"></div>
+                        <div className="skeleton h-8 w-32 rounded-full"></div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="skeleton h-28 w-full"></div>
+                        <div className="skeleton h-28 w-full"></div>
+                        <div className="skeleton h-28 w-full"></div>
+                    </div>
+                    <div className="skeleton h-64 w-full flex-1"></div>
                 </div>
             </div>
         );
     }
+
+    const AnimatedRoutes: React.FC = () => {
+        const location = useLocation();
+
+        return (
+            <AnimatePresence mode="wait">
+                <motion.div
+                    key={location.pathname}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.25, ease: 'easeInOut' }}
+                >
+                    <Routes location={location} key={location.pathname}>
+                        <Route path="/weekly" element={<WeeklyPlannerPage />} />
+                        <Route path="/" element={<TodoPage day={day} onDayChange={handleDayChange} classes={classesData} logs={logsData} onLogsChange={handleLogsChange} />} />
+                        <Route 
+                            path="/subjects/:subjectId" 
+                            element={<SubjectPage syllabusData={syllabusData} subjects={mockSubjects} onSyllabusChange={handleSyllabusChange} />} 
+                        />
+                        <Route path="/logbook" element={<LogBookPage logs={logsData} weeklySummaries={weeklySummaries} subjects={mockSubjects} />} />
+                        <Route path="/journal" element={<JournalPage />} />
+                        <Route path="/analytics" element={<AnalyticsPage tests={testsData} subjects={mockSubjects} syllabusData={syllabusData} logs={logsData} weeklySummaries={weeklySummaries} />} />
+                        <Route 
+                            path="/cms" 
+                            element={<CmsPage 
+                                subjects={mockSubjects} 
+                                syllabus={syllabusData}
+                                tests={testsData}
+                                classes={classesData}
+                                onSyllabusChange={handleSyllabusChange}
+                                onTestsChange={handleTestsChange}
+                                onClassesChange={handleClassesChange}
+                            />} 
+                        />
+                    </Routes>
+                </motion.div>
+            </AnimatePresence>
+        );
+    };
 
     return (
         <HashRouter>
@@ -222,23 +285,23 @@ const App: React.FC = () => {
 
                 {/* Native Bottom Tab Bar */}
                 <div className="md:hidden fixed bottom-4 left-4 right-4 h-16 bg-white/90 dark:bg-slate-950/90 backdrop-blur-2xl border border-black/5 dark:border-white/10 rounded-[2rem] shadow-2xl z-40 flex items-center justify-around px-2 pb-0">
-                    <NavLink to="/" className={({ isActive }) => `flex flex-col items-center justify-center w-14 h-14 rounded-full transition-all ${isActive ? 'text-indigo-500 dark:text-indigo-400' : 'text-slate-400 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
+                    <NavLink to="/" className={({ isActive }) => `flex flex-col items-center justify-center w-14 h-14 rounded-full transition-all press-scale ${isActive ? 'text-indigo-500 dark:text-indigo-400' : 'text-slate-400 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
                         <LayoutDashboard className="w-5 h-5 mb-1" />
                         <span className="text-[9px] font-bold">Today</span>
                     </NavLink>
-                    <NavLink to="/weekly" className={({ isActive }) => `flex flex-col items-center justify-center w-14 h-14 rounded-full transition-all ${isActive ? 'text-indigo-500 dark:text-indigo-400' : 'text-slate-400 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
+                    <NavLink to="/weekly" className={({ isActive }) => `flex flex-col items-center justify-center w-14 h-14 rounded-full transition-all press-scale ${isActive ? 'text-indigo-500 dark:text-indigo-400' : 'text-slate-400 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
                         <CalendarDays className="w-5 h-5 mb-1" />
                         <span className="text-[9px] font-bold">Weekly</span>
                     </NavLink>
-                    <NavLink to="/journal" className={({ isActive }) => `flex flex-col items-center justify-center w-14 h-14 rounded-full transition-all ${isActive ? 'text-indigo-500 dark:text-indigo-400' : 'text-slate-400 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
+                    <NavLink to="/journal" className={({ isActive }) => `flex flex-col items-center justify-center w-14 h-14 rounded-full transition-all press-scale ${isActive ? 'text-indigo-500 dark:text-indigo-400' : 'text-slate-400 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
                         <BookHeart className="w-5 h-5 mb-1" />
                         <span className="text-[9px] font-bold">Diary</span>
                     </NavLink>
-                    <button onClick={() => setLeftMenuOpen(true)} className={`flex flex-col items-center justify-center w-14 h-14 rounded-full transition-all ${leftMenuOpen ? 'text-indigo-500 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20' : 'text-slate-400 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
+                    <button onClick={() => setLeftMenuOpen(true)} className={`flex flex-col items-center justify-center w-14 h-14 rounded-full transition-all press-scale ${leftMenuOpen ? 'text-indigo-500 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20' : 'text-slate-400 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
                         <BookOpen className="w-5 h-5 mb-1" />
                         <span className="text-[9px] font-bold">Subjects</span>
                     </button>
-                    <button onClick={() => setRightMenuOpen(true)} className={`flex flex-col items-center justify-center w-14 h-14 rounded-full transition-all ${rightMenuOpen ? 'text-indigo-500 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20' : 'text-slate-400 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
+                    <button onClick={() => setRightMenuOpen(true)} className={`flex flex-col items-center justify-center w-14 h-14 rounded-full transition-all press-scale ${rightMenuOpen ? 'text-indigo-500 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20' : 'text-slate-400 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
                         <Menu className="w-5 h-5 mb-1" />
                         <span className="text-[9px] font-bold">More</span>
                     </button>
@@ -286,29 +349,7 @@ const App: React.FC = () => {
                 <main className="flex-1 relative bg-white dark:bg-slate-950 rounded-none md:rounded-[2rem] shadow-none md:shadow-2xl ring-0 md:ring-1 ring-black/5 md:dark:ring-white/10 overflow-hidden flex flex-col ">
                     <CommandPalette />
                     <div className="flex-1 overflow-y-auto p-4 pb-20 md:pb-4 sm:p-6 lg:p-10 w-full h-full relative z-0 scrollbar-hide">
-                        <Routes>
-                            <Route path="/weekly" element={<WeeklyPlannerPage />} />
-                            <Route path="/" element={<TodoPage day={day} onDayChange={handleDayChange} classes={classesData} logs={logsData} onLogsChange={handleLogsChange} />} />
-                            <Route 
-                                path="/subjects/:subjectId" 
-                                element={<SubjectPage syllabusData={syllabusData} subjects={mockSubjects} onSyllabusChange={handleSyllabusChange} />} 
-                            />
-                            <Route path="/logbook" element={<LogBookPage logs={logsData} weeklySummaries={weeklySummaries} subjects={mockSubjects} />} />
-                            <Route path="/journal" element={<JournalPage />} />
-                            <Route path="/analytics" element={<AnalyticsPage tests={testsData} subjects={mockSubjects} syllabusData={syllabusData} logs={logsData} weeklySummaries={weeklySummaries} />} />
-                            <Route 
-                                path="/cms" 
-                                element={<CmsPage 
-                                    subjects={mockSubjects} 
-                                    syllabus={syllabusData}
-                                    tests={testsData}
-                                    classes={classesData}
-                                    onSyllabusChange={handleSyllabusChange}
-                                    onTestsChange={handleTestsChange}
-                                    onClassesChange={handleClassesChange}
-                                />} 
-                            />
-                        </Routes>
+                        <AnimatedRoutes />
                     </div>
                 </main>
             </div>

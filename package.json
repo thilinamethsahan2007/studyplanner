@@ -14,7 +14,9 @@
   "dependencies": {
     "@hello-pangea/dnd": "^18.0.1",
     "@supabase/supabase-js": "^2.117.2",
-    "framer-motion": "^14.0.0",
+    "@types/canvas-confetti": "^1.9.0",
+    "canvas-confetti": "^1.9.4",
+    "framer-motion": "^14.1.0",
     "html-to-image": "1.11.11",
     "lucide-react": "^1.52.0",
     "react": "^19.2.0",

@@ -8,6 +8,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import ToggleSwitch from '../components/ToggleSwitch';
 import SyllabusAnalysis from '../components/SyllabusAnalysis';
 import StatisticalAnalysis from '../components/StatisticalAnalysis';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface AnalyticsPageProps {
   tests: Test[];
@@ -233,10 +234,20 @@ const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ tests, subjects, syllabus
         />
       </div>
       
-      {analysisMode === 'marks' && <MarkAnalysisView />}
-      {analysisMode === 'syllabus' && <SyllabusAnalysis syllabusData={syllabusData} subjects={subjects} />}
-      {analysisMode === 'logs' && <LogAnalysisView />}
-        {analysisMode === 'stats' && <StatisticalAnalysis tests={tests} subjects={subjects} syllabusData={syllabusData} logs={logs} />}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={analysisMode}
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -12 }}
+          transition={{ duration: 0.22, ease: 'easeInOut' }}
+        >
+          {analysisMode === 'marks' && <MarkAnalysisView />}
+          {analysisMode === 'syllabus' && <SyllabusAnalysis syllabusData={syllabusData} subjects={subjects} />}
+          {analysisMode === 'logs' && <LogAnalysisView />}
+          {analysisMode === 'stats' && <StatisticalAnalysis tests={tests} subjects={subjects} syllabusData={syllabusData} logs={logs} />}
+        </motion.div>
+      </AnimatePresence>
     </div>
   );
 };
