@@ -19,9 +19,40 @@ interface TodoPageProps {
     onLogsChange: (newLogs: LogEntry[]) => void;
 }
 
-const AnimatedCountdownNumber: React.FC<{ value: number; className?: string }> = ({ value, className = '' }) => {
+const getExamCountdown = () => {
+    const today = new Date();
+    let examYear = today.getFullYear();
+    // Month is 0-indexed, 7 = August. Target is Aug 3.
+    let examDate = new Date(examYear, 7, 3);
+
+    // If today is after Aug 3, target next year's exam.
+    if (today.getTime() > examDate.getTime()) {
+        examDate.setFullYear(examYear + 1);
+    }
+
+    let diffYears = examDate.getFullYear() - today.getFullYear();
+    let diffMonths = examDate.getMonth() - today.getMonth();
+    let diffDays = examDate.getDate() - today.getDate();
+
+    if (diffDays < 0) {
+        diffMonths--;
+        const prevMonthLastDay = new Date(examDate.getFullYear(), examDate.getMonth(), 0).getDate();
+        diffDays += prevMonthLastDay;
+    }
+    
+    if (diffMonths < 0) {
+        diffYears--;
+        diffMonths += 12;
+    }
+    
+    const totalMonths = diffYears * 12 + diffMonths;
+    const totalDays = Math.ceil((examDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    return { months: totalMonths, days: diffDays, totalDays };
+};
+
+const AnimatedCountdownNumber: React.FC<{ value: number; from: number; className?: string }> = ({ value, from, className = '' }) => {
     const ref = React.useRef<HTMLSpanElement>(null);
-    const spring = useSpring(0, { stiffness: 60, damping: 20 });
+    const spring = useSpring(from, { stiffness: 45, damping: 18 });
 
     React.useEffect(() => {
         spring.set(value);
@@ -38,7 +69,7 @@ const AnimatedCountdownNumber: React.FC<{ value: number; className?: string }> =
 
     return (
         <span ref={ref} className={className}>
-            {value}
+            {from}
         </span>
     );
 };
@@ -46,7 +77,7 @@ const AnimatedCountdownNumber: React.FC<{ value: number; className?: string }> =
 const TodoPage: React.FC<TodoPageProps> = ({ day, onDayChange, classes, logs, onLogsChange }) => {
   const { width, height } = useWindowSize();
   const isAllDone = day?.items?.length > 0 && day.items.every(item => item.done);
-  const [countdown, setCountdown] = useState({ months: 0, days: 0, totalDays: 0 });
+  const [countdown, setCountdown] = useState(getExamCountdown);
   const [currentTime, setCurrentTime] = useState(new Date());
 
   const [isLogModalOpen, setIsLogModalOpen] = useState(false);
@@ -66,43 +97,7 @@ const TodoPage: React.FC<TodoPageProps> = ({ day, onDayChange, classes, logs, on
   }, []);
 
   useEffect(() => {
-    const calculateCountdown = () => {
-        const today = new Date();
-        let examYear = today.getFullYear();
-        // Month is 0-indexed, 7 = August. Target is Aug 3.
-        let examDate = new Date(examYear, 7, 3);
-
-        // If today is after Aug 3, target next year's exam.
-        if (today.getTime() > examDate.getTime()) {
-            examDate.setFullYear(examYear + 1);
-        }
-
-        let diffYears = examDate.getFullYear() - today.getFullYear();
-        let diffMonths = examDate.getMonth() - today.getMonth();
-        let diffDays = examDate.getDate() - today.getDate();
-
-        // Adjust for negative days (when today's date is > exam date's day)
-        if (diffDays < 0) {
-            // Borrow from months
-            diffMonths--;
-            // Get the last day of the month before the exam month
-            const prevMonthLastDay = new Date(examDate.getFullYear(), examDate.getMonth(), 0).getDate();
-            diffDays += prevMonthLastDay;
-        }
-        
-        // Adjust for negative months
-        if (diffMonths < 0) {
-            diffYears--;
-            diffMonths += 12;
-        }
-        
-        const totalMonths = diffYears * 12 + diffMonths;
-
-        const totalDays = Math.ceil((examDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-        setCountdown({ months: totalMonths, days: diffDays, totalDays });
-    };
-
-    calculateCountdown();
+    setCountdown(getExamCountdown());
   }, []);
 
   const updateDayState = (newDay: Day) => {
@@ -346,7 +341,7 @@ const TodoPage: React.FC<TodoPageProps> = ({ day, onDayChange, classes, logs, on
                     className="flex flex-col items-center"
                 >
                     <div className="flex items-baseline">
-                        <AnimatedCountdownNumber value={countdown.months} className="text-5xl font-black text-indigo-600 dark:text-indigo-400 tracking-tight" />
+                        <AnimatedCountdownNumber from={24} value={countdown.months} className="text-5xl font-black text-indigo-600 dark:text-indigo-400 tracking-tight" />
                         <span className="text-sm font-semibold text-slate-500 dark:text-slate-400 ml-1">mo</span>
                     </div>
                     <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400 dark:text-slate-500">Months</span>
@@ -361,7 +356,7 @@ const TodoPage: React.FC<TodoPageProps> = ({ day, onDayChange, classes, logs, on
                     className="flex flex-col items-center"
                 >
                     <div className="flex items-baseline">
-                        <AnimatedCountdownNumber value={countdown.days} className="text-5xl font-black text-indigo-600 dark:text-indigo-400 tracking-tight" />
+                        <AnimatedCountdownNumber from={30} value={countdown.days} className="text-5xl font-black text-indigo-600 dark:text-indigo-400 tracking-tight" />
                         <span className="text-sm font-semibold text-slate-500 dark:text-slate-400 ml-1">days</span>
                     </div>
                     <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400 dark:text-slate-500">Days</span>
@@ -374,8 +369,24 @@ const TodoPage: React.FC<TodoPageProps> = ({ day, onDayChange, classes, logs, on
                 transition={{ duration: 0.45, delay: 0.3 }}
                 className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-2 font-medium"
             >
-                That&apos;s <span className="font-bold text-indigo-600 dark:text-indigo-400"><AnimatedCountdownNumber value={countdown.totalDays} /></span> days to go.
+                That&apos;s <span className="font-bold text-indigo-600 dark:text-indigo-400"><AnimatedCountdownNumber from={730} value={countdown.totalDays} /></span> days to go.
             </motion.p>
+
+            {/* 2-Year Journey Progress Bar */}
+            <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-700/50">
+                <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1.5 px-0.5">
+                    <span>2 Yrs (730d)</span>
+                    <span className="text-indigo-500 dark:text-indigo-400 font-extrabold">A/L Exam Target</span>
+                </div>
+                <div className="w-full bg-slate-200 dark:bg-slate-700/80 rounded-full h-1.5 overflow-hidden">
+                    <motion.div 
+                        initial={{ width: "0%" }}
+                        animate={{ width: `${Math.min(100, Math.max(0, Math.round(((730 - countdown.totalDays) / 730) * 100)))}%` }}
+                        transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+                        className="bg-gradient-to-r from-indigo-500 to-purple-500 h-1.5 rounded-full"
+                    />
+                </div>
+            </div>
         </motion.div>
 
         {/* Date, Tags */}
