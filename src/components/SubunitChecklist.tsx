@@ -1,6 +1,7 @@
 import React from 'react';
 import { Unit } from '../types';
 import { playPopSound, playSuccessChime } from '../utils/sound';
+import { motion } from 'framer-motion';
 
 interface SubunitChecklistProps {
   subjectId: string;
@@ -71,10 +72,15 @@ const SubunitChecklist: React.FC<SubunitChecklistProps> = ({ subjectId, unit, on
       </div>
 
       <div className="mb-6">
-        <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2.5">
-          <div className="bg-indigo-600 h-2.5 rounded-full shadow-[0_0_10px_rgba(20,184,166,0.6)] transition-all duration-1000 ease-out" style={{ width: `${progress}%` }}></div>
+        <div className="w-full bg-slate-200 dark:bg-slate-700/80 rounded-full h-2.5 overflow-hidden">
+          <motion.div 
+            initial={{ width: 0 }}
+            animate={{ width: `${progress}%` }}
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            className="bg-indigo-600 h-2.5 rounded-full shadow-[0_0_10px_rgba(99,102,241,0.5)]"
+          />
         </div>
-        <p className="text-right text-sm text-slate-500 dark:text-slate-400 mt-1">{progress}% Complete</p>
+        <p className="text-right text-sm font-semibold text-slate-500 dark:text-slate-400 mt-1.5">{progress}% Complete</p>
       </div>
 
       <div className="space-y-4 max-h-[calc(100vh-22rem)] overflow-y-auto pr-2">

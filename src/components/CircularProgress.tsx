@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
+import { motion, useSpring } from 'framer-motion';
 
 interface CircularProgressProps {
   percent: number;
@@ -10,6 +11,22 @@ const CircularProgress: React.FC<CircularProgressProps> = ({ percent }) => {
   const normalizedRadius = radius - stroke * 2;
   const circumference = normalizedRadius * 2 * Math.PI;
   const strokeDashoffset = circumference - (percent / 100) * circumference;
+
+  const numberRef = useRef<HTMLDivElement>(null);
+  const spring = useSpring(0, { stiffness: 60, damping: 20 });
+
+  useEffect(() => {
+    spring.set(percent);
+  }, [spring, percent]);
+
+  useEffect(() => {
+    const unsubscribe = spring.on('change', (latest) => {
+      if (numberRef.current) {
+        numberRef.current.textContent = `${Math.round(latest)}%`;
+      }
+    });
+    return unsubscribe;
+  }, [spring]);
 
   const getColor = () => {
     if (percent === 100) return 'text-green-500';
@@ -33,12 +50,14 @@ const CircularProgress: React.FC<CircularProgressProps> = ({ percent }) => {
           cx={radius}
           cy={radius}
         />
-        <circle
-          className={`${colorClass} transition-all duration-500 ease-in-out`}
+        <motion.circle
+          className={colorClass}
           stroke="currentColor"
           strokeWidth={stroke}
           strokeDasharray={circumference + ' ' + circumference}
-          style={{ strokeDashoffset }}
+          initial={{ strokeDashoffset: circumference }}
+          animate={{ strokeDashoffset }}
+          transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1] }}
           strokeLinecap="round"
           fill="transparent"
           r={normalizedRadius}
@@ -46,7 +65,10 @@ const CircularProgress: React.FC<CircularProgressProps> = ({ percent }) => {
           cy={radius}
         />
       </svg>
-      <div className={`absolute inset-0 flex items-center justify-center text-[11px] font-black tracking-tighter ${colorClass}`}>
+      <div 
+        ref={numberRef}
+        className={`absolute inset-0 flex items-center justify-center text-[11px] font-black tracking-tighter ${colorClass}`}
+      >
         {percent}%
       </div>
     </div>
