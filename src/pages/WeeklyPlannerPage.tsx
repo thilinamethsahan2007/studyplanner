@@ -262,9 +262,8 @@ const WeeklyPlannerPage: React.FC = () => {
                                     </div>
                                     <div className="pl-8 flex flex-wrap gap-1.5 items-center mt-1">
                                       {(item.recurring || item.note?.includes('[recurring]')) && (
-                                        <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-300 border border-purple-200 dark:border-purple-800/50 flex items-center gap-1">
-                                          <Repeat className="w-2.5 h-2.5" />
-                                          Habit
+                                        <span className="p-1 rounded-md bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-300 border border-purple-200 dark:border-purple-800/50 flex items-center justify-center shadow-sm" title="Daily Recurring Habit">
+                                          <Repeat className="w-3 h-3" />
                                         </span>
                                       )}
                                       {!item.done && item.subjectId !== 'personal' && (
@@ -361,9 +360,8 @@ const WeeklyPlannerPage: React.FC = () => {
                                     </div>
                                     <div className="pl-8 flex flex-wrap gap-1.5 items-center mt-0.5">
                                       {(item.recurring || item.note?.includes('[recurring]')) && (
-                                        <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-300 border border-purple-200 dark:border-purple-800/50 flex items-center gap-1">
-                                          <Repeat className="w-2.5 h-2.5" />
-                                          Habit
+                                        <span className="p-1 rounded-md bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-300 border border-purple-200 dark:border-purple-800/50 flex items-center justify-center shadow-sm" title="Daily Recurring Habit">
+                                          <Repeat className="w-3 h-3" />
                                         </span>
                                       )}
                                       {!item.done && item.subjectId !== 'personal' && (

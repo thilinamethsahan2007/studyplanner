@@ -69,9 +69,8 @@ const TodoList: React.FC<TodoListProps> = ({ todos, onToggle, subjects, onStartP
                     {todo.title}
                   </p>
                   {isRecurring && (
-                    <span className="text-[11px] font-bold uppercase tracking-wider inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-300 border border-purple-200 dark:border-purple-800/50 shadow-sm" title="Daily Recurring Habit (Every day this week)">
-                      <Repeat className="w-3 h-3 animate-spin-slow" />
-                      Daily Habit
+                    <span className="inline-flex items-center justify-center p-1 rounded-full bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-300 border border-purple-200 dark:border-purple-800/50 shadow-sm" title="Daily Recurring Habit (Every day this week)">
+                      <Repeat className="w-3.5 h-3.5" />
                     </span>
                   )}
                 </div>
