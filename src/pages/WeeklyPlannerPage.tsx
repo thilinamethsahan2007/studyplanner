@@ -3,8 +3,9 @@ import apiClient from '../services/apiClient';
 import { TodoItem } from '../types';
 import { generateTodoSuggestions } from '../services/smartParser';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
-import { CheckCircle2, Circle, Trash2 } from 'lucide-react';
+import { CheckCircle2, Circle, Trash2, Repeat } from 'lucide-react';
 import { mockSubjects } from '../mockData';
+import { Day } from '../types';
 
 const WeeklyPlannerPage: React.FC = () => {
   const formatTime = (mins: number) => {
@@ -93,18 +94,57 @@ const WeeklyPlannerPage: React.FC = () => {
 
     const suggestions = await generateTodoSuggestions(text);
     if (suggestions && suggestions.length > 0) {
-      const newTodos: TodoItem[] = suggestions.map(s => ({
-        id: Math.random().toString(36).substring(2, 9),
-        title: s.title || 'Untitled',
-        subjectId: s.subjectId || 'personal',
-        note: s.note || '',
+      const recurringSuggestions = suggestions.filter(s => s.recurring);
+      const regularSuggestions = suggestions.filter(s => !s.recurring);
+
+      let newWeekData = { ...weekData };
+      const daysToSave: Day[] = [];
+
+      // If recurring habits are present, automatically inject across ALL 7 days of the week!
+      if (recurringSuggestions.length > 0) {
+        const calendarCols = weekDays.slice(1);
+        calendarCols.forEach(col => {
+          const colDateStr = col.dateStr;
+          const existing = newWeekData[colDateStr] || [];
+          const newRecurringTodos: TodoItem[] = recurringSuggestions.map((s, idx) => ({
+            id: `rec-${colDateStr}-${Date.now()}-${idx}-${Math.random().toString(36).substring(2, 6)}`,
+            title: s.title || 'Untitled Habit',
+            subjectId: s.subjectId || 'personal',
+            note: s.note ? `${s.note} [recurring]` : '[recurring]',
+            estimatedMinutes: s.estimatedMinutes,
+            done: false,
+            recurring: true,
+          }));
+          const updated = [...existing, ...newRecurringTodos];
+          newWeekData[colDateStr] = updated;
+          daysToSave.push({ date: colDateStr, items: updated });
+        });
+      }
+
+      // Add regular tasks to targeted column
+      if (regularSuggestions.length > 0) {
+        const existing = newWeekData[dateStr] || [];
+        const newRegularTodos: TodoItem[] = regularSuggestions.map((s, idx) => ({
+          id: `${Date.now()}-${idx}-${Math.random().toString(36).substring(2, 7)}`,
+          title: s.title || 'Untitled',
+          subjectId: s.subjectId || 'personal',
+          note: s.note || '',
           estimatedMinutes: s.estimatedMinutes,
-        done: false,
-      }));
-      const existing = weekData[dateStr] || [];
-      const updated = [...existing, ...newTodos];
-      setWeekData({ ...weekData, [dateStr]: updated });
-      await apiClient.saveWeekTodos([{ date: dateStr, items: updated }]);
+          done: false,
+          recurring: false,
+        }));
+        const updated = [...existing, ...newRegularTodos];
+        newWeekData[dateStr] = updated;
+        const saveIdx = daysToSave.findIndex(d => d.date === dateStr);
+        if (saveIdx >= 0) {
+          daysToSave[saveIdx] = { date: dateStr, items: updated };
+        } else {
+          daysToSave.push({ date: dateStr, items: updated });
+        }
+      }
+
+      setWeekData(newWeekData);
+      await apiClient.saveWeekTodos(daysToSave);
     }
   };
 
@@ -221,6 +261,12 @@ const WeeklyPlannerPage: React.FC = () => {
                                       </button>
                                     </div>
                                     <div className="pl-8 flex flex-wrap gap-1.5 items-center mt-1">
+                                      {(item.recurring || item.note?.includes('[recurring]')) && (
+                                        <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-300 border border-purple-200 dark:border-purple-800/50 flex items-center gap-1">
+                                          <Repeat className="w-2.5 h-2.5" />
+                                          Habit
+                                        </span>
+                                      )}
                                       {!item.done && item.subjectId !== 'personal' && (
                                         <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md" style={{ backgroundColor: `${subject.color}15`, color: subject.color }}>
                                           {subject.name}
@@ -314,6 +360,12 @@ const WeeklyPlannerPage: React.FC = () => {
                                       </button>
                                     </div>
                                     <div className="pl-8 flex flex-wrap gap-1.5 items-center mt-0.5">
+                                      {(item.recurring || item.note?.includes('[recurring]')) && (
+                                        <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-300 border border-purple-200 dark:border-purple-800/50 flex items-center gap-1">
+                                          <Repeat className="w-2.5 h-2.5" />
+                                          Habit
+                                        </span>
+                                      )}
                                       {!item.done && item.subjectId !== 'personal' && (
                                         <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md" style={{ backgroundColor: `${subject.color}15`, color: subject.color }}>
                                           {subject.name}

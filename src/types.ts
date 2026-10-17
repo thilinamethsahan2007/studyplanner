@@ -34,6 +34,7 @@ export interface TodoItem {
   note: string;
   done: boolean;
   estimatedMinutes?: number;
+  recurring?: boolean;
 }
 
 export interface Day {

@@ -184,8 +184,9 @@ export const getTodayTodos = async (): Promise<Day> => {
         title: row.title,
         subjectId: row.subject_id,
         note: row.note,
-          done: row.done,
-          estimatedMinutes: row.estimated_minutes,
+        done: row.done,
+        estimatedMinutes: row.estimated_minutes,
+        recurring: Boolean(row.note?.includes('[recurring]')),
         _date: row.date
     }));
 
@@ -208,10 +209,10 @@ export const saveTodayTodos = async (day: Day): Promise<void> => {
             date: day.date,
             title: t.title,
             subject_id: t.subjectId,
-            note: t.note,
-              done: t.done,
-              estimated_minutes: t.estimatedMinutes
-            }));
+            note: t.recurring && !t.note?.includes('[recurring]') ? `${t.note || ''} [recurring]`.trim() : (t.note || ''),
+            done: t.done,
+            estimated_minutes: t.estimatedMinutes
+        }));
         await supabase.from('todos').upsert(rows);
     }
 };
@@ -228,8 +229,9 @@ export const getWeekTodos = async (startDate: string, endDate: string): Promise<
             title: row.title,
             subjectId: row.subject_id,
             note: row.note,
-          done: row.done,
-          estimatedMinutes: row.estimated_minutes
+            done: row.done,
+            estimatedMinutes: row.estimated_minutes,
+            recurring: Boolean(row.note?.includes('[recurring]'))
         });
     });
     return Object.keys(daysMap).map(date => ({ date, items: daysMap[date] }));
@@ -250,9 +252,9 @@ export const saveWeekTodos = async (days: Day[]): Promise<void> => {
                 date: day.date,
                 title: t.title,
                 subject_id: t.subjectId,
-                note: t.note,
-              done: t.done,
-              estimated_minutes: t.estimatedMinutes
+                note: t.recurring && !t.note?.includes('[recurring]') ? `${t.note || ''} [recurring]`.trim() : (t.note || ''),
+                done: t.done,
+                estimated_minutes: t.estimatedMinutes
             });
         });
     });

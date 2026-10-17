@@ -1,6 +1,7 @@
 import React from 'react';
 import { TodoItem, Subject } from '../types';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Repeat } from 'lucide-react';
 
 interface TodoListProps {
   todos: TodoItem[];
@@ -30,6 +31,8 @@ const TodoList: React.FC<TodoListProps> = ({ todos, onToggle, subjects, onStartP
         {sortedTodos.map(todo => {
           const subject = subjects.find(s => s.id === todo.subjectId);
           const isStudyTask = ['physics', 'chemistry', 'combined'].includes(todo.subjectId);
+          const isRecurring = Boolean(todo.recurring || todo.note?.includes('[recurring]'));
+          const cleanNote = todo.note ? todo.note.replace(/\[recurring\]/g, '').trim() : '';
           
           return (
             <motion.div
@@ -60,11 +63,19 @@ const TodoList: React.FC<TodoListProps> = ({ todos, onToggle, subjects, onStartP
                   )}
                 </button>
               </div>
-              <div className="flex-1">
-                <p className={`text-lg font-medium transition-all duration-300 ${todo.done ? 'line-through text-slate-400 dark:text-slate-500' : 'text-slate-800 dark:text-slate-100'}`}>
-                  {todo.title}
-                </p>
-                <div className="flex items-center gap-2 mt-2">
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <p className={`text-lg font-medium transition-all duration-300 ${todo.done ? 'line-through text-slate-400 dark:text-slate-500' : 'text-slate-800 dark:text-slate-100'}`}>
+                    {todo.title}
+                  </p>
+                  {isRecurring && (
+                    <span className="text-[11px] font-bold uppercase tracking-wider inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-300 border border-purple-200 dark:border-purple-800/50 shadow-sm" title="Daily Recurring Habit (Every day this week)">
+                      <Repeat className="w-3 h-3 animate-spin-slow" />
+                      Daily Habit
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center gap-2 mt-2 flex-wrap">
                   {subject && (
                      <span 
                         className={`text-xs font-bold inline-flex items-center px-2.5 py-1 rounded-full uppercase tracking-wider ${!todo.done ? 'shadow-sm' : 'opacity-50'}`} 
@@ -76,8 +87,13 @@ const TodoList: React.FC<TodoListProps> = ({ todos, onToggle, subjects, onStartP
                        {subject.name}
                      </span>
                   )}
-                  {todo.note && (
-                      <p className="text-sm text-slate-500 dark:text-slate-400">{todo.note}</p>
+                  {cleanNote && (
+                      <p className="text-sm text-slate-500 dark:text-slate-400">{cleanNote}</p>
+                  )}
+                  {todo.estimatedMinutes && (
+                      <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700/60 flex items-center gap-1">
+                        ⏳ {formatTime(todo.estimatedMinutes)}
+                      </span>
                   )}
                 </div>
               </div>

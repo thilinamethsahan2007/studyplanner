@@ -7,9 +7,10 @@ import { useWindowSize } from 'react-use';
 import LogTimeModal from '../components/LogTimeModal';
 import PomodoroTimer from '../components/PomodoroTimer';
 import JournalModal from '../components/JournalModal';
-import { BookHeart } from 'lucide-react';
+import { BookHeart, Repeat } from 'lucide-react';
 import { mockSubjects } from '../mockData';
-import { motion, useSpring } from 'framer-motion';
+import { motion, useSpring, AnimatePresence } from 'framer-motion';
+import apiClient from '../services/apiClient';
 
 interface TodoPageProps {
     day: Day | null;
@@ -87,6 +88,7 @@ const TodoPage: React.FC<TodoPageProps> = ({ day, onDayChange, classes, logs, on
   const [taskForPomodoro, setTaskForPomodoro] = useState<TodoItem | null>(null);
   const [pomodoroDuration, setPomodoroDuration] = useState(45); // in minutes
   const [isJournalModalOpen, setIsJournalModalOpen] = useState(false);
+  const [habitToast, setHabitToast] = useState<string | null>(null);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -129,15 +131,19 @@ const TodoPage: React.FC<TodoPageProps> = ({ day, onDayChange, classes, logs, on
     }
   }, [day, logs, onDayChange]);
 
-  const addTodos = useCallback((newTodos: Partial<TodoItem>[]) => {
+  const addTodos = useCallback(async (newTodos: Partial<TodoItem>[]) => {
     if (!day) return;
+
+    const recurringTodos = newTodos.filter(t => t.recurring);
+
     const fullNewTodos: TodoItem[] = newTodos.map((todo, index) => ({
       id: `ai-${Date.now()}-${index}`,
-      title: todo.title || 'Untitled AI Task',
+      title: todo.title || 'Untitled Task',
       subjectId: todo.subjectId || 'personal',
       note: todo.note || '',
       estimatedMinutes: todo.estimatedMinutes,
       done: false,
+      recurring: todo.recurring,
     }));
 
     const newDay: Day = {
@@ -145,6 +151,54 @@ const TodoPage: React.FC<TodoPageProps> = ({ day, onDayChange, classes, logs, on
       items: [...day.items, ...fullNewTodos],
     };
     updateDayState(newDay);
+
+    // If any tasks are recurring habits, automatically inject into all days of the current week!
+    if (recurringTodos.length > 0) {
+      try {
+        const todayDate = day.date ? new Date(day.date + 'T00:00:00') : new Date();
+        const dayOfWeek = todayDate.getDay(); // 0 is Sunday, 1 is Monday...
+        const diff = todayDate.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
+        const monday = new Date(todayDate);
+        monday.setDate(diff);
+
+        const weekDates: string[] = [];
+        for (let i = 0; i < 7; i++) {
+          const d = new Date(monday);
+          d.setDate(monday.getDate() + i);
+          weekDates.push(d.toISOString().split('T')[0]);
+        }
+
+        const otherDates = weekDates.filter(d => d !== day.date);
+        const existingWeekData = await apiClient.getWeekTodos(weekDates[0], weekDates[6]);
+        const weekMap: Record<string, TodoItem[]> = {};
+        existingWeekData.forEach(d => {
+          weekMap[d.date] = d.items;
+        });
+
+        const daysToSave: Day[] = otherDates.map(dateStr => {
+          const existing = weekMap[dateStr] || [];
+          const injected: TodoItem[] = recurringTodos.map((todo, idx) => ({
+            id: `rec-${dateStr}-${Date.now()}-${idx}-${Math.random().toString(36).substring(2, 6)}`,
+            title: todo.title || 'Untitled Recurring Task',
+            subjectId: todo.subjectId || 'personal',
+            note: todo.note || '[recurring]',
+            estimatedMinutes: todo.estimatedMinutes,
+            done: false,
+            recurring: true,
+          }));
+          return {
+            date: dateStr,
+            items: [...existing, ...injected]
+          };
+        });
+
+        await apiClient.saveWeekTodos(daysToSave);
+        setHabitToast(`Injected "${recurringTodos[0].title}" into all 7 days of the week!`);
+        setTimeout(() => setHabitToast(null), 4500);
+      } catch (err) {
+        console.error('Failed to inject recurring tasks for the week:', err);
+      }
+    }
   }, [day, onDayChange]);
   
   const formatDate = (dateString: string) => {
@@ -433,6 +487,23 @@ const TodoPage: React.FC<TodoPageProps> = ({ day, onDayChange, classes, logs, on
         <div className="bg-white/50 dark:bg-slate-800/50 backdrop-blur-xl border border-white/40 dark:border-slate-700/50 p-4 sm:p-6 rounded-3xl shadow-xl shadow-black/5 mb-8 max-h-[60vh] overflow-y-auto scrollbar-hide">
             <TodoList todos={day.items} onToggle={toggleTodo} subjects={mockSubjects} onStartPomodoro={handleStartPomodoro} />
         </div>
+
+        {/* Recurring Habit Injection Toast */}
+        <AnimatePresence>
+            {habitToast && (
+                <motion.div
+                    initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 20, scale: 0.95 }}
+                    className="fixed bottom-6 right-6 z-50 flex items-center gap-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-5 py-3.5 rounded-2xl shadow-2xl shadow-indigo-500/40 border border-white/20 text-sm font-bold backdrop-blur-md"
+                >
+                    <div className="p-1.5 bg-white/20 rounded-xl">
+                        <Repeat className="w-4 h-4 animate-spin-slow" />
+                    </div>
+                    <span>{habitToast}</span>
+                </motion.div>
+            )}
+        </AnimatePresence>
     </div>
   );
 };

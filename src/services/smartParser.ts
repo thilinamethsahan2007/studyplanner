@@ -64,10 +64,28 @@ export const generateTodoSuggestions = async (text: string): Promise<Partial<Tod
         return { cleanText, estimatedMinutes };
     };
 
+    // Helper to extract .r and recurring intent
+    const extractRecurring = (input: string): { cleanText: string, isRecurring: boolean } => {
+        let isRecurring = false;
+        let cleanText = input;
+
+        if (/(?:^|\s)\.r(?:\s+|$)/i.test(cleanText)) {
+            isRecurring = true;
+            cleanText = cleanText.replace(/(?:^|\s)\.r(?:\s+|$)/gi, ' ').trim();
+        } else if (/\b(?:recurring|daily\s+habit)\b/i.test(cleanText)) {
+            isRecurring = true;
+            cleanText = cleanText.replace(/\b(?:recurring|daily\s+habit)\b/gi, ' ').trim();
+        }
+
+        return { cleanText, isRecurring };
+    };
+
+    const { cleanText: globalCleanText, isRecurring: globalRecurring } = extractRecurring(text.trim());
+
     // 0. Check for explicit shorthand mode
-    if (text.trim().startsWith('.')) {
+    if (globalCleanText.startsWith('.')) {
         const results: Partial<TodoItem>[] = [];
-        const tokens = text.split(/(?=\.(?!est\b)[a-zA-Z]+\s)/i);
+        const tokens = globalCleanText.split(/(?=\.(?!est\b)(?!r\b)[a-zA-Z]+\s)/i);
         
         tokens.forEach(token => {
             const match = token.trim().match(/^\.([a-zA-Z]+)\s+(.*)/);
@@ -76,15 +94,18 @@ export const generateTodoSuggestions = async (text: string): Promise<Partial<Tod
                 const rawContent = match[2];
                 const subjectId = SHORTHAND_MAP[code] || 'personal';
                 
-                const { cleanText, estimatedMinutes } = extractEst(rawContent);
+                const { cleanText: tokenClean, isRecurring: tokenRecurring } = extractRecurring(rawContent);
+                const isItemRecurring = globalRecurring || tokenRecurring;
+                const { cleanText, estimatedMinutes } = extractEst(tokenClean);
                 
                 const items = cleanText.split(',').map(s => s.trim()).filter(s => s.length > 0);
                 items.forEach(item => {
                     results.push({
                         title: item.charAt(0).toUpperCase() + item.slice(1),
                         subjectId: subjectId,
-                        note: '',
-                        estimatedMinutes
+                        note: isItemRecurring ? '[recurring]' : '',
+                        estimatedMinutes,
+                        recurring: isItemRecurring ? true : undefined
                     });
                 });
             }
@@ -94,13 +115,15 @@ export const generateTodoSuggestions = async (text: string): Promise<Partial<Tod
     }
 
     // 1. Split the text into separate tasks.
-    const splitRegex = /(?:\b(?:and|then|also)\b|\s*,\s*|\s*\.(?!est\b)\s*|\s*;\s*)/i;
-    let rawTasks = text.split(splitRegex)
+    const splitRegex = /(?:\b(?:and|then|also)\b|\s*,\s*|\s*\.(?!est\b)(?!r\b)\s*|\s*;\s*)/i;
+    let rawTasks = globalCleanText.split(splitRegex)
         .map(t => t.trim())
         .filter(t => t.length > 2); // Ignore empty fragments
 
     const suggestions = rawTasks.map(taskText => {
-        const { cleanText, estimatedMinutes } = extractEst(taskText);
+        const { cleanText: taskClean, isRecurring: taskRecurring } = extractRecurring(taskText);
+        const isItemRecurring = globalRecurring || taskRecurring;
+        const { cleanText, estimatedMinutes } = extractEst(taskClean);
         
         let assignedCategory = 'personal';
         const lowerText = cleanText.toLowerCase();
@@ -125,8 +148,9 @@ export const generateTodoSuggestions = async (text: string): Promise<Partial<Tod
         return {
             title: title,
             subjectId: assignedCategory,
-            note: '',
-            estimatedMinutes
+            note: isItemRecurring ? '[recurring]' : '',
+            estimatedMinutes,
+            recurring: isItemRecurring ? true : undefined
         };
     });
 
