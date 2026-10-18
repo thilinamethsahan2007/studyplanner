@@ -8,6 +8,7 @@ const categoryKeywords: Record<string, string[]> = {
     combined: ['math', 'maths', 'combined', 'calculus', 'algebra', 'trig', 'geometry', 'stat', 'probability', 'integration', 'differentiation', 'vectors'],
     exercise: ['exercise', 'run', 'jog', 'walk', 'gym', 'workout', 'swim', 'cricket', 'football', 'basketball', 'sport', 'train', 'yoga', 'stretch', 'push up', 'pull up'],
     entertainment: ['entertainment', 'movie', 'film', 'watch', 'game', 'play', 'read', 'music', 'listen', 'relax', 'chill', 'youtube', 'netflix', 'tv'],
+    microcredentials: ['microcredentials', 'microcredential', 'micro credentials', 'micro credential', 'credential', 'credentials', 'cert', 'certification', 'certificate', 'course', 'coursera', 'edx', 'udemy', 'udacity', 'diploma', 'module', 'badge'],
 };
 
 // Dynamically inject all syllabus topics (both English and Sinhala) into the keyword dictionary
@@ -36,7 +37,8 @@ const SHORTHAND_MAP: Record<string, string> = {
     'c': 'chemistry',
     'e': 'entertainment',
     'pv': 'personal',
-    'ex': 'exercise'
+    'ex': 'exercise',
+    'mc': 'microcredentials'
 };
 
 export const generateTodoSuggestions = async (text: string): Promise<Partial<TodoItem>[]> => {

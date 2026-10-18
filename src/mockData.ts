@@ -11,6 +11,7 @@ export const mockSubjects: Subject[] = [
   { id: 'physics', name: 'Physics', sinhala_name: 'භෞතික විද්‍යාව', color: '#0ea5e9' },
   { id: 'chemistry', name: 'Chemistry', sinhala_name: 'රසායන විද්‍යාව', color: '#d946ef' },
   { id: 'combined', name: 'Combined Maths', sinhala_name: 'සංයුක්ත ගණිතය', color: '#22c55e' },
+  { id: 'microcredentials', name: 'Micro Credentials', sinhala_name: 'ක්ෂුද්‍ර සහතික', color: '#f59e0b' },
   { id: 'exercise', name: 'Exercise', sinhala_name: 'ව්‍යායාම', color: '#ff5a1f' },
   { id: 'entertainment', name: 'Entertainment', sinhala_name: 'විනෝදාස්වාදය', color: '#f43f5e' },
   { id: 'personal', name: 'Personal', sinhala_name: 'පෞද්ගලික', color: '#6b7280' },

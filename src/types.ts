@@ -1,5 +1,5 @@
 export interface Subject {
-  id: 'physics' | 'chemistry' | 'combined' | string;
+  id: 'physics' | 'chemistry' | 'combined' | 'microcredentials' | string;
   name: string;
   sinhala_name: string;
   color: string;

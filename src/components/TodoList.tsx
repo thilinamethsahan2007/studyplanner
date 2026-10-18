@@ -30,7 +30,7 @@ const TodoList: React.FC<TodoListProps> = ({ todos, onToggle, subjects, onStartP
       <AnimatePresence>
         {sortedTodos.map(todo => {
           const subject = subjects.find(s => s.id === todo.subjectId);
-          const isStudyTask = ['physics', 'chemistry', 'combined'].includes(todo.subjectId);
+          const isStudyTask = ['physics', 'chemistry', 'combined', 'microcredentials'].includes(todo.subjectId);
           const isRecurring = Boolean(todo.recurring || todo.note?.includes('[recurring]'));
           const cleanNote = todo.note ? todo.note.replace(/\[recurring\]/g, '').trim() : '';
           

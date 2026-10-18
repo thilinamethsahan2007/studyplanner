@@ -13,7 +13,7 @@ import { Syllabus, Test, Class, LogEntry, WeeklySummary, Day } from './types';
 import CommandPalette from './components/CommandPalette';
 import apiClient from './services/apiClient';
 // Lucide Icons
-import { LayoutDashboard, CalendarDays, BookOpen, BookHeart, BarChart2, Settings, FlaskConical, Atom, Calculator, Dumbbell, Gamepad2, Menu, X } from 'lucide-react';
+import { LayoutDashboard, CalendarDays, BookOpen, BookHeart, BarChart2, Settings, FlaskConical, Atom, Calculator, Dumbbell, Gamepad2, Award, Menu, X } from 'lucide-react';
 
 
 const getStartOfWeek = (date: Date) => {
@@ -30,6 +30,7 @@ const getSubjectIcon = (id: string) => {
         case 'physics': return <Atom className="w-5 h-5" />;
         case 'chemistry': return <FlaskConical className="w-5 h-5" />;
         case 'combined': return <Calculator className="w-5 h-5" />;
+        case 'microcredentials': return <Award className="w-5 h-5" />;
         case 'exercise': return <Dumbbell className="w-5 h-5" />;
         case 'entertainment': return <Gamepad2 className="w-5 h-5" />;
         default: return <BookOpen className="w-5 h-5" />;

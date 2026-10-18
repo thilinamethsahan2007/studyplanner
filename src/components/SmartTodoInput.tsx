@@ -45,7 +45,7 @@ const SmartTodoInput: React.FC<SmartTodoInputProps> = ({ onAddTodos }) => {
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
                 className="flex-1 min-w-0 bg-transparent border-0 px-2 py-3 focus:ring-0 text-slate-800 dark:text-slate-100 placeholder-slate-400 font-medium"
-                placeholder="Type 'finish mechanics tute' or '.r .p daily revision .est 0.30'..."
+                placeholder="Type 'finish mechanics tute' or '.mc python cert .est 1'..."
                 disabled={isLoading}
             />
             <button

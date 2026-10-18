@@ -130,6 +130,7 @@ const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ tests, subjects, syllabus
         
         const categoryMap = {
           study: { name: 'Study', color: '#4f46e5' },
+          microcredentials: { name: 'Micro Credentials', color: subjects.find(s => s.id === 'microcredentials')?.color || '#f59e0b' },
           exercise: { name: 'Exercise', color: subjects.find(s => s.id === 'exercise')?.color || '#f97316' },
           entertainment: { name: 'Entertainment', color: subjects.find(s => s.id === 'entertainment')?.color || '#ec4899' },
           personal: { name: 'Personal', color: subjects.find(s => s.id === 'personal')?.color || '#6b7280' },

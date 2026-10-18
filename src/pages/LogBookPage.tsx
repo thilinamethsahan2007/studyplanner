@@ -1,5 +1,6 @@
 import React from 'react';
 import { LogEntry, Subject, WeeklySummary } from '../types';
+import { Award } from 'lucide-react';
 
 interface LogBookPageProps {
   logs: LogEntry[];
@@ -36,6 +37,12 @@ const CategoryHeader: React.FC<{ category: string; totalMinutes: number }> = ({ 
             </svg>
           ),
           color: 'text-indigo-600 dark:text-indigo-400',
+        };
+      case 'microcredentials':
+        return {
+          title: 'Micro Credentials',
+          icon: <Award className="h-5 w-5" />,
+          color: 'text-amber-600 dark:text-amber-400',
         };
       case 'exercise':
         return {
@@ -127,7 +134,7 @@ const LogBookPage: React.FC<LogBookPageProps> = ({ logs, weeklySummaries, subjec
      
                                if (academicIds.includes(log.subjectId)) {
                                  categoryKey = 'study';
-                               } else if (['exercise', 'entertainment', 'personal'].includes(log.subjectId)) {
+                               } else if (['exercise', 'entertainment', 'personal', 'microcredentials'].includes(log.subjectId)) {
                                  categoryKey = log.subjectId;
                                }
      
@@ -139,7 +146,7 @@ const LogBookPage: React.FC<LogBookPageProps> = ({ logs, weeklySummaries, subjec
                              }, {} as { [category: string]: LogEntry[] });
      
                              const sortedCategoryKeys = Object.keys(categorizedLogs).sort((a,b) => {
-                                 const order = ['study', 'exercise', 'entertainment', 'personal'];
+                                 const order = ['study', 'microcredentials', 'exercise', 'entertainment', 'personal'];
                                  return order.indexOf(a) - order.indexOf(b);
                              });
 
