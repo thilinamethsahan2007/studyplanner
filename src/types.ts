@@ -84,3 +84,56 @@ export interface JournalEntry {
   photos: string[]; // Base64 data URLs
   completedTasks: { title: string, subjectId: string }[];
 }
+
+// --- Nutrition / Calorie Tracking Types ---
+export type MealType = 'breakfast' | 'lunch' | 'dinner' | 'snacks';
+
+export interface FoodItem {
+  id: string;
+  name: string;
+  portionDescription: string;
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+  fiber: number;
+  confidenceNotes?: string;
+  loggedAt: string;
+}
+
+export interface DayMeals {
+  breakfast: FoodItem[];
+  lunch: FoodItem[];
+  dinner: FoodItem[];
+  snacks: FoodItem[];
+}
+
+export interface DayLog {
+  date: string;
+  meals: DayMeals;
+  notes?: string;
+}
+
+export interface NutritionTargets {
+  dailyCalories: number;
+  proteinGrams: number;
+  carbsGrams: number;
+  fatGrams: number;
+  fiberGrams: number;
+}
+
+export interface ParsedMealResponse {
+  success: boolean;
+  items: Array<{
+    name: string;
+    portionDescription: string;
+    calories: number;
+    protein: number;
+    carbs: number;
+    fat: number;
+    fiber: number;
+    confidenceNotes?: string;
+  }>;
+  summaryNote?: string;
+  fallbackMode?: boolean;
+}

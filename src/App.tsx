@@ -8,12 +8,13 @@ import AnalyticsPage from './pages/AnalyticsPage';
 import LogBookPage from './pages/LogBookPage';
 import CmsPage from './pages/CmsPage';
 import JournalPage from './pages/JournalPage';
+import NutritionPage from './pages/NutritionPage';
 import { mockSubjects } from './mockData';
 import { Syllabus, Test, Class, LogEntry, WeeklySummary, Day } from './types';
 import CommandPalette from './components/CommandPalette';
 import apiClient from './services/apiClient';
 // Lucide Icons
-import { LayoutDashboard, CalendarDays, BookOpen, BookHeart, BarChart2, Settings, FlaskConical, Atom, Calculator, Dumbbell, Gamepad2, Award, Menu, X } from 'lucide-react';
+import { LayoutDashboard, CalendarDays, BookOpen, BookHeart, BarChart2, Settings, FlaskConical, Atom, Calculator, Dumbbell, Gamepad2, Award, Menu, X, UtensilsCrossed } from 'lucide-react';
 
 
 const getStartOfWeek = (date: Date) => {
@@ -200,6 +201,7 @@ const App: React.FC = () => {
                         />
                         <Route path="/logbook" element={<LogBookPage logs={logsData} weeklySummaries={weeklySummaries} subjects={mockSubjects} />} />
                         <Route path="/journal" element={<JournalPage />} />
+                        <Route path="/nutrition" element={<NutritionPage />} />
                         <Route path="/analytics" element={<AnalyticsPage tests={testsData} subjects={mockSubjects} syllabusData={syllabusData} logs={logsData} weeklySummaries={weeklySummaries} />} />
                         <Route 
                             path="/cms" 
@@ -251,6 +253,7 @@ const App: React.FC = () => {
                         
                         <SidebarLink to="/logbook" icon={<BookOpen className="w-5 h-5" />} label="Log Book" />
                         <SidebarLink to="/journal" icon={<BookOpen className="w-5 h-5" />} label="Diary" />
+                        <SidebarLink to="/nutrition" icon={<UtensilsCrossed className="w-5 h-5" />} label="Nutrition" />
                         <SidebarLink to="/analytics" icon={<BarChart2 className="w-5 h-5" />} label="Analytics" />
                     </div>
                     
@@ -318,6 +321,7 @@ const App: React.FC = () => {
                             <SidebarLink to="/analytics" icon={<BarChart2 className="w-6 h-6" />} label="Analytics" onClick={() => setRightMenuOpen(false)} />
                             <SidebarLink to="/logbook" icon={<BookOpen className="w-6 h-6" />} label="Log Book" onClick={() => setRightMenuOpen(false)} />
                             <SidebarLink to="/journal" icon={<BookOpen className="w-6 h-6" />} label="Diary" onClick={() => setRightMenuOpen(false)} />
+                            <SidebarLink to="/nutrition" icon={<UtensilsCrossed className="w-6 h-6" />} label="Nutrition" onClick={() => setRightMenuOpen(false)} />
                             <div className="my-4 border-t border-black/10 dark:border-white/10" />
                             <SidebarLink to="/cms" icon={<Settings className="w-6 h-6" />} label="Settings" onClick={() => setRightMenuOpen(false)} />
                         </div>
