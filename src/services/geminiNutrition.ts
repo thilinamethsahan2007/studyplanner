@@ -1,8 +1,8 @@
 import { MealType, ParsedMealResponse } from '../types';
 
-const GEMINI_API_KEY =
-  import.meta.env.VITE_GEMINI_API_KEY ||
-  (typeof process !== 'undefined' && process.env?.GEMINI_API_KEY) ||
+const CLIENT_GEMINI_API_KEY =
+  (typeof import.meta !== 'undefined' && import.meta?.env?.VITE_GEMINI_API_KEY) ||
+  (typeof process !== 'undefined' && (process?.env?.GEMINI_API_KEY || process?.env?.API_KEY)) ||
   '';
 
 // ─── Offline Heuristic Fallback Parser ──────────────────────────────────────
@@ -152,27 +152,26 @@ function fallbackEstimate(text: string): ParsedMealResponse['items'] {
   return items;
 }
 
-// ─── Gemini AI Meal Parsing ──────────────────────────────────────────────────
+function sanitizeItems(rawItems: any[]): ParsedMealResponse['items'] {
+  return rawItems.map((it: any) => ({
+    name: String(it.name || 'Food Item'),
+    portionDescription: String(it.portionDescription || '1 serving'),
+    calories: Math.max(0, Math.round(Number(it.calories) || 0)),
+    protein: Math.max(0, Math.round((Number(it.protein) || 0) * 10) / 10),
+    carbs: Math.max(0, Math.round((Number(it.carbs) || 0) * 10) / 10),
+    fat: Math.max(0, Math.round((Number(it.fat) || 0) * 10) / 10),
+    fiber: Math.max(0, Math.round((Number(it.fiber) || 0) * 10) / 10),
+    confidenceNotes: it.confidenceNotes ? String(it.confidenceNotes) : undefined,
+  }));
+}
 
-export async function parseMealWithGemini(
-  text: string,
-  mealType: MealType
-): Promise<ParsedMealResponse> {
-  const trimmed = text.trim();
-  if (!trimmed) {
-    throw new Error('Please enter food or meal text to analyze.');
-  }
+// ─── Direct Client-side Gemini Request Helper ───────────────────────────────
 
-  if (!GEMINI_API_KEY) {
-    console.warn('VITE_GEMINI_API_KEY is not configured. Using heuristic estimation.');
-    return {
-      success: true,
-      items: fallbackEstimate(trimmed),
-      summaryNote: 'Calculated using standard USDA nutritional references.',
-      fallbackMode: true,
-    };
-  }
-
+async function callGeminiDirectClient(
+  trimmed: string,
+  mealType: MealType,
+  apiKey: string
+): Promise<ParsedMealResponse | null> {
   const systemInstruction = `You are an expert clinical dietitian and food scientist.
 Analyze the user's natural language meal description which can include food names, proportions, quantities, cooking styles, or weights.
 Deconstruct it into individual ingredients/components. For each item return:
@@ -192,103 +191,133 @@ Rules:
 
   const prompt = `Parse this food log entry: "${trimmed}". The target meal category is ${mealType}.`;
 
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${GEMINI_API_KEY}`;
+  const requestPayload = {
+    contents: [
+      {
+        parts: [{ text: `${systemInstruction}\n\n${prompt}` }],
+      },
+    ],
+    generationConfig: {
+      temperature: 0.2,
+      responseMimeType: 'application/json',
+      responseSchema: {
+        type: 'OBJECT',
+        properties: {
+          items: {
+            type: 'ARRAY',
+            description: 'List of individual food components parsed from the text',
+            items: {
+              type: 'OBJECT',
+              properties: {
+                name: { type: 'STRING' },
+                portionDescription: { type: 'STRING' },
+                calories: { type: 'NUMBER' },
+                protein: { type: 'NUMBER' },
+                carbs: { type: 'NUMBER' },
+                fat: { type: 'NUMBER' },
+                fiber: { type: 'NUMBER' },
+                confidenceNotes: { type: 'STRING' },
+              },
+              required: ['name', 'portionDescription', 'calories', 'protein', 'carbs', 'fat', 'fiber'],
+            },
+          },
+          summaryNote: { type: 'STRING' },
+        },
+        required: ['items'],
+      },
+    },
+  };
 
+  const models = ['gemini-3.8-flash', 'gemini-flash-latest'];
+
+  for (const model of models) {
+    try {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestPayload),
+      });
+
+      if (!response.ok) {
+        continue;
+      }
+
+      const data = await response.json();
+      const rawContent = data.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (!rawContent) continue;
+
+      const parsed = JSON.parse(rawContent);
+      const items = Array.isArray(parsed.items) ? parsed.items : [];
+      if (items.length > 0) {
+        return {
+          success: true,
+          items: sanitizeItems(items),
+          summaryNote: parsed.summaryNote,
+          fallbackMode: false,
+        };
+      }
+    } catch (e) {
+      console.warn(`Direct client call to ${model} failed:`, e);
+    }
+  }
+
+  return null;
+}
+
+// ─── Main Dispatcher ─────────────────────────────────────────────────────────
+
+export async function parseMealWithGemini(
+  text: string,
+  mealType: MealType
+): Promise<ParsedMealResponse> {
+  const trimmed = text.trim();
+  if (!trimmed) {
+    throw new Error('Please enter food or meal text to analyze.');
+  }
+
+  // 1. Try secure Vercel Serverless Function first (/api/nutrition)
+  // This allows keeping GEMINI_API_KEY as a private, secure server secret without exposing it to the browser.
   try {
-    const response = await fetch(url, {
+    const apiRes = await fetch('/api/nutrition', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        contents: [
-          {
-            parts: [{ text: `${systemInstruction}\n\n${prompt}` }],
-          },
-        ],
-        generationConfig: {
-          temperature: 0.2,
-          responseMimeType: 'application/json',
-          responseSchema: {
-            type: 'OBJECT',
-            properties: {
-              items: {
-                type: 'ARRAY',
-                description: 'List of individual food components parsed from the text',
-                items: {
-                  type: 'OBJECT',
-                  properties: {
-                    name: { type: 'STRING' },
-                    portionDescription: { type: 'STRING' },
-                    calories: { type: 'NUMBER' },
-                    protein: { type: 'NUMBER' },
-                    carbs: { type: 'NUMBER' },
-                    fat: { type: 'NUMBER' },
-                    fiber: { type: 'NUMBER' },
-                    confidenceNotes: { type: 'STRING' },
-                  },
-                  required: ['name', 'portionDescription', 'calories', 'protein', 'carbs', 'fat', 'fiber'],
-                },
-              },
-              summaryNote: { type: 'STRING' },
-            },
-            required: ['items'],
-          },
-        },
-      }),
+      body: JSON.stringify({ text: trimmed, mealType }),
     });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.warn(`Gemini API error (${response.status}):`, errorText);
-      return {
-        success: true,
-        items: fallbackEstimate(trimmed),
-        summaryNote: 'Fallback estimation used due to network or API limit.',
-        fallbackMode: true,
-      };
+    if (apiRes.ok) {
+      const data = await apiRes.json();
+      if (data && Array.isArray(data.items) && data.items.length > 0) {
+        return {
+          success: true,
+          items: sanitizeItems(data.items),
+          summaryNote: data.summaryNote,
+          fallbackMode: false,
+        };
+      }
     }
-
-    const data = await response.json();
-    const rawContent = data.candidates?.[0]?.content?.parts?.[0]?.text;
-    if (!rawContent) {
-      throw new Error('Empty response from AI parser');
-    }
-
-    const parsed = JSON.parse(rawContent);
-    const items = Array.isArray(parsed.items) ? parsed.items : [];
-
-    if (items.length === 0) {
-      return {
-        success: true,
-        items: fallbackEstimate(trimmed),
-        summaryNote: 'No distinct items found; used heuristic fallback.',
-        fallbackMode: true,
-      };
-    }
-
-    return {
-      success: true,
-      items: items.map((it: any) => ({
-        name: String(it.name || 'Food Item'),
-        portionDescription: String(it.portionDescription || '1 serving'),
-        calories: Math.max(0, Math.round(Number(it.calories) || 0)),
-        protein: Math.max(0, Math.round((Number(it.protein) || 0) * 10) / 10),
-        carbs: Math.max(0, Math.round((Number(it.carbs) || 0) * 10) / 10),
-        fat: Math.max(0, Math.round((Number(it.fat) || 0) * 10) / 10),
-        fiber: Math.max(0, Math.round((Number(it.fiber) || 0) * 10) / 10),
-        confidenceNotes: it.confidenceNotes ? String(it.confidenceNotes) : undefined,
-      })),
-      summaryNote: parsed.summaryNote,
-      fallbackMode: false,
-    };
-  } catch (err: any) {
-    console.warn('Gemini parser call failed, falling back to local heuristic:', err);
-    return {
-      success: true,
-      items: fallbackEstimate(trimmed),
-      summaryNote: 'Offline heuristic estimator used.',
-      fallbackMode: true,
-    };
+  } catch (apiErr) {
+    // Normal when running standalone Vite dev server without Vercel CLI
+    console.info('Serverless /api/nutrition not reachable, falling back to direct client dispatch.');
   }
+
+  // 2. Try direct client-side call if client API key is available
+  if (CLIENT_GEMINI_API_KEY) {
+    const directResult = await callGeminiDirectClient(trimmed, mealType, CLIENT_GEMINI_API_KEY);
+    if (directResult) {
+      return directResult;
+    }
+  }
+
+  // 3. Graceful offline heuristic fallback
+  return {
+    success: true,
+    items: fallbackEstimate(trimmed),
+    summaryNote: 'Calculated using standard USDA nutritional references.',
+    fallbackMode: true,
+  };
 }
