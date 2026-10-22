@@ -96,9 +96,36 @@ const App: React.FC = () => {
                         return acc;
                     }, {} as { [weekStartString: string]: LogEntry[] });
 
+                    const isSundayDate = (dateStr: string) => {
+                        const parts = dateStr.split('T')[0].split('-').map(Number);
+                        if (parts.length === 3) {
+                            return new Date(parts[0], parts[1] - 1, parts[2]).getDay() === 0;
+                        }
+                        return new Date(dateStr).getDay() === 0;
+                    };
+
+                    const STUDY_DAYS_PER_WEEK = 6; // Monday through Saturday (Sunday is rest day)
+
+                    // Normalize any existing summaries in database if they were previously divided by 7
+                    const normalizeSummary = (s: WeeklySummary): WeeklySummary => {
+                        const isDividedBy7 = s.totalMinutes > 0 && Math.abs(s.averageMinutesPerDay - Math.round(s.totalMinutes / 7)) <= 1;
+                        if (!isDividedBy7) return s;
+                        return {
+                            ...s,
+                            averageMinutesPerDay: Math.round(s.totalMinutes / STUDY_DAYS_PER_WEEK),
+                            subjectAverages: Object.fromEntries(
+                                Object.entries(s.subjectAverages || {}).map(([k, v]) => [k, Math.round((v * 7) / STUDY_DAYS_PER_WEEK)])
+                            )
+                        };
+                    };
+
+                    const normalizedExisting = summaries.map(normalizeSummary);
+
                     const newSummaries: WeeklySummary[] = Object.entries(weeksToSummarize).map(([weekStartDate, weekLogs]) => {
-                        const totalMinutes = weekLogs.reduce((sum, log) => sum + log.durationMinutes, 0);
-                        const subjectMinutes = weekLogs.reduce((acc, log) => {
+                        // Exclude Sunday logs since Sunday is user's rest day
+                        const studyLogs = weekLogs.filter(log => !isSundayDate(log.date));
+                        const totalMinutes = studyLogs.reduce((sum, log) => sum + log.durationMinutes, 0);
+                        const subjectMinutes = studyLogs.reduce((acc, log) => {
                             acc[log.subjectId] = (acc[log.subjectId] || 0) + log.durationMinutes;
                             return acc;
                         }, {} as { [subjectId: string]: number });
@@ -107,19 +134,33 @@ const App: React.FC = () => {
                             id: `summary-${weekStartDate}`,
                             weekOf: weekStartDate,
                             totalMinutes,
-                            averageMinutesPerDay: Math.round(totalMinutes / 7),
-                            subjectAverages: Object.fromEntries(Object.entries(subjectMinutes).map(([k, v]) => [k, Math.round(v / 7)]))
+                            averageMinutesPerDay: Math.round(totalMinutes / STUDY_DAYS_PER_WEEK),
+                            subjectAverages: Object.fromEntries(
+                                Object.entries(subjectMinutes).map(([k, v]) => [k, Math.round(v / STUDY_DAYS_PER_WEEK)])
+                            )
                         };
                     });
 
-                    const updatedSummaries = [...summaries, ...newSummaries];
+                    const updatedSummaries = [...normalizedExisting, ...newSummaries];
                     setLogsData(currentWeekLogs);
                     setWeeklySummaries(updatedSummaries);
                     await apiClient.saveLogs(currentWeekLogs);
                     await apiClient.saveWeeklySummaries(updatedSummaries);
                 } else {
+                    const STUDY_DAYS_PER_WEEK = 6;
+                    const normalizedExisting = summaries.map(s => {
+                        const isDividedBy7 = s.totalMinutes > 0 && Math.abs(s.averageMinutesPerDay - Math.round(s.totalMinutes / 7)) <= 1;
+                        if (!isDividedBy7) return s;
+                        return {
+                            ...s,
+                            averageMinutesPerDay: Math.round(s.totalMinutes / STUDY_DAYS_PER_WEEK),
+                            subjectAverages: Object.fromEntries(
+                                Object.entries(s.subjectAverages || {}).map(([k, v]) => [k, Math.round((v * 7) / STUDY_DAYS_PER_WEEK)])
+                            )
+                        };
+                    });
                     setLogsData(logs);
-                    setWeeklySummaries(summaries);
+                    setWeeklySummaries(normalizedExisting);
                 }
 
                 setSyllabusData(syllabus);

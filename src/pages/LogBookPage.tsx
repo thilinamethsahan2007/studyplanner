@@ -24,6 +24,14 @@ const formatDate = (dateString: string) => {
     return date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', timeZone: 'UTC' });
 };
 
+const isSundayDate = (dateString: string) => {
+    const parts = dateString.split('T')[0].split('-').map(Number);
+    if (parts.length === 3) {
+        return new Date(parts[0], parts[1] - 1, parts[2]).getDay() === 0;
+    }
+    return new Date(dateString).getDay() === 0;
+};
+
 
 const CategoryHeader: React.FC<{ category: string; totalMinutes: number }> = ({ category, totalMinutes }) => {
   const getInfo = () => {
@@ -107,6 +115,13 @@ const LogBookPage: React.FC<LogBookPageProps> = ({ logs, weeklySummaries, subjec
 
     const currentWeekTotal = logs.reduce((sum, log) => sum + log.durationMinutes, 0);
 
+    // Active study logs excluding Sunday rest day (averages over Mon - Sat)
+    const currentStudyLogs = logs.filter(log => !isSundayDate(log.date));
+    const currentStudyTotal = currentStudyLogs.reduce((sum, log) => sum + log.durationMinutes, 0);
+    const todayDayOfWeek = new Date().getDay();
+    const elapsedStudyDays = todayDayOfWeek === 0 ? 6 : Math.max(1, todayDayOfWeek);
+    const currentDailyAverage = Math.round(currentStudyTotal / elapsedStudyDays);
+
     return (
         <div className="max-w-4xl mx-auto space-y-12">
             <div>
@@ -117,10 +132,19 @@ const LogBookPage: React.FC<LogBookPageProps> = ({ logs, weeklySummaries, subjec
             {/* Current Week Section */}
             <div className="bg-white dark:bg-slate-800 p-4 sm:p-6 rounded-2xl shadow-sm">
                 <div className="flex flex-col sm:flex-row justify-between sm:items-center border-b border-slate-200 dark:border-slate-700 pb-4 mb-4">
-                    <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100">Current Week</h2>
-                    <div className="text-left sm:text-right mt-2 sm:mt-0">
-                        <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Total Logged Time</p>
-                        <p className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">{formatDuration(currentWeekTotal)}</p>
+                    <div>
+                        <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100">Current Week</h2>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Sunday is observed as your rest day (averages computed over Mon–Sat).</p>
+                    </div>
+                    <div className="text-left sm:text-right mt-3 sm:mt-0 flex flex-wrap items-center gap-4 sm:gap-6">
+                        <div>
+                            <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Daily Average (Mon–Sat)</p>
+                            <p className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">{formatDuration(currentDailyAverage)}</p>
+                        </div>
+                        <div className="border-l border-slate-200 dark:border-slate-700 pl-4 sm:pl-6">
+                            <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total Logged Time</p>
+                            <p className="text-2xl font-bold text-slate-800 dark:text-slate-100">{formatDuration(currentWeekTotal)}</p>
+                        </div>
                     </div>
                 </div>
 
@@ -152,7 +176,14 @@ const LogBookPage: React.FC<LogBookPageProps> = ({ logs, weeklySummaries, subjec
 
                             return (
                                 <div key={date}>
-                                    <h3 className="font-semibold text-slate-600 dark:text-slate-300 mb-4">{formatDate(date)}</h3>
+                                    <div className="flex items-center gap-2 mb-4">
+                                        <h3 className="font-semibold text-slate-600 dark:text-slate-300">{formatDate(date)}</h3>
+                                        {isSundayDate(date) && (
+                                            <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-800/50">
+                                                Rest Day ☕
+                                            </span>
+                                        )}
+                                    </div>
                                     <div className="space-y-4">
                                         {sortedCategoryKeys.map(categoryKey => {
                                             const categoryLogs = categorizedLogs[categoryKey];
@@ -213,7 +244,7 @@ const LogBookPage: React.FC<LogBookPageProps> = ({ logs, weeklySummaries, subjec
                                 <div key={summary.weekOf} className="p-4 bg-slate-50 dark:bg-slate-700/60 rounded-xl border border-slate-200 dark:border-slate-700">
                                     <p className="font-semibold text-slate-700 dark:text-slate-200">Week of {formatDate(summary.weekOf)}</p>
                                     <div className="my-3 text-center">
-                                        <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Average Daily Study</p>
+                                        <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Average Daily Study (Mon – Sat)</p>
                                         <p className="text-3xl font-bold text-indigo-600 dark:text-indigo-400">{formatDuration(summary.averageMinutesPerDay)}</p>
                                     </div>
                                     <div className="space-y-1 text-sm">

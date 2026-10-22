@@ -148,30 +148,55 @@ const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ tests, subjects, syllabus
             name: categoryMap[key as keyof typeof categoryMap].name, value: value || 0, color: categoryMap[key as keyof typeof categoryMap].color,
         }));
         
-        const historicalData = weeklySummaries.concat([{
-            weekOf: 'current', totalMinutes: logs.reduce((sum, log) => sum + log.durationMinutes, 0), averageMinutesPerDay: 0,
-            subjectAverages: logs.reduce((acc: {[id: string]: number}, log) => {
-                acc[log.subjectId] = (acc[log.subjectId] || 0) + log.durationMinutes;
-                return acc;
-            }, {})
-        }]).reduce((acc, summary) => {
-            Object.entries(summary.subjectAverages).forEach(([subjectId, minutes]) => {
+        const isSundayDate = (dateStr: string) => {
+            const parts = dateStr.split('T')[0].split('-').map(Number);
+            if (parts.length === 3) {
+                return new Date(parts[0], parts[1] - 1, parts[2]).getDay() === 0;
+            }
+            return new Date(dateStr).getDay() === 0;
+        };
+
+        // Filter out Sunday logs for current week study calculation (Sunday is user rest day)
+        const currentStudyLogs = logs.filter(log => !isSundayDate(log.date));
+
+        // Active study days so far this week: Mon=1, Tue=2, Wed=3, Thu=4, Fri=5, Sat=6. Sunday is rest day (6 active days passed)
+        const currentDayOfWeek = new Date().getDay();
+        const currentElapsedStudyDays = currentDayOfWeek === 0 ? 6 : Math.max(1, currentDayOfWeek);
+
+        const currentWeekSubjectMinutes = currentStudyLogs.reduce((acc: { [id: string]: number }, log) => {
+            acc[log.subjectId] = (acc[log.subjectId] || 0) + log.durationMinutes;
+            return acc;
+        }, {});
+
+        const historicalData: Record<string, { total: number; days: number }> = {};
+
+        // 1. Past weekly summaries (each represents 6 active study days, Sunday excluded)
+        weeklySummaries.forEach(summary => {
+            Object.entries(summary.subjectAverages || {}).forEach(([subjectId, avgMinutes]) => {
                 const academicIds = ['physics', 'chemistry', 'combined'];
                 let categoryKey = academicIds.includes(subjectId) ? 'study' : subjectId;
                 if (!Object.keys(categoryMap).includes(categoryKey)) categoryKey = 'personal';
-                if (!acc[categoryKey]) acc[categoryKey] = { total: 0, days: 0 };
-                acc[categoryKey].total += (minutes as number);
-                acc[categoryKey].days += (summary.weekOf === 'current' ? (new Date().getDay() || 7) : 7);
+                if (!historicalData[categoryKey]) historicalData[categoryKey] = { total: 0, days: 0 };
+                // summary.subjectAverages is average minutes per day across 6 active study days
+                historicalData[categoryKey].total += (Number(avgMinutes) || 0) * 6;
+                historicalData[categoryKey].days += 6;
             });
-            return acc;
-        // FIX: Initialize reduce with a properly typed empty object to avoid type errors.
-        }, {} as Record<string, { total: number; days: number }>);
+        });
+
+        // 2. Current week (Mon-Sat active study days so far)
+        Object.entries(currentWeekSubjectMinutes).forEach(([subjectId, minutes]) => {
+            const academicIds = ['physics', 'chemistry', 'combined'];
+            let categoryKey = academicIds.includes(subjectId) ? 'study' : subjectId;
+            if (!Object.keys(categoryMap).includes(categoryKey)) categoryKey = 'personal';
+            if (!historicalData[categoryKey]) historicalData[categoryKey] = { total: 0, days: 0 };
+            historicalData[categoryKey].total += (Number(minutes) || 0);
+            historicalData[categoryKey].days += currentElapsedStudyDays;
+        });
 
         const barData = Object.entries(historicalData).map(([key, data]) => ({
-            name: categoryMap[key as keyof typeof categoryMap].name,
-// FIX: The properties 'days' and 'total' were not accessible on `data` because its type was inferred as `unknown`. Casting `data` to the correct type resolves this issue.
-            "Daily Average": (data as any).days > 0 ? ((data as any).total / (data as any).days) : 0,
-            fill: categoryMap[key as keyof typeof categoryMap].color,
+            name: categoryMap[key as keyof typeof categoryMap]?.name || key,
+            "Daily Average": data.days > 0 ? (data.total / data.days) : 0,
+            fill: categoryMap[key as keyof typeof categoryMap]?.color || '#6366f1',
         }));
 
         return (
@@ -189,7 +214,7 @@ const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ tests, subjects, syllabus
                     </ResponsiveContainer>
                 </div>
                  <div className="bg-white dark:bg-slate-800 p-4 sm:p-6 rounded-2xl shadow-sm h-[28rem]">
-                     <h2 className="text-xl font-bold mb-4 dark:text-slate-200">Historical Daily Average</h2>
+                     <h2 className="text-xl font-bold mb-4 dark:text-slate-200">Historical Daily Average (Mon – Sat)</h2>
                      <ResponsiveContainer width="100%" height="100%">
                         <BarChart data={barData} layout="vertical" margin={{ top: 5, right: 20, left: 20, bottom: 20 }}>
                             <CartesianGrid strokeDasharray="3 3" stroke={theme === 'dark' ? '#334155' : '#e2e8f0'} horizontal={false} />

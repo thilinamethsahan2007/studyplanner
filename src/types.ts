@@ -72,7 +72,7 @@ export interface LogEntry {
 }
 
 export interface WeeklySummary {
-  weekOf: string; // YYYY-MM-DD, the Sunday the week started on
+  weekOf: string; // YYYY-MM-DD, the Monday the week started on (Mon-Sat study, Sunday rest)
   totalMinutes: number;
   averageMinutesPerDay: number;
   subjectAverages: { [subjectId: string]: number }; // average minutes per day
