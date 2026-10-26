@@ -52,6 +52,11 @@ export const getJournalEntries = async (): Promise<JournalEntry[]> => {
     return entries;
 };
 
+export const getJournalEntry = async (date: string): Promise<JournalEntry | null> => {
+    const entries = await getJournalEntries();
+    return entries.find(e => e.date === date) || null;
+};
+
 export const saveJournalEntry = async (entry: JournalEntry): Promise<void> => {
     if (supabase) {
         const { error } = await supabase
@@ -77,6 +82,29 @@ export const saveJournalEntry = async (entry: JournalEntry): Promise<void> => {
     }
     entries.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+};
+
+export const deleteJournalEntry = async (date: string): Promise<void> => {
+    if (supabase) {
+        const { error } = await supabase
+            .from('journal_entries')
+            .delete()
+            .eq('date', date);
+        if (error) {
+            console.error("Supabase journal delete error", error);
+        }
+    }
+
+    try {
+        const localData = localStorage.getItem(STORAGE_KEY);
+        if (localData) {
+            const entries: JournalEntry[] = JSON.parse(localData);
+            const filtered = entries.filter(e => e.date !== date);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+        }
+    } catch (e) {
+        console.error('Failed to delete journal entry locally', e);
+    }
 };
 
 export const getJournalPin = (): string | null => {

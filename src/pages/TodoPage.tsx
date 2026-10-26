@@ -7,7 +7,8 @@ import { useWindowSize } from 'react-use';
 import LogTimeModal from '../components/LogTimeModal';
 import PomodoroTimer from '../components/PomodoroTimer';
 import JournalModal from '../components/JournalModal';
-import { BookHeart, Repeat } from 'lucide-react';
+import { BookHeart, Repeat, BookOpen, History } from 'lucide-react';
+import { getJournalEntry } from '../services/journalClient';
 import { mockSubjects } from '../mockData';
 import { motion, useSpring, AnimatePresence } from 'framer-motion';
 import apiClient from '../services/apiClient';
@@ -88,6 +89,17 @@ const TodoPage: React.FC<TodoPageProps> = ({ day, onDayChange, classes, logs, on
   const [taskForPomodoro, setTaskForPomodoro] = useState<TodoItem | null>(null);
   const [pomodoroDuration, setPomodoroDuration] = useState(45); // in minutes
   const [isJournalModalOpen, setIsJournalModalOpen] = useState(false);
+  const [journalTargetDate, setJournalTargetDate] = useState<string | undefined>(undefined);
+  const [hasYesterdayEntry, setHasYesterdayEntry] = useState(true);
+
+  useEffect(() => {
+    if (!day?.date) return;
+    const [y, m, d] = day.date.split('-').map(Number);
+    const prevDate = new Date(y, m - 1, d);
+    prevDate.setDate(prevDate.getDate() - 1);
+    const prevStr = `${prevDate.getFullYear()}-${String(prevDate.getMonth() + 1).padStart(2, '0')}-${String(prevDate.getDate()).padStart(2, '0')}`;
+    getJournalEntry(prevStr).then(res => setHasYesterdayEntry(!!res)).catch(() => {});
+  }, [day?.date]);
   const [habitToast, setHabitToast] = useState<string | null>(null);
 
   useEffect(() => {
@@ -338,6 +350,8 @@ const TodoPage: React.FC<TodoPageProps> = ({ day, onDayChange, classes, logs, on
             isOpen={isJournalModalOpen}
             onClose={() => setIsJournalModalOpen(false)}
             day={day}
+            initialDate={journalTargetDate}
+            onSaved={() => setHasYesterdayEntry(true)}
         />
         <LogTimeModal 
             isOpen={isLogModalOpen}
@@ -472,7 +486,7 @@ const TodoPage: React.FC<TodoPageProps> = ({ day, onDayChange, classes, logs, on
                             </div>
                         </div>
                         <button 
-                            onClick={() => setIsJournalModalOpen(true)}
+                            onClick={() => { setJournalTargetDate(day.date); setIsJournalModalOpen(true); }}
                             className="shrink-0 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 px-6 rounded-xl shadow-lg shadow-indigo-600/30 transition-all active:scale-95"
                         >
                             Write Journal
@@ -482,6 +496,41 @@ const TodoPage: React.FC<TodoPageProps> = ({ day, onDayChange, classes, logs, on
             }
             return null;
         })()}
+
+        {/* Forgotten Yesterday Journal Reminder */}
+        {!hasYesterdayEntry && (
+            <div className="mb-6 p-4 bg-gradient-to-r from-purple-500/10 via-indigo-500/10 to-pink-500/10 border border-purple-200/80 dark:border-purple-800/40 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-sm animate-in fade-in">
+                <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-purple-500/20 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0">
+                        <BookOpen className="w-5 h-5" />
+                    </div>
+                    <div>
+                        <p className="font-bold text-slate-800 dark:text-slate-100 text-sm">
+                            Missed yesterday's journal?
+                        </p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">
+                            Capture your thoughts, reflections, and accomplishments before you forget.
+                        </p>
+                    </div>
+                </div>
+                <button
+                    type="button"
+                    onClick={() => {
+                        if (day?.date) {
+                            const [y, m, d] = day.date.split('-').map(Number);
+                            const prevDate = new Date(y, m - 1, d);
+                            prevDate.setDate(prevDate.getDate() - 1);
+                            const prevStr = `${prevDate.getFullYear()}-${String(prevDate.getMonth() + 1).padStart(2, '0')}-${String(prevDate.getDate()).padStart(2, '0')}`;
+                            setJournalTargetDate(prevStr);
+                        }
+                        setIsJournalModalOpen(true);
+                    }}
+                    className="shrink-0 px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-bold rounded-xl shadow-md shadow-indigo-500/20 transition-all active:scale-95 flex items-center gap-1.5"
+                >
+                    <History className="w-3.5 h-3.5" /> Backfill Yesterday
+                </button>
+            </div>
+        )}
 
         {/* Todo List Container */}
         <div className="bg-white/50 dark:bg-slate-800/50 backdrop-blur-xl border border-white/40 dark:border-slate-700/50 p-4 sm:p-6 rounded-3xl shadow-xl shadow-black/5 mb-8 max-h-[60vh] overflow-y-auto scrollbar-hide">
