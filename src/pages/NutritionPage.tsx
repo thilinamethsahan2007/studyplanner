@@ -56,7 +56,7 @@ import {
   sumDayNutrients,
   DEFAULT_TARGETS,
 } from '../utils/nutrition';
-import { parseMealWithGemini } from '../services/geminiNutrition';
+import { parseMealWithGroq, parseMultiMealWithGroq, hasMultiMealLabels } from '../services/groqNutrition';
 
 // ─── Toast ───────────────────────────────────────────────────────────────────
 
@@ -226,10 +226,10 @@ const MacroSummaryCard: React.FC<{
 // ─── QuickLogBar ─────────────────────────────────────────────────────────────
 
 const EXAMPLE_PROMPTS = [
-  { label: '🍳 3 Eggs & Toast', text: '3 scrambled eggs cooked in 1 tbsp olive oil, 2 slices whole wheat toast with butter, and a medium banana', meal: 'breakfast' as MealType },
-  { label: '🥗 Chicken & Rice Bowl', text: '180g grilled chicken breast, 1 cup cooked jasmine rice, and 1.5 cups steamed broccoli with garlic', meal: 'lunch' as MealType },
-  { label: '🥩 Salmon & Sweet Potato', text: '6 oz wild salmon fillet pan seared, 1 medium baked sweet potato, and grilled asparagus with 1 tsp butter', meal: 'dinner' as MealType },
-  { label: '🥤 Protein Shake & Almonds', text: '1 scoop whey protein isolate in 300ml almond milk, 1 banana, and 28g raw almonds', meal: 'snacks' as MealType },
+  { label: '📋 Full Day Log', text: 'Breakfast: 2 eggs, 2 toast with butter. Lunch: 1 cup rice, chicken curry. Dinner: fish and salad. Snacks: 1 banana, tea.', meal: 'breakfast' as MealType, isMulti: true },
+  { label: '🍳 Breakfast Only', text: '3 scrambled eggs, 2 slices whole wheat toast with butter, and a medium banana', meal: 'breakfast' as MealType, isMulti: false },
+  { label: '🥗 Lunch Only', text: '180g grilled chicken breast, 1 cup cooked jasmine rice, and 1.5 cups steamed broccoli', meal: 'lunch' as MealType, isMulti: false },
+  { label: '🥤 Snack Only', text: '1 scoop whey protein in 300ml almond milk, 1 banana, and 28g almonds', meal: 'snacks' as MealType, isMulti: false },
 ];
 
 const QuickLogBar: React.FC<{
@@ -271,26 +271,58 @@ const QuickLogBar: React.FC<{
     setErrorMsg(null);
 
     try {
-      const data: ParsedMealResponse = await parseMealWithGemini(query, activeMealType);
+      // Detect if user typed multi-meal format (e.g. "Breakfast: ... Lunch: ...")
+      if (hasMultiMealLabels(query)) {
+        const multiResult = await parseMultiMealWithGroq(query);
+        const mealTypes = Object.keys(multiResult) as MealType[];
 
-      if (!data.items || data.items.length === 0) {
-        throw new Error('No nutritional items could be determined. Please refine proportions.');
+        if (mealTypes.length === 0) {
+          throw new Error('No nutritional items could be determined. Please refine your input.');
+        }
+
+        for (const mt of mealTypes) {
+          const data = multiResult[mt]!;
+          if (!data.items || data.items.length === 0) continue;
+
+          const newFoodItems: FoodItem[] = data.items.map((item, idx) => ({
+            id: `food-${Date.now()}-${mt}-${idx}-${Math.random().toString(36).substring(2, 6)}`,
+            name: item.name,
+            portionDescription: item.portionDescription || '1 serving',
+            calories: Number(item.calories) || 0,
+            protein: Number(item.protein) || 0,
+            carbs: Number(item.carbs) || 0,
+            fat: Number(item.fat) || 0,
+            fiber: Number(item.fiber) || 0,
+            confidenceNotes: item.confidenceNotes,
+            loggedAt: new Date().toISOString(),
+          }));
+
+          onItemsLogged(targetLogDate, mt, newFoodItems, query);
+        }
+      } else {
+        // Single meal mode — use the selected meal tab
+        const data: ParsedMealResponse = await parseMealWithGroq(query, activeMealType);
+
+        if (!data.items || data.items.length === 0) {
+          throw new Error('No nutritional items could be determined. Please refine proportions.');
+        }
+
+        const newFoodItems: FoodItem[] = data.items.map((item, idx) => ({
+          id: `food-${Date.now()}-${idx}-${Math.random().toString(36).substring(2, 6)}`,
+          name: item.name,
+          portionDescription: item.portionDescription || '1 serving',
+          calories: Number(item.calories) || 0,
+          protein: Number(item.protein) || 0,
+          carbs: Number(item.carbs) || 0,
+          fat: Number(item.fat) || 0,
+          fiber: Number(item.fiber) || 0,
+          confidenceNotes: item.confidenceNotes,
+          loggedAt: new Date().toISOString(),
+        }));
+
+        onItemsLogged(targetLogDate, activeMealType, newFoodItems, query);
       }
 
-      const newFoodItems: FoodItem[] = data.items.map((item, idx) => ({
-        id: `food-${Date.now()}-${idx}-${Math.random().toString(36).substring(2, 6)}`,
-        name: item.name,
-        portionDescription: item.portionDescription || '1 serving',
-        calories: Number(item.calories) || 0,
-        protein: Number(item.protein) || 0,
-        carbs: Number(item.carbs) || 0,
-        fat: Number(item.fat) || 0,
-        fiber: Number(item.fiber) || 0,
-        confidenceNotes: item.confidenceNotes,
-        loggedAt: new Date().toISOString(),
-      }));
-
-      onItemsLogged(targetLogDate, activeMealType, newFoodItems, query);
       setInputText('');
       setDetectedDateHint(null);
     } catch (err: any) {
@@ -414,12 +446,18 @@ const QuickLogBar: React.FC<{
             <Zap className="w-5 h-5 fill-indigo-500/20 text-indigo-500 dark:text-indigo-400" />
           </div>
 
-          <input
-            type="text"
+          <textarea
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
-            placeholder="Type '3 scrambled eggs with avocado and 2 slices toast' or '200g chicken breast'..."
-            className="w-full bg-transparent text-sm sm:text-base text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none py-1.5 px-1"
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                handleSubmit();
+              }
+            }}
+            placeholder={"Breakfast: 1.2 cups red rice, 3 chicken pieces, dhal curry. Lunch: rice, fish curry. Dinner: ...\n\nOr just type a single meal like '3 eggs and 2 toast' with a meal tab selected above."}
+            rows={3}
+            className="w-full bg-transparent text-sm sm:text-base text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none py-1.5 px-1 resize-none"
             disabled={isLoading}
           />
 
@@ -457,7 +495,7 @@ const QuickLogBar: React.FC<{
             type="button"
             onClick={() => {
               setInputText(ex.text);
-              onSelectMealType(ex.meal);
+              if (!ex.isMulti) onSelectMealType(ex.meal);
             }}
             className="text-[11px] font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded-xl px-2.5 py-1 transition-all cursor-pointer"
           >
@@ -1347,7 +1385,7 @@ const NutritionPage: React.FC = () => {
     const logSection = document.getElementById('quick-log-section');
     if (logSection) {
       logSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      const input = logSection.querySelector('input');
+      const input = logSection.querySelector('textarea') || logSection.querySelector('input');
       input?.focus();
     }
   };
