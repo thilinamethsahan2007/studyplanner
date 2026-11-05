@@ -123,27 +123,34 @@ const LogBookPage: React.FC<LogBookPageProps> = ({ logs, weeklySummaries, subjec
     const currentDailyAverage = Math.round(currentStudyTotal / elapsedStudyDays);
 
     return (
-        <div className="max-w-4xl mx-auto space-y-12">
+        <div className="max-w-4xl mx-auto space-y-8">
             <div>
-                <h1 className="text-2xl sm:text-4xl font-black bg-gradient-to-r from-purple-400 via-purple-500 to-pink-500 bg-clip-text text-transparent drop-shadow-sm mb-2 tracking-tight">Log Book</h1>
-                <p className="text-slate-500 dark:text-slate-400">Your weekly study journal and historical performance.</p>
+                <div className="flex items-center gap-2 mb-1.5">
+                    <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wide uppercase bg-blue-500/10 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400 border border-blue-500/20">
+                        Performance History
+                    </span>
+                </div>
+                <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
+                    Log Book
+                </h1>
+                <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">Your weekly study journal and historical performance.</p>
             </div>
 
             {/* Current Week Section */}
-            <div className="bg-white dark:bg-slate-800 p-4 sm:p-6 rounded-2xl shadow-sm">
-                <div className="flex flex-col sm:flex-row justify-between sm:items-center border-b border-slate-200 dark:border-slate-700 pb-4 mb-4">
+            <div className="glass-panel p-5 sm:p-7 rounded-3xl shadow-sm border border-slate-200/80 dark:border-white/10">
+                <div className="flex flex-col sm:flex-row justify-between sm:items-center border-b border-slate-200/80 dark:border-white/10 pb-4 mb-5">
                     <div>
-                        <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100">Current Week</h2>
+                        <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">Current Week</h2>
                         <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Sunday is observed as your rest day (averages computed over Mon–Sat).</p>
                     </div>
                     <div className="text-left sm:text-right mt-3 sm:mt-0 flex flex-wrap items-center gap-4 sm:gap-6">
                         <div>
-                            <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Daily Average (Mon–Sat)</p>
-                            <p className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">{formatDuration(currentDailyAverage)}</p>
+                            <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Daily Average (Mon–Sat)</p>
+                            <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">{formatDuration(currentDailyAverage)}</p>
                         </div>
-                        <div className="border-l border-slate-200 dark:border-slate-700 pl-4 sm:pl-6">
-                            <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total Logged Time</p>
-                            <p className="text-2xl font-bold text-slate-800 dark:text-slate-100">{formatDuration(currentWeekTotal)}</p>
+                        <div className="border-l border-slate-200/80 dark:border-white/10 pl-4 sm:pl-6">
+                            <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Total Logged Time</p>
+                            <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">{formatDuration(currentWeekTotal)}</p>
                         </div>
                     </div>
                 </div>
@@ -234,26 +241,26 @@ const LogBookPage: React.FC<LogBookPageProps> = ({ logs, weeklySummaries, subjec
             </div>
 
             {/* Weekly History Section */}
-            <div className="bg-white dark:bg-slate-800 p-4 sm:p-6 rounded-2xl shadow-sm">
-                <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-4">Weekly History</h2>
+            <div className="glass-panel p-5 sm:p-7 rounded-3xl shadow-sm border border-slate-200/80 dark:border-white/10">
+                <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-4">Weekly History</h2>
                 {weeklySummaries.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {weeklySummaries.sort((a,b) => new Date(b.weekOf).getTime() - new Date(a.weekOf).getTime()).map(summary => {
                             const subjectAverages = Object.entries(summary.subjectAverages).sort(([, a], [, b]) => (b as number) - (a as number));
                             return (
-                                <div key={summary.weekOf} className="p-4 bg-slate-50 dark:bg-slate-700/60 rounded-xl border border-slate-200 dark:border-slate-700">
-                                    <p className="font-semibold text-slate-700 dark:text-slate-200">Week of {formatDate(summary.weekOf)}</p>
+                                <div key={summary.weekOf} className="p-4 bg-white/70 dark:bg-slate-900/60 backdrop-blur-md rounded-2xl border border-slate-200/80 dark:border-white/10 shadow-sm">
+                                    <p className="font-semibold text-slate-900 dark:text-slate-100 text-sm">Week of {formatDate(summary.weekOf)}</p>
                                     <div className="my-3 text-center">
-                                        <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Average Daily Study (Mon – Sat)</p>
-                                        <p className="text-3xl font-bold text-indigo-600 dark:text-indigo-400">{formatDuration(summary.averageMinutesPerDay)}</p>
+                                        <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Average Daily Study (Mon – Sat)</p>
+                                        <p className="text-3xl font-extrabold text-blue-600 dark:text-blue-400 tracking-tight">{formatDuration(summary.averageMinutesPerDay)}</p>
                                     </div>
-                                    <div className="space-y-1 text-sm">
+                                    <div className="space-y-1 text-xs">
                                         {subjectAverages.slice(0, 3).map(([subjectId, avgMins]) => {
                                             const subject = subjects.find(s => s.id === subjectId);
                                             return (
-                                                <div key={subjectId} className="flex justify-between items-center">
+                                                <div key={subjectId} className="flex justify-between items-center py-0.5">
                                                     <span className="font-medium text-slate-600 dark:text-slate-300">{subject?.name || 'Unknown'}</span>
-                                                    <span className="font-semibold text-slate-500 dark:text-slate-400">{formatDuration(avgMins as number)}</span>
+                                                    <span className="font-semibold text-slate-700 dark:text-slate-200">{formatDuration(avgMins as number)}</span>
                                                 </div>
                                             )
                                         })}

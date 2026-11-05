@@ -89,9 +89,9 @@ const PomodoroTimer: React.FC<PomodoroTimerProps> = ({
       aria-modal="true"
     >
       {/* Animated Zen Background */}
-      <div className="absolute inset-0 bg-slate-900 overflow-hidden">
-         <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-indigo-600/30 rounded-full blur-[120px] animate-pulse" style={{ animationDuration: '8s' }}></div>
-         <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-blue-600/20 rounded-full blur-[100px] animate-pulse" style={{ animationDuration: '12s' }}></div>
+      <div className="absolute inset-0 bg-slate-950/90 backdrop-blur-3xl overflow-hidden">
+         <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-blue-600/20 rounded-full blur-[140px] animate-pulse" style={{ animationDuration: '8s' }}></div>
+         <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-indigo-600/15 rounded-full blur-[120px] animate-pulse" style={{ animationDuration: '12s' }}></div>
       </div>
       
       {/* Zen UI Container */}
@@ -112,18 +112,18 @@ const PomodoroTimer: React.FC<PomodoroTimerProps> = ({
         </div>
 
         <div className="text-center mb-16 mt-20">
-            <h2 id="pomodoro-title" className="text-3xl font-black text-white tracking-tight mb-3 drop-shadow-md">
+            <h2 id="pomodoro-title" className="text-3xl font-bold text-white tracking-tight mb-2 drop-shadow-sm">
                 {task?.title || 'Zen Session'}
             </h2>
-            <p className="text-indigo-200/70 font-medium text-lg tracking-wide uppercase">
+            <p className="text-blue-400 font-semibold text-xs tracking-wider uppercase">
                 {isActive ? 'Deep Focus Active' : 'Ready to Focus?'}
             </p>
         </div>
 
         {/* Massive Timer Ring */}
-        <div className="relative w-80 h-80 mx-auto mb-16 drop-shadow-2xl">
+        <div className="relative w-80 h-80 mx-auto mb-14 drop-shadow-2xl">
           <svg className="w-full h-full transform -rotate-90" viewBox="0 0 120 120">
-            <circle cx="60" cy="60" r="54" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="4" />
+            <circle cx="60" cy="60" r="54" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="4" />
             <circle
               cx="60"
               cy="60"
@@ -134,49 +134,49 @@ const PomodoroTimer: React.FC<PomodoroTimerProps> = ({
               strokeDasharray="339.292"
               strokeDashoffset={339.292 - (progress / 100) * 339.292}
               strokeLinecap="round"
-              className="text-indigo-400 transition-all duration-1000 ease-linear"
-              style={{ filter: 'drop-shadow(0 0 8px rgba(129, 140, 248, 0.6))' }}
+              className="text-blue-500 transition-all duration-1000 ease-linear"
+              style={{ filter: 'drop-shadow(0 0 10px rgba(59, 130, 246, 0.5))' }}
             />
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center text-white">
-              <span className="text-7xl font-black tracking-tighter" style={{ fontVariantNumeric: 'tabular-nums' }}>
+              <span className="text-7xl font-bold tracking-tight" style={{ fontVariantNumeric: 'tabular-nums' }}>
                   {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
               </span>
           </div>
         </div>
 
         {/* Playback Controls */}
-        <div className="flex items-center justify-center gap-6 mb-12">
+        <div className="flex items-center justify-center gap-5 mb-10">
           <button 
             onClick={handleToggle} 
-            className={`flex items-center justify-center gap-3 w-48 py-4 font-black rounded-2xl shadow-xl focus:outline-none focus:ring-4 focus:ring-white/20 transition-all duration-300 text-lg ${
+            className={`flex items-center justify-center gap-3 w-48 py-3.5 font-bold rounded-2xl shadow-xl focus:outline-none focus:ring-4 focus:ring-white/20 transition-all duration-300 text-base press-scale ${
                 isActive 
                 ? 'bg-white/10 text-white hover:bg-white/20 border border-white/20' 
-                : 'bg-indigo-500 text-white hover:bg-indigo-400 hover:scale-105 hover:shadow-indigo-500/50'
+                : 'bg-blue-500 text-white hover:bg-blue-600 shadow-blue-500/30'
             }`}
           >
-            {isActive ? <Pause className="w-6 h-6 fill-current" /> : <Play className="w-6 h-6 fill-current" />}
+            {isActive ? <Pause className="w-5 h-5 fill-current" /> : <Play className="w-5 h-5 fill-current" />}
             {isActive ? 'Pause' : 'Start Focus'}
           </button>
 
           <button 
             onClick={resetTimer} 
             title="Reset Timer"
-            className="p-4 text-white/50 hover:text-white rounded-2xl bg-white/5 hover:bg-white/10 focus:outline-none focus:ring-4 focus:ring-white/20 transition-all duration-300"
+            className="p-3.5 text-white/50 hover:text-white rounded-2xl bg-white/5 hover:bg-white/10 focus:outline-none focus:ring-4 focus:ring-white/20 transition-all duration-300 press-scale"
           >
-              <RotateCcw className="w-6 h-6" />
+              <RotateCcw className="w-5 h-5" />
           </button>
         </div>
         
         {/* Settings */}
-        <div className="flex items-center justify-center gap-3 text-sm font-medium text-white/50 bg-white/5 px-6 py-3 rounded-2xl border border-white/10 backdrop-blur-md">
+        <div className="flex items-center justify-center gap-3 text-xs font-semibold text-white/60 bg-white/5 px-5 py-2.5 rounded-2xl border border-white/10 backdrop-blur-md">
           <label htmlFor="duration-input">Duration:</label>
           <input
               id="duration-input"
               type="number"
               value={duration}
               onChange={(e) => onDurationChange(Number(e.target.value))}
-              className="w-16 p-1 text-center bg-transparent border-b-2 border-white/20 focus:outline-none focus:border-indigo-400 text-white transition-colors"
+              className="w-14 p-0.5 text-center bg-transparent border-b border-white/30 focus:outline-none focus:border-blue-400 text-white transition-colors font-bold"
               min="1"
               max="120"
               disabled={isActive}

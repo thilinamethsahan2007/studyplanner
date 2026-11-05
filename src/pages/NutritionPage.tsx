@@ -142,11 +142,11 @@ const MacroSummaryCard: React.FC<{
   };
 
   return (
-    <div className="bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 sm:p-6 shadow-sm">
+    <div className="glass-panel border border-slate-200/80 dark:border-white/10 rounded-3xl p-5 sm:p-7 shadow-sm">
       {/* Top Header Tag */}
       <div className="flex items-center justify-center gap-2 mb-4">
-        <span className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></span>
-        <span className="text-[11px] sm:text-xs font-bold tracking-widest text-slate-500 dark:text-slate-300 uppercase">
+        <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+        <span className="text-[11px] sm:text-xs font-bold tracking-widest text-slate-500 dark:text-slate-400 uppercase">
           Daily Calorie & Macro Countdown
         </span>
       </div>
@@ -165,11 +165,11 @@ const MacroSummaryCard: React.FC<{
           </span>
         </div>
 
-        <span className="text-3xl sm:text-5xl font-black text-slate-300 dark:text-slate-500 self-center -mt-4">:</span>
+        <span className="text-3xl sm:text-5xl font-black text-slate-300 dark:text-slate-600 self-center -mt-4">:</span>
 
         <div className="flex flex-col items-center">
           <div className="flex items-baseline gap-1">
-            <span className={`text-4xl sm:text-6xl font-black font-mono tabular-nums tracking-tight ${calRemaining < 0 ? 'text-amber-500 dark:text-amber-400' : 'text-indigo-500 dark:text-blue-400'}`}>
+            <span className={`text-4xl sm:text-6xl font-black font-mono tabular-nums tracking-tight ${calRemaining < 0 ? 'text-amber-500 dark:text-amber-400' : 'text-blue-600 dark:text-blue-400'}`}>
               {calRemaining >= 0 ? calRemaining.toLocaleString() : `+${Math.abs(calRemaining).toLocaleString()}`}
             </span>
             <span className="text-sm sm:text-base font-bold text-slate-400">
@@ -183,24 +183,24 @@ const MacroSummaryCard: React.FC<{
       </div>
 
       {/* Subtitle */}
-      <div className="text-center mt-3 text-xs sm:text-sm text-slate-600 dark:text-slate-300">
+      <div className="text-center mt-3 text-xs sm:text-sm text-slate-600 dark:text-slate-400">
         <span>Target is </span>
         <strong className="text-slate-900 dark:text-white font-mono">{calBudget.toLocaleString()} kcal</strong>. That's{' '}
-        <strong className="text-indigo-500 dark:text-blue-400 font-bold font-mono">{calPercent}%</strong> consumed so far.
+        <strong className="text-blue-600 dark:text-blue-400 font-bold font-mono">{calPercent}%</strong> consumed so far.
         <button
           onClick={onOpenTargets}
-          className="ml-2 text-xs font-semibold text-amber-500 dark:text-amber-400 hover:text-amber-600 dark:hover:text-amber-300 underline cursor-pointer"
+          className="ml-2 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-500 underline cursor-pointer"
         >
           Adjust Target
         </button>
       </div>
 
       {/* 4 Macro Bars */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6 pt-5 border-t border-slate-200 dark:border-slate-700">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6 pt-5 border-t border-slate-200/80 dark:border-white/10">
         {macros.map((m) => {
           const pct = Math.min(100, Math.round((m.consumed / (m.goal || 1)) * 100));
           return (
-            <div key={m.label} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-3">
+            <div key={m.label} className="bg-white/80 dark:bg-slate-900/60 backdrop-blur-md border border-slate-200/80 dark:border-white/10 rounded-2xl p-3 shadow-sm">
               <div className="flex items-center justify-between text-xs">
                 <span className={`font-bold ${labelColors[m.color]}`}>{m.label}</span>
                 <span className="text-[11px] font-mono text-slate-400">{pct}%</span>
@@ -209,7 +209,7 @@ const MacroSummaryCard: React.FC<{
                 <span className="text-base font-black text-slate-900 dark:text-white font-mono">{m.consumed}g</span>
                 <span className="text-[10px] text-slate-400">/ {m.goal}g</span>
               </div>
-              <div className="w-full bg-slate-200 dark:bg-slate-700 h-1.5 rounded-full mt-2 overflow-hidden">
+              <div className="w-full bg-slate-200/70 dark:bg-slate-800 h-1.5 rounded-full mt-2 overflow-hidden">
                 <div
                   className={`${barColors[m.color]} h-full rounded-full transition-all`}
                   style={{ width: `${Math.min(pct, 100)}%` }}
@@ -347,7 +347,7 @@ const QuickLogBar: React.FC<{
       {/* Target Date & Meal Switcher Bar */}
       <div className="flex flex-wrap items-center justify-between gap-3 text-xs">
         {/* Meal Category Tabs */}
-        <div className="flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-2xl border border-slate-200 dark:border-slate-700">
+        <div className="flex items-center bg-white/80 dark:bg-slate-900/80 backdrop-blur-md p-1 rounded-2xl border border-slate-200/80 dark:border-white/10 shadow-sm">
           {mealButtons.map((btn) => {
             const isActive = activeMealType === btn.id;
             return (
@@ -357,7 +357,7 @@ const QuickLogBar: React.FC<{
                 onClick={() => onSelectMealType(btn.id)}
                 className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-xl transition-all cursor-pointer whitespace-nowrap ${
                   isActive
-                    ? 'bg-indigo-500 text-white shadow-md shadow-indigo-500/30'
+                    ? 'bg-blue-500 text-white shadow-sm shadow-blue-500/25'
                     : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
@@ -370,13 +370,13 @@ const QuickLogBar: React.FC<{
 
         {/* Date Filter Strip */}
         <div className="flex items-center gap-2">
-          <div className="flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-2xl border border-slate-200 dark:border-slate-700">
+          <div className="flex items-center bg-white/80 dark:bg-slate-900/80 backdrop-blur-md p-1 rounded-2xl border border-slate-200/80 dark:border-white/10 shadow-sm">
             <button
               type="button"
               onClick={() => { setTargetLogDate(todayStr); onSelectDate(todayStr); }}
               className={`px-2.5 py-1 text-xs font-semibold rounded-xl transition-all cursor-pointer ${
                 targetLogDate === todayStr
-                  ? 'bg-amber-500 text-white font-bold'
+                  ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold'
                   : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
@@ -387,7 +387,7 @@ const QuickLogBar: React.FC<{
               onClick={() => { setTargetLogDate(yesterdayStr); onSelectDate(yesterdayStr); }}
               className={`px-2.5 py-1 text-xs font-semibold rounded-xl transition-all cursor-pointer ${
                 targetLogDate === yesterdayStr
-                  ? 'bg-amber-500 text-white font-bold'
+                  ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold'
                   : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
@@ -397,7 +397,7 @@ const QuickLogBar: React.FC<{
 
           <label
             htmlFor="nutrition-target-log-date-picker"
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 rounded-2xl text-slate-600 dark:text-slate-300 cursor-pointer font-medium text-xs"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-slate-200/80 dark:border-white/10 hover:border-slate-300 dark:hover:border-slate-700 rounded-2xl text-slate-600 dark:text-slate-300 cursor-pointer font-medium text-xs shadow-sm"
           >
             <Calendar className="w-3.5 h-3.5 text-slate-400" />
             <span>{targetDateRelative || targetLogDate}</span>
@@ -441,9 +441,9 @@ const QuickLogBar: React.FC<{
 
       {/* The Input Bar */}
       <form onSubmit={handleSubmit}>
-        <div className="relative flex items-center bg-white dark:bg-slate-800 border border-indigo-300 dark:border-indigo-500/30 focus-within:border-indigo-400 focus-within:shadow-[0_0_25px_rgba(99,102,241,0.15)] dark:focus-within:shadow-[0_0_25px_rgba(99,102,241,0.25)] rounded-2xl p-2 transition-all shadow-sm">
-          <div className="pl-3 pr-2 text-indigo-500 dark:text-indigo-400">
-            <Zap className="w-5 h-5 fill-indigo-500/20 text-indigo-500 dark:text-indigo-400" />
+        <div className="relative flex items-center bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/80 dark:border-white/10 focus-within:border-blue-500/50 focus-within:ring-4 focus-within:ring-blue-500/10 rounded-3xl p-2.5 transition-all shadow-sm">
+          <div className="pl-3 pr-2 text-blue-500 dark:text-blue-400">
+            <Zap className="w-5 h-5 fill-blue-500/20 text-blue-500 dark:text-blue-400" />
           </div>
 
           <textarea
@@ -457,14 +457,14 @@ const QuickLogBar: React.FC<{
             }}
             placeholder={"Breakfast: 1.2 cups red rice, 3 chicken pieces, dhal curry. Lunch: rice, fish curry. Dinner: ...\n\nOr just type a single meal like '3 eggs and 2 toast' with a meal tab selected above."}
             rows={3}
-            className="w-full bg-transparent text-sm sm:text-base text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none py-1.5 px-1 resize-none"
+            className="w-full bg-transparent text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none py-1.5 px-1 resize-none"
             disabled={isLoading}
           />
 
           <button
             type="submit"
             disabled={isLoading || !inputText.trim()}
-            className="shrink-0 flex items-center gap-2 px-6 py-2.5 bg-indigo-500 hover:bg-indigo-600 active:bg-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-bold rounded-xl shadow-lg shadow-indigo-500/30 transition-all cursor-pointer ml-2"
+            className="shrink-0 flex items-center gap-2 px-6 py-2.5 bg-blue-500 hover:bg-blue-600 active:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed text-white text-xs sm:text-sm font-semibold rounded-2xl shadow-sm shadow-blue-500/25 transition-all cursor-pointer ml-2 press-scale"
           >
             {isLoading ? (
               <>
@@ -561,15 +561,15 @@ const MealSectionCard: React.FC<{
   return (
     <div
       id={`meal-${mealType}`}
-      className="bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-2xl overflow-hidden shadow-sm transition-all"
+      className="glass-panel border border-slate-200/80 dark:border-white/10 rounded-3xl overflow-hidden shadow-sm transition-all"
     >
       {/* Header Bar */}
       <div
-        className="p-4 sm:p-5 flex items-center justify-between gap-4 cursor-pointer hover:bg-slate-50 dark:hover:bg-white/5 transition-colors select-none"
+        className="p-4 sm:p-5 flex items-center justify-between gap-4 cursor-pointer hover:bg-slate-500/5 transition-colors select-none"
         onClick={() => setIsOpen(!isOpen)}
       >
         <div className="flex items-center gap-3.5 min-w-0">
-          <div className="w-9 h-9 rounded-2xl bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 flex items-center justify-center shrink-0">
+          <div className="w-10 h-10 rounded-2xl bg-blue-500/10 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 border border-blue-500/20 flex items-center justify-center shrink-0">
             {config.icon}
           </div>
           <div className="min-w-0">
@@ -612,7 +612,7 @@ const MealSectionCard: React.FC<{
           <button
             type="button"
             aria-label={isOpen ? 'Collapse' : 'Expand'}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors cursor-pointer"
+            className="p-1.5 rounded-xl text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
           >
             {isOpen ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
           </button>
@@ -621,7 +621,7 @@ const MealSectionCard: React.FC<{
 
       {/* Items List */}
       {isOpen && (
-        <div className="border-t border-slate-200 dark:border-slate-700 p-4 sm:p-5 space-y-3">
+        <div className="border-t border-slate-200/80 dark:border-white/10 p-4 sm:p-5 space-y-3">
           {items.length === 0 ? (
             <div className="py-6 text-center">
               <p className="text-xs text-slate-400">
@@ -1391,25 +1391,38 @@ const NutritionPage: React.FC = () => {
   };
 
   return (
-    <div className="space-y-7 max-w-4xl mx-auto">
+    <div className="space-y-6 max-w-4xl mx-auto">
+      {/* Page Header */}
+      <div>
+        <div className="flex items-center gap-2 mb-1.5">
+          <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wide uppercase bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400 border border-emerald-500/20">
+            Health & Nutrition
+          </span>
+        </div>
+        <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
+          Nutrition Tracker
+        </h1>
+        <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">Track macros, log meals with AI, and meet your daily nutrition targets.</p>
+      </div>
+
       {/* Date Navigator */}
-      <div className="space-y-3 pb-2 border-b border-slate-200 dark:border-slate-700">
+      <div className="space-y-3 pb-3 border-b border-slate-200/80 dark:border-white/10">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           {/* Left: Date Display & Nav */}
           <div className="flex items-center gap-3.5">
-            <div className="flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-2xl border border-slate-200 dark:border-slate-700">
+            <div className="flex items-center bg-white/80 dark:bg-slate-900/80 backdrop-blur-md p-1 rounded-2xl border border-slate-200/80 dark:border-white/10 shadow-sm">
               <button
                 onClick={() => setCurrentDate(shiftDate(currentDate, -1))}
                 aria-label="Previous day"
                 title="Previous day"
-                className="p-1.5 rounded-xl text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white dark:hover:bg-slate-700 transition-colors cursor-pointer"
+                className="p-1.5 rounded-xl text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
               {!isToday && (
                 <button
                   onClick={() => setCurrentDate(todayStr)}
-                  className="px-2.5 py-1 text-xs font-bold text-amber-500 dark:text-amber-400 hover:text-amber-600 dark:hover:text-amber-300 hover:bg-white dark:hover:bg-slate-700 rounded-lg transition-colors cursor-pointer"
+                  className="px-2.5 py-1 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:bg-blue-500/10 rounded-xl transition-colors cursor-pointer"
                 >
                   Today
                 </button>
@@ -1418,7 +1431,7 @@ const NutritionPage: React.FC = () => {
                 onClick={() => setCurrentDate(shiftDate(currentDate, 1))}
                 aria-label="Next day"
                 title="Next day"
-                className="p-1.5 rounded-xl text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white dark:hover:bg-slate-700 transition-colors cursor-pointer"
+                className="p-1.5 rounded-xl text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
               >
                 <ChevronRight className="w-4 h-4" />
               </button>

@@ -343,9 +343,13 @@ const TodoPage: React.FC<TodoPageProps> = ({ day, onDayChange, classes, logs, on
     );
   }
 
+  const totalTasks = day.items.length;
+  const completedTasks = day.items.filter(i => i.done).length;
+  const completionRate = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+
   return (
     <div className="mx-auto max-w-3xl w-full">
-              {isAllDone && <Confetti width={width} height={height} recycle={false} numberOfPieces={800} gravity={0.15} />}
+        {isAllDone && <Confetti width={width} height={height} recycle={false} numberOfPieces={800} gravity={0.15} />}
         <JournalModal 
             isOpen={isJournalModalOpen}
             onClose={() => setIsJournalModalOpen(false)}
@@ -369,98 +373,106 @@ const TodoPage: React.FC<TodoPageProps> = ({ day, onDayChange, classes, logs, on
         />
         
 
-        {/* Header Section */}
-        <div className="mb-8 flex justify-center">
-            <div className="grid grid-cols-[max-content_max-content] items-center gap-x-2 sm:gap-x-4">
-                <div className="row-span-2 text-8xl sm:text-[10rem] font-black bg-gradient-to-r from-purple-400 via-purple-500 to-pink-500 bg-clip-text text-transparent drop-shadow-sm tracking-tighter leading-[0.8]">
-                    TO
-                </div>
-                <div className="self-end text-4xl sm:text-6xl font-black text-slate-800 dark:text-slate-100 tracking-tighter leading-none">
-                    DAY
-                </div>
-                <div className="self-start text-4xl sm:text-6xl font-bold text-slate-700 dark:text-slate-300 tracking-tighter leading-none">
-                    DO
-                </div>
-            </div>
-        </div>
-
-        {/* Countdown Section */}
-        <motion.div 
-            initial={{ opacity: 0, y: 15, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ duration: 0.5, ease: 'easeOut' }}
-            className="text-center mb-8 p-5 bg-gradient-to-b from-white to-slate-50/60 dark:from-slate-800 dark:to-slate-800/80 rounded-2xl shadow-sm border border-slate-200/80 dark:border-slate-700/80 relative overflow-hidden"
-        >
-            <div className="flex items-center justify-center gap-2 mb-2">
-                <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
-                </span>
-                <h3 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
-                    A/L Exam Countdown
-                </h3>
-            </div>
-            
-            <div className="flex justify-center items-baseline gap-6 my-2">
-                <motion.div 
-                    initial={{ scale: 0.8, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    transition={{ duration: 0.45, delay: 0.1 }}
-                    className="flex flex-col items-center"
-                >
-                    <div className="flex items-baseline">
-                        <AnimatedCountdownNumber from={24} value={countdown.months} className="text-5xl font-black text-indigo-600 dark:text-indigo-400 tracking-tight" />
-                        <span className="text-sm font-semibold text-slate-500 dark:text-slate-400 ml-1">mo</span>
-                    </div>
-                    <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400 dark:text-slate-500">Months</span>
-                </motion.div>
-
-                <div className="text-2xl font-light text-slate-300 dark:text-slate-600 self-center -mt-3">:</div>
-
-                <motion.div 
-                    initial={{ scale: 0.8, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    transition={{ duration: 0.45, delay: 0.2 }}
-                    className="flex flex-col items-center"
-                >
-                    <div className="flex items-baseline">
-                        <AnimatedCountdownNumber from={30} value={countdown.days} className="text-5xl font-black text-indigo-600 dark:text-indigo-400 tracking-tight" />
-                        <span className="text-sm font-semibold text-slate-500 dark:text-slate-400 ml-1">days</span>
-                    </div>
-                    <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400 dark:text-slate-500">Days</span>
-                </motion.div>
-            </div>
-
-            <motion.p 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.45, delay: 0.3 }}
-                className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-2 font-medium"
-            >
-                That&apos;s <span className="font-bold text-indigo-600 dark:text-indigo-400"><AnimatedCountdownNumber from={730} value={countdown.totalDays} /></span> days to go.
-            </motion.p>
-        </motion.div>
-
-        {/* Date, Tags */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
+        {/* Modern Apple-style Page Header */}
+        <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-                <p className="text-lg sm:text-xl font-semibold text-slate-600 dark:text-slate-300">
+                <div className="flex items-center gap-2 mb-1">
+                    <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wide uppercase bg-blue-500/10 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400 border border-blue-500/20">
+                        Today's Agenda
+                    </span>
+                    <span className="text-xs text-slate-400 dark:text-slate-500">
+                        {totalTasks > 0 ? `${completedTasks} of ${totalTasks} completed (${completionRate}%)` : 'No tasks yet'}
+                    </span>
+                </div>
+                <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
                     {formatDate(day.date)}
-                </p>
+                </h1>
+                
                 {todaysClasses.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mt-2">
+                    <div className="flex flex-wrap gap-2 mt-2.5">
                         {todaysClasses.map((c, index) => {
                             const color = classColors[index % classColors.length];
                             return (
-                                <span key={c.id} className={`${color.bg} ${color.text} ${color.border} text-sm font-semibold px-3 py-1 rounded-full border`}>
-                                    {c.name}
+                                <span key={c.id} className={`${color.bg} ${color.text} ${color.border} text-xs font-semibold px-2.5 py-1 rounded-full border backdrop-blur-sm`}>
+                                    {c.name} ({c.start} - {c.end})
                                 </span>
                             );
                         })}
                     </div>
                 )}
             </div>
+
+            {/* Quick Action Buttons */}
+            <div className="flex items-center gap-2 self-start sm:self-center">
+                <button
+                    onClick={() => { setJournalTargetDate(day.date); setIsJournalModalOpen(true); }}
+                    className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-white/80 dark:bg-slate-900/80 hover:bg-white dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200/80 dark:border-white/10 shadow-sm transition-all press-scale"
+                >
+                    <BookHeart className="w-4 h-4 text-rose-500" />
+                    <span>Diary</span>
+                </button>
+                <button
+                    onClick={() => handleStartPomodoro(day.items.find(i => !i.done) || day.items[0] || { id: 'focus', title: 'Focus Session', subjectId: 'physics', done: false, note: '' })}
+                    className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-blue-500 hover:bg-blue-600 text-white shadow-sm shadow-blue-500/25 transition-all press-scale"
+                >
+                    <span className="text-sm">⏱️</span>
+                    <span>Focus Timer</span>
+                </button>
+            </div>
         </div>
+
+        {/* Countdown Section - Apple Health / Activity Glass Widget */}
+        <motion.div 
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, ease: 'easeOut' }}
+            className="mb-6 p-4 sm:p-5 rounded-3xl bg-white/70 dark:bg-slate-900/60 backdrop-blur-xl border border-slate-200/80 dark:border-white/10 shadow-sm relative overflow-hidden"
+        >
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-2xl bg-blue-500/10 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0 border border-blue-500/20">
+                        <span className="text-lg">🎯</span>
+                    </div>
+                    <div>
+                        <div className="flex items-center gap-2">
+                            <span className="relative flex h-2 w-2">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+                            </span>
+                            <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                A/L Exam Countdown
+                            </span>
+                        </div>
+                        <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">Target: August Examination</p>
+                    </div>
+                </div>
+
+                <div className="flex items-center gap-5">
+                    <div className="flex items-baseline gap-1">
+                        <AnimatedCountdownNumber from={24} value={countdown.months} className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight" />
+                        <span className="text-xs font-semibold text-slate-400 dark:text-slate-500">months</span>
+                    </div>
+                    <span className="text-slate-300 dark:text-slate-700 text-lg font-light">:</span>
+                    <div className="flex items-baseline gap-1">
+                        <AnimatedCountdownNumber from={30} value={countdown.days} className="text-3xl sm:text-4xl font-extrabold text-blue-600 dark:text-blue-400 tracking-tight" />
+                        <span className="text-xs font-semibold text-slate-400 dark:text-slate-500">days</span>
+                    </div>
+                    <div className="hidden sm:block pl-4 border-l border-slate-200 dark:border-slate-800 text-right">
+                        <span className="block text-sm font-bold text-slate-800 dark:text-slate-200">
+                            <AnimatedCountdownNumber from={730} value={countdown.totalDays} /> days
+                        </span>
+                        <span className="text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-wider font-semibold">Remaining</span>
+                    </div>
+                </div>
+            </div>
+            {/* Daily Task Completion Bar */}
+            <div className="w-full bg-slate-100 dark:bg-slate-800/80 h-1.5 rounded-full mt-4 overflow-hidden">
+                <div 
+                    className="bg-gradient-to-r from-blue-500 to-indigo-500 h-full rounded-full transition-all duration-500"
+                    style={{ width: `${Math.min(100, Math.max(0, totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0))}%` }}
+                />
+            </div>
+        </motion.div>
 
         {/* New Smart Input */}
         <SmartTodoInput onAddTodos={addTodos} />
@@ -475,19 +487,19 @@ const TodoPage: React.FC<TodoPageProps> = ({ day, onDayChange, classes, logs, on
             
             if (isTimeWindow && isToday) {
                 return (
-                    <div className="bg-gradient-to-r from-indigo-500/10 to-purple-500/10 border border-indigo-200 dark:border-indigo-500/30 rounded-2xl p-6 mb-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div className="glass-card border border-blue-500/20 bg-blue-500/5 dark:bg-blue-500/10 rounded-3xl p-5 sm:p-6 mb-6 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm">
                         <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 rounded-full flex items-center justify-center shrink-0">
-                                <BookHeart className="w-6 h-6" />
+                            <div className="w-11 h-11 bg-blue-500/15 text-blue-600 dark:text-blue-400 rounded-2xl flex items-center justify-center shrink-0 border border-blue-500/20">
+                                <BookHeart className="w-5 h-5" />
                             </div>
                             <div>
-                                <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">How was your day?</h3>
-                                <p className="text-slate-600 dark:text-slate-400 text-sm">Take a moment to reflect and write down your thoughts before bed.</p>
+                                <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">How was your day?</h3>
+                                <p className="text-slate-600 dark:text-slate-400 text-xs sm:text-sm">Take a moment to reflect and write down your thoughts before bed.</p>
                             </div>
                         </div>
                         <button 
                             onClick={() => { setJournalTargetDate(day.date); setIsJournalModalOpen(true); }}
-                            className="shrink-0 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 px-6 rounded-xl shadow-lg shadow-indigo-600/30 transition-all active:scale-95"
+                            className="shrink-0 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-5 rounded-2xl shadow-sm shadow-blue-500/20 transition-all press-scale text-xs sm:text-sm"
                         >
                             Write Journal
                         </button>
@@ -499,10 +511,10 @@ const TodoPage: React.FC<TodoPageProps> = ({ day, onDayChange, classes, logs, on
 
         {/* Forgotten Yesterday Journal Reminder */}
         {!hasYesterdayEntry && (
-            <div className="mb-6 p-4 bg-gradient-to-r from-purple-500/10 via-indigo-500/10 to-pink-500/10 border border-purple-200/80 dark:border-purple-800/40 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-sm animate-in fade-in">
+            <div className="mb-6 p-4 glass-card border border-amber-500/20 bg-amber-500/5 dark:bg-amber-500/10 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-sm animate-in fade-in">
                 <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-purple-500/20 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0">
-                        <BookOpen className="w-5 h-5" />
+                    <div className="w-9 h-9 rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 border border-amber-500/20">
+                        <BookOpen className="w-4 h-4" />
                     </div>
                     <div>
                         <p className="font-bold text-slate-800 dark:text-slate-100 text-sm">
@@ -525,7 +537,7 @@ const TodoPage: React.FC<TodoPageProps> = ({ day, onDayChange, classes, logs, on
                         }
                         setIsJournalModalOpen(true);
                     }}
-                    className="shrink-0 px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-bold rounded-xl shadow-md shadow-indigo-500/20 transition-all active:scale-95 flex items-center gap-1.5"
+                    className="shrink-0 px-4 py-2 bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 text-xs font-semibold rounded-xl shadow-sm transition-all press-scale flex items-center gap-1.5"
                 >
                     <History className="w-3.5 h-3.5" /> Backfill Yesterday
                 </button>
@@ -533,7 +545,7 @@ const TodoPage: React.FC<TodoPageProps> = ({ day, onDayChange, classes, logs, on
         )}
 
         {/* Todo List Container */}
-        <div className="bg-white/50 dark:bg-slate-800/50 backdrop-blur-xl border border-white/40 dark:border-slate-700/50 p-4 sm:p-6 rounded-3xl shadow-xl shadow-black/5 mb-8 max-h-[60vh] overflow-y-auto scrollbar-hide">
+        <div className="glass-panel p-4 sm:p-6 rounded-3xl shadow-sm border border-slate-200/80 dark:border-white/10 mb-8 max-h-[60vh] overflow-y-auto scrollbar-hide">
             <TodoList todos={day.items} onToggle={toggleTodo} subjects={mockSubjects} onStartPomodoro={handleStartPomodoro} />
         </div>
 
@@ -544,9 +556,9 @@ const TodoPage: React.FC<TodoPageProps> = ({ day, onDayChange, classes, logs, on
                     initial={{ opacity: 0, y: 20, scale: 0.95 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 20, scale: 0.95 }}
-                    className="fixed bottom-6 right-6 z-50 flex items-center gap-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-5 py-3.5 rounded-2xl shadow-2xl shadow-indigo-500/40 border border-white/20 text-sm font-bold backdrop-blur-md"
+                    className="fixed bottom-6 right-6 z-50 flex items-center gap-3 bg-slate-900/95 dark:bg-white/95 text-white dark:text-slate-900 px-5 py-3 rounded-2xl shadow-2xl border border-white/15 dark:border-slate-200/80 text-sm font-semibold backdrop-blur-xl"
                 >
-                    <div className="p-1.5 bg-white/20 rounded-xl">
+                    <div className="p-1.5 bg-blue-500/20 text-blue-400 dark:text-blue-600 rounded-xl">
                         <Repeat className="w-4 h-4 animate-spin-slow" />
                     </div>
                     <span>{habitToast}</span>

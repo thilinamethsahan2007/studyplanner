@@ -1,7 +1,7 @@
 import React from 'react';
 import { TodoItem, Subject } from '../types';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Repeat } from 'lucide-react';
+import { Repeat, Play, Check } from 'lucide-react';
 
 interface TodoListProps {
   todos: TodoItem[];
@@ -26,108 +26,123 @@ const TodoList: React.FC<TodoListProps> = ({ todos, onToggle, subjects, onStartP
   });
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-2.5">
       <AnimatePresence>
         {sortedTodos.map(todo => {
           const subject = subjects.find(s => s.id === todo.subjectId);
           const isStudyTask = ['physics', 'chemistry', 'combined', 'microcredentials'].includes(todo.subjectId);
           const isRecurring = Boolean(todo.recurring || todo.note?.includes('[recurring]'));
           const cleanNote = todo.note ? todo.note.replace(/\[recurring\]/g, '').trim() : '';
-          
+
           return (
             <motion.div
               layout
-              initial={{ opacity: 0, y: 10, scale: 0.98 }}
+              initial={{ opacity: 0, y: 8, scale: 0.99 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.2 } }}
-              transition={{ type: "spring", stiffness: 400, damping: 25 }}
+              exit={{ opacity: 0, scale: 0.96, transition: { duration: 0.2 } }}
+              transition={{ type: "spring", stiffness: 450, damping: 28 }}
               key={todo.id}
-              className={`flex items-start p-4 rounded-2xl border backdrop-blur-md transition-all duration-300 ${todo.done ? 'bg-slate-100/30 dark:bg-slate-900/30 border-white/20 dark:border-slate-800/30 opacity-60' : 'bg-white/70 dark:bg-slate-800/70 border-white/60 dark:border-slate-700/60 shadow-lg shadow-black/5 hover:shadow-black/10 hover:bg-white/80 dark:hover:bg-slate-800/90'}`}
+              className={`flex items-start p-3.5 sm:p-4 rounded-2xl border backdrop-blur-xl transition-all duration-200 ${
+                todo.done 
+                  ? 'bg-slate-100/40 dark:bg-slate-900/30 border-slate-200/50 dark:border-white/5 opacity-55' 
+                  : 'bg-white/80 dark:bg-slate-900/60 border-slate-200/80 dark:border-white/10 shadow-sm hover:shadow hover:border-slate-300 dark:hover:border-white/20'
+              }`}
             >
-              <div className="flex-shrink-0 mr-4 pt-0.5">
+              {/* Apple Circular Checkbox */}
+              <div className="flex-shrink-0 mr-3.5 pt-0.5">
                 <button 
                   onClick={() => onToggle(todo.id)}
-                  className={`flex items-center justify-center h-6 w-6 rounded-full border-2 transition-all duration-300 press-scale ${todo.done ? 'bg-indigo-500 border-indigo-500' : 'border-slate-300 dark:border-slate-600 hover:border-indigo-400'}`}
+                  aria-label={todo.done ? "Mark as incomplete" : "Mark as complete"}
+                  className={`flex items-center justify-center h-5 w-5 sm:h-6 sm:w-6 rounded-full border-2 transition-all duration-200 press-scale ${
+                    todo.done 
+                      ? 'bg-blue-500 border-blue-500 shadow-sm shadow-blue-500/30' 
+                      : 'border-slate-300 dark:border-slate-600 hover:border-blue-500 dark:hover:border-blue-400 bg-white/40 dark:bg-slate-800/40'
+                  }`}
                 >
                   {todo.done && (
-                    <motion.svg 
-                      initial={{ scale: 0 }} 
-                      animate={{ scale: 1 }} 
-                      className="w-3 h-3 text-white" 
-                      fill="none" 
-                      viewBox="0 0 24 24" 
-                      stroke="currentColor"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                    </motion.svg>
+                    <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ duration: 0.15 }}>
+                      <Check className="w-3 h-3 text-white stroke-[3]" />
+                    </motion.div>
                   )}
                 </button>
               </div>
+
+              {/* Task Details */}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <p className={`text-lg font-medium transition-all duration-300 ${todo.done ? 'line-through text-slate-400 dark:text-slate-500' : 'text-slate-800 dark:text-slate-100'}`}>
+                  <p className={`text-sm sm:text-base font-medium leading-relaxed transition-all duration-200 ${
+                    todo.done 
+                      ? 'line-through text-slate-400 dark:text-slate-500' 
+                      : 'text-slate-900 dark:text-slate-100'
+                  }`}>
                     {todo.title}
                   </p>
                   {isRecurring && (
-                    <span className="inline-flex items-center justify-center p-1 rounded-full bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-300 border border-purple-200 dark:border-purple-800/50 shadow-sm" title="Daily Recurring Habit (Every day this week)">
-                      <Repeat className="w-3.5 h-3.5" />
+                    <span 
+                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 text-[11px] font-semibold" 
+                      title="Daily Recurring Habit"
+                    >
+                      <Repeat className="w-3 h-3 animate-spin-slow" />
+                      <span>Daily</span>
                     </span>
                   )}
                 </div>
+
                 <div className="flex items-center gap-2 mt-2 flex-wrap">
                   {subject && (
-                     <span 
-                        className={`text-xs font-bold inline-flex items-center px-2.5 py-1 rounded-full uppercase tracking-wider ${!todo.done ? 'shadow-sm' : 'opacity-50'}`} 
-                        style={{ backgroundColor: `${subject.color}25`, color: subject.color, boxShadow: !todo.done ? `0 0 10px ${subject.color}15` : 'none' }}
-                     >
-                       <svg className="w-2 h-2 mr-1.5" fill="currentColor" viewBox="0 0 8 8">
-                         <circle cx="4" cy="4" r="4" />
-                       </svg>
-                       {subject.name}
-                     </span>
+                    <span 
+                      className="text-[11px] font-semibold inline-flex items-center px-2.5 py-0.5 rounded-full border backdrop-blur-sm"
+                      style={{ 
+                        backgroundColor: `${subject.color}18`, 
+                        borderColor: `${subject.color}35`,
+                        color: subject.color 
+                      }}
+                    >
+                      <span className="w-1.5 h-1.5 rounded-full mr-1.5" style={{ backgroundColor: subject.color }} />
+                      {subject.name}
+                    </span>
                   )}
                   {cleanNote && (
-                      <p className="text-sm text-slate-500 dark:text-slate-400">{cleanNote}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 font-normal">{cleanNote}</p>
                   )}
                   {todo.estimatedMinutes && (
-                      <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700/60 flex items-center gap-1">
-                        ⏳ {formatTime(todo.estimatedMinutes)}
-                      </span>
+                    <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400 px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800/80 border border-slate-200/80 dark:border-white/10 flex items-center gap-1">
+                      <span>⏳</span>
+                      <span>{formatTime(todo.estimatedMinutes)}</span>
+                    </span>
                   )}
                 </div>
               </div>
+
+              {/* Quick Pomodoro Launch */}
               {isStudyTask && !todo.done && (
-                  <button 
-                      onClick={() => onStartPomodoro(todo)} 
-                      className="ml-4 p-2 text-indigo-500 hover:text-white hover:bg-indigo-500 hover:shadow-[0_0_15px_rgba(99,102,241,0.5)] rounded-full transition-all focus:outline-none press-scale"
-                      aria-label={`Start Pomodoro for ${todo.title}`}
-                      title="Start Pomodoro Timer"
-                  >
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                  </button>
+                <button 
+                  onClick={() => onStartPomodoro(todo)} 
+                  className="ml-2 sm:ml-4 p-2 text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-500/10 rounded-xl transition-all press-scale shrink-0"
+                  aria-label={`Start Pomodoro for ${todo.title}`}
+                  title="Start Focus Timer"
+                >
+                  <Play className="w-4 h-4 fill-current" />
+                </button>
               )}
             </motion.div>
           );
         })}
       </AnimatePresence>
-       {todos.length === 0 && (
-          <motion.div 
-            initial={{ opacity: 0 }} 
-            animate={{ opacity: 1 }} 
-            className="text-center py-10 text-slate-500 dark:text-slate-400"
-          >
-            <div className="mx-auto h-16 w-16 mb-4 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-slate-400 dark:text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-            <p className="font-bold text-slate-700 dark:text-slate-300">All clear! No tasks for today.</p>
-            <p className="text-sm mt-1">Type your plans above to get started.</p>
-          </motion.div>
-        )}
+
+      {todos.length === 0 && (
+        <motion.div 
+          initial={{ opacity: 0 }} 
+          animate={{ opacity: 1 }} 
+          className="text-center py-12 text-slate-400 dark:text-slate-500"
+        >
+          <div className="mx-auto h-12 w-12 mb-3 bg-blue-500/10 text-blue-500 rounded-2xl flex items-center justify-center border border-blue-500/20">
+            <Check className="h-6 w-6 stroke-[2.5]" />
+          </div>
+          <p className="font-semibold text-slate-800 dark:text-slate-200 text-sm">All clear! No tasks for today.</p>
+          <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">Use the bar above to add what you want to achieve.</p>
+        </motion.div>
+      )}
     </div>
   );
 };

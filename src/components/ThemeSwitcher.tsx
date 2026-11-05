@@ -2,19 +2,20 @@ import React from 'react';
 import { Sun, Moon } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 
-const ThemeSwitcher: React.FC = () => {
+const ThemeSwitcher: React.FC<{ className?: string }> = ({ className = '' }) => {
   const { theme, toggleTheme } = useTheme();
 
   return (
     <button
       onClick={toggleTheme}
       aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
-      className="p-2 bg-transparent rounded-xl text-slate-600 dark:text-slate-300 hover:bg-white/50 dark:hover:bg-black/20 transition-all duration-300 focus:outline-none flex items-center justify-center h-full aspect-square"
+      title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+      className={`p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-all duration-200 focus:outline-none flex items-center justify-center press-scale ${className}`}
     >
       {theme === 'light' ? (
-        <Moon className="w-5 h-5" />
+        <Moon className="w-4 h-4 text-slate-600" />
       ) : (
-        <Sun className="w-5 h-5" />
+        <Sun className="w-4 h-4 text-amber-400" />
       )}
     </button>
   );

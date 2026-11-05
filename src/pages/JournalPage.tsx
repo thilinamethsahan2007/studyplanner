@@ -173,12 +173,10 @@ const JournalPage: React.FC = () => {
                     </div>
                 </div>
 
-                <div className="bg-white/60 dark:bg-slate-900/60 backdrop-blur-2xl rounded-3xl p-6 md:p-10 shadow-xl border border-white/40 dark:border-slate-700/50 relative overflow-hidden">
-                    <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>
-                    
-                    <div className="flex items-center gap-3 text-indigo-500 mb-8 mt-2">
+                <div className="glass-panel rounded-3xl p-6 md:p-10 shadow-sm border border-slate-200/80 dark:border-white/10 relative overflow-hidden">
+                    <div className="flex items-center gap-3 text-blue-600 dark:text-blue-400 mb-8">
                         <CalendarIcon className="w-6 h-6" />
-                        <span className="font-black text-2xl tracking-tight">
+                        <span className="font-bold text-2xl tracking-tight text-slate-900 dark:text-white">
                             {new Date(selectedEntry.date + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
                         </span>
                     </div>
@@ -236,10 +234,15 @@ const JournalPage: React.FC = () => {
             {/* Top Page Header */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl md:text-4xl font-black bg-gradient-to-r from-purple-400 via-purple-500 to-pink-500 bg-clip-text text-transparent drop-shadow-sm tracking-tight">
+                    <div className="flex items-center gap-2 mb-1.5">
+                        <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wide uppercase bg-blue-500/10 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400 border border-blue-500/20">
+                            Daily Journal
+                        </span>
+                    </div>
+                    <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
                         Private Diary
                     </h1>
-                    <p className="text-slate-500 dark:text-slate-400 font-medium mt-1">
+                    <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
                         Select any day to view, write, or backfill forgotten entries.
                     </p>
                 </div>
@@ -248,14 +251,14 @@ const JournalPage: React.FC = () => {
                     <button 
                         type="button"
                         onClick={() => handleOpenWriteModal()} 
-                        className="flex items-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl shadow-lg shadow-indigo-600/25 transition-all active:scale-95 text-sm"
+                        className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-2xl shadow-sm shadow-blue-500/20 transition-all press-scale text-xs sm:text-sm"
                     >
                         <Plus className="w-4 h-4" /> Add / Backfill Entry
                     </button>
                     <button 
                         type="button"
                         onClick={() => setIsAuthenticated(false)} 
-                        className="shrink-0 flex items-center gap-2 px-3.5 py-2.5 bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold rounded-xl hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors text-sm"
+                        className="shrink-0 flex items-center gap-2 px-3.5 py-2.5 bg-white/80 dark:bg-slate-900/80 border border-slate-200/80 dark:border-white/10 text-slate-700 dark:text-slate-300 font-medium rounded-2xl hover:bg-white dark:hover:bg-slate-800 transition-all press-scale text-xs sm:text-sm"
                     >
                         <Lock className="w-4 h-4" /> Lock
                     </button>
@@ -264,10 +267,10 @@ const JournalPage: React.FC = () => {
 
             {/* Forgotten Days Quick-Backfill Banner */}
             {forgottenDays.length > 0 && (
-                <div className="p-4 rounded-2xl bg-amber-50/80 dark:bg-amber-950/30 border border-amber-200/80 dark:border-amber-800/40 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-sm">
+                <div className="p-4 rounded-2xl glass-card border border-amber-500/20 bg-amber-500/5 dark:bg-amber-500/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-sm">
                     <div className="flex items-center gap-2.5 text-amber-800 dark:text-amber-300">
                         <History className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0" />
-                        <span className="text-xs sm:text-sm font-bold">
+                        <span className="text-xs sm:text-sm font-semibold">
                             Unjournaled days this week ({forgottenDays.length}):
                         </span>
                     </div>
@@ -277,7 +280,7 @@ const JournalPage: React.FC = () => {
                                 key={f.dateStr}
                                 type="button"
                                 onClick={() => handleOpenWriteModal(f.dateStr)}
-                                className="px-3 py-1 rounded-lg text-xs font-bold bg-white dark:bg-slate-800 text-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-700/60 hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors shadow-sm flex items-center gap-1"
+                                className="px-3 py-1 rounded-xl text-xs font-semibold bg-white/90 dark:bg-slate-900/90 text-amber-900 dark:text-amber-200 border border-amber-500/30 hover:bg-amber-50 dark:hover:bg-amber-950/40 transition-colors shadow-sm flex items-center gap-1"
                             >
                                 <Plus className="w-3 h-3 text-amber-600" /> {f.label}
                             </button>
@@ -287,7 +290,7 @@ const JournalPage: React.FC = () => {
             )}
 
             {/* Calendar Container */}
-            <div className="flex-1 bg-white/40 dark:bg-slate-800/40 backdrop-blur-xl rounded-3xl shadow-xl shadow-black/5 border border-white/50 dark:border-slate-600/50 p-6 md:p-8 flex flex-col">
+            <div className="flex-1 glass-panel rounded-3xl shadow-sm border border-slate-200/80 dark:border-white/10 p-6 md:p-8 flex flex-col">
                 
                 {/* Calendar Header */}
                 <div className="flex items-center justify-between mb-8">

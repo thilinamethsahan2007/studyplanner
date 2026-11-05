@@ -191,37 +191,44 @@ const WeeklyPlannerPage: React.FC = () => {
   return (
       <div className="p-4 md:p-6 lg:p-8 max-w-[1600px] mx-auto min-h-[calc(100vh-4rem)] lg:h-[calc(100vh-4rem)] overflow-y-auto lg:overflow-hidden flex flex-col">
         <div className="mb-6 shrink-0">
-          <h1 className="text-3xl md:text-4xl font-black bg-gradient-to-r from-purple-400 via-purple-500 to-pink-500 bg-clip-text text-transparent tracking-tight">Weekly Backlog Planner</h1>
-          <p className="text-slate-500 dark:text-slate-400 mt-1">Brain dump your workload into the Inbox, then drag to schedule!</p>
+          <div className="flex items-center gap-2 mb-1.5">
+            <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wide uppercase bg-blue-500/10 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400 border border-blue-500/20">
+              Schedule & Backlog
+            </span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
+            Weekly Planner
+          </h1>
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">Brain dump your workload into the Inbox, then drag to schedule across the week.</p>
         </div>
         
         <DragDropContext onDragEnd={onDragEnd}>
           <div className="flex-1 flex flex-col lg:flex-row gap-6 lg:overflow-hidden">
             
             {/* LEFT PANE: MASTER INBOX */}
-            <div className="w-full lg:w-1/3 xl:w-1/4 flex flex-col h-[50vh] lg:h-full bg-slate-50 dark:bg-slate-800/30 rounded-3xl border-2 border-dashed border-slate-300 dark:border-slate-700 overflow-hidden shrink-0">
+            <div className="w-full lg:w-1/3 xl:w-1/4 flex flex-col h-[50vh] lg:h-full bg-slate-100/70 dark:bg-slate-900/60 backdrop-blur-xl rounded-3xl border border-slate-200/80 dark:border-white/10 shadow-sm overflow-hidden shrink-0">
               {(() => {
                 const col = weekDays[0];
                 if (!col) return null;
                 const items = weekData[col.dateStr] || [];
                 return (
                   <>
-                    <div className="shrink-0 p-5 border-b border-slate-200 dark:border-slate-700 bg-white/50 dark:bg-slate-800/50">
-                      <h3 className="font-bold text-lg text-slate-800 dark:text-slate-100 flex items-center justify-between">
+                    <div className="shrink-0 p-5 border-b border-slate-200/80 dark:border-white/10 bg-white/60 dark:bg-slate-900/60 backdrop-blur-md">
+                      <h3 className="font-bold text-base text-slate-900 dark:text-slate-100 flex items-center justify-between">
                         {col.title}
-                        <span className="text-xs bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 px-2.5 py-1 rounded-full font-bold">{items.length}</span>
+                        <span className="text-xs bg-slate-200/80 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-2.5 py-0.5 rounded-full font-bold">{items.length}</span>
                       </h3>
-                      <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                         {col.subtitle}
                       </p>
                     </div>
                     
-                    <div className="shrink-0 p-4 border-b border-slate-200 dark:border-slate-700 bg-white/30 dark:bg-slate-900/20">
+                    <div className="shrink-0 p-3.5 border-b border-slate-200/80 dark:border-white/10 bg-white/40 dark:bg-slate-900/40">
                       <form onSubmit={(e) => handleSmartAdd(col.dateStr, e)}>
                         <input
                           type="text"
                           placeholder="Dump workload here..."
-                          className="w-full text-sm px-4 py-3 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30 dark:text-slate-100 shadow-sm transition-all"
+                          className="w-full text-xs sm:text-sm px-3.5 py-2.5 bg-white/90 dark:bg-slate-900/90 border border-slate-200/80 dark:border-white/10 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-slate-900 dark:text-slate-100 shadow-sm transition-all placeholder-slate-400"
                           value={inputs[col.dateStr] || ''}
                           onChange={e => setInputs({ ...inputs, [col.dateStr]: e.target.value })}
                         />
@@ -233,7 +240,7 @@ const WeeklyPlannerPage: React.FC = () => {
                         <div
                           ref={provided.innerRef}
                           {...provided.droppableProps}
-                          className={`flex-1 p-4 overflow-y-auto scrollbar-hide transition-colors ${snapshot.isDraggingOver ? 'bg-blue-50/50 dark:bg-blue-900/10' : ''}`}
+                          className={`flex-1 p-3.5 overflow-y-auto scrollbar-hide transition-colors ${snapshot.isDraggingOver ? 'bg-blue-50/50 dark:bg-blue-900/10' : ''}`}
                         >
                           {items.map((item, index) => {
                             const subject = mockSubjects.find(s => s.id === item.subjectId) || { color: '#94a3b8', name: 'Personal' };
@@ -245,35 +252,35 @@ const WeeklyPlannerPage: React.FC = () => {
                                   {...provided.draggableProps}
                                   {...provided.dragHandleProps}
                                   style={{ ...provided.draggableProps.style, borderLeftColor: subject.color }}
-                                  className={`p-3 mb-3 rounded-xl text-sm border-y border-r border-l-[6px] shadow-sm transition-shadow transition-colors overflow-hidden ${snapshot.isDragging ? 'bg-white dark:bg-slate-800 border-y-blue-400 border-r-blue-400 dark:border-y-blue-500 dark:border-r-blue-500 shadow-lg z-50' : 'bg-white dark:bg-slate-800 border-y-slate-200 border-r-slate-200 dark:border-y-slate-700 dark:border-r-slate-700 hover:shadow-md'}`}
+                                  className={`p-3 mb-2.5 rounded-2xl text-sm border-y border-r border-l-[4px] shadow-sm backdrop-blur-xl transition-all overflow-hidden ${snapshot.isDragging ? 'bg-white dark:bg-slate-800 border-y-blue-500 border-r-blue-500 shadow-xl z-50 ring-2 ring-blue-500/20' : 'bg-white/90 dark:bg-slate-900/80 border-y-slate-200/80 border-r-slate-200/80 dark:border-y-white/10 dark:border-r-white/10 hover:shadow-md'}`}
                                 >
                                   <div className="flex flex-col gap-1.5">
-                                    <div className="flex items-start gap-3">
+                                    <div className="flex items-start gap-2.5">
                                       <button onClick={() => handleToggleDone(col.dateStr, item.id)} className="mt-0.5 shrink-0 text-slate-400 hover:text-blue-500 transition-colors">
-                                        {item.done ? <CheckCircle2 className="w-5 h-5 text-blue-500" /> : <Circle className="w-5 h-5" />}
+                                        {item.done ? <CheckCircle2 className="w-4 h-4 text-blue-500" /> : <Circle className="w-4 h-4" />}
                                       </button>
                                       <div className="flex-1 min-w-0">
-                                        <p className={`font-semibold text-[13px] leading-tight ${item.done ? 'text-slate-400 line-through' : 'text-slate-700 dark:text-slate-200'}`}>
+                                        <p className={`font-medium text-xs sm:text-sm leading-snug ${item.done ? 'text-slate-400 line-through' : 'text-slate-800 dark:text-slate-100'}`}>
                                           {item.title}
                                         </p>
                                       </div>
                                       <button onClick={() => handleDelete(col.dateStr, item.id)} className="shrink-0 text-slate-300 hover:text-rose-500 opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <Trash2 className="w-4 h-4" />
+                                        <Trash2 className="w-3.5 h-3.5" />
                                       </button>
                                     </div>
-                                    <div className="pl-8 flex flex-wrap gap-1.5 items-center mt-1">
+                                    <div className="pl-6 flex flex-wrap gap-1.5 items-center mt-0.5">
                                       {(item.recurring || item.note?.includes('[recurring]')) && (
-                                        <span className="p-1 rounded-md bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-300 border border-purple-200 dark:border-purple-800/50 flex items-center justify-center shadow-sm" title="Daily Recurring Habit">
+                                        <span className="p-1 rounded-md bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 flex items-center justify-center shadow-sm" title="Daily Recurring Habit">
                                           <Repeat className="w-3 h-3" />
                                         </span>
                                       )}
                                       {!item.done && item.subjectId !== 'personal' && (
-                                        <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md" style={{ backgroundColor: `${subject.color}15`, color: subject.color }}>
+                                        <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full" style={{ backgroundColor: `${subject.color}15`, color: subject.color }}>
                                           {subject.name}
                                         </span>
                                       )}
                                       {!item.done && item.estimatedMinutes && (
-                                        <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-500 border border-slate-200 dark:border-slate-700">
+                                        <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200/80 dark:border-white/10">
                                           ⏳ {formatTime(item.estimatedMinutes)}
                                         </span>
                                       )}
@@ -299,26 +306,26 @@ const WeeklyPlannerPage: React.FC = () => {
                 const items = weekData[col.dateStr] || [];
 
                 return (
-                  <div key={col.dateStr} className={`w-[320px] min-w-[320px] flex flex-col h-full bg-white dark:bg-slate-800 rounded-3xl shadow-sm border transition-all ${isToday ? 'border-blue-500 ring-2 ring-blue-500/20 shadow-lg' : 'border-slate-200 dark:border-slate-700'}`}>
+                  <div key={col.dateStr} className={`w-[320px] min-w-[320px] flex flex-col h-full bg-white/70 dark:bg-slate-900/60 backdrop-blur-xl rounded-3xl shadow-sm border transition-all ${isToday ? 'border-blue-500/60 ring-2 ring-blue-500/20 shadow-md' : 'border-slate-200/80 dark:border-white/10'}`}>
                     
                     {/* Header */}
-                    <div className={`shrink-0 p-5 border-b border-slate-100 dark:border-slate-700 rounded-t-3xl ${isToday ? 'bg-blue-50 dark:bg-blue-900/20' : 'bg-slate-50 dark:bg-slate-900/40'}`}>
-                      <h3 className="font-bold text-lg text-slate-800 dark:text-slate-100 flex items-center justify-between">
+                    <div className={`shrink-0 p-5 border-b border-slate-200/80 dark:border-white/10 rounded-t-3xl ${isToday ? 'bg-blue-500/10 dark:bg-blue-500/15' : 'bg-slate-50/60 dark:bg-slate-900/40'}`}>
+                      <h3 className="font-bold text-base text-slate-900 dark:text-slate-100 flex items-center justify-between">
                         {col.title}
-                        <span className="text-xs bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded-full font-bold shadow-sm">{items.length}</span>
+                        <span className={`text-xs px-2.5 py-0.5 rounded-full font-bold shadow-sm ${isToday ? 'bg-blue-500 text-white' : 'bg-white/80 dark:bg-slate-800 text-slate-600 dark:text-slate-300'}`}>{items.length}</span>
                       </h3>
-                      <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                         {col.subtitle}
                       </p>
                     </div>
 
                     {/* Smart Input */}
-                    <div className="shrink-0 p-3 border-b border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800">
+                    <div className="shrink-0 p-3 border-b border-slate-200/80 dark:border-white/10 bg-white/40 dark:bg-slate-900/40">
                       <form onSubmit={(e) => handleSmartAdd(col.dateStr, e)}>
                         <input
                           type="text"
                           placeholder="Add task..."
-                          className="w-full text-sm px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:text-slate-200 transition-all placeholder-slate-400"
+                          className="w-full text-xs sm:text-sm px-3.5 py-2.5 bg-white/90 dark:bg-slate-900/90 border border-slate-200/80 dark:border-white/10 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-slate-900 dark:text-slate-100 transition-all placeholder-slate-400"
                           value={inputs[col.dateStr] || ''}
                           onChange={e => setInputs({ ...inputs, [col.dateStr]: e.target.value })}
                         />
@@ -331,7 +338,7 @@ const WeeklyPlannerPage: React.FC = () => {
                         <div
                           ref={provided.innerRef}
                           {...provided.droppableProps}
-                          className={`flex-1 p-3 overflow-y-auto scrollbar-hide transition-colors ${snapshot.isDraggingOver ? 'bg-slate-50 dark:bg-slate-700/30' : ''}`}
+                          className={`flex-1 p-3 overflow-y-auto scrollbar-hide transition-colors ${snapshot.isDraggingOver ? 'bg-blue-50/30 dark:bg-blue-900/10' : ''}`}
                         >
                           {items.map((item, index) => {
                             const subject = mockSubjects.find(s => s.id === item.subjectId) || { color: '#94a3b8', name: 'Personal' };
@@ -343,35 +350,35 @@ const WeeklyPlannerPage: React.FC = () => {
                                   {...provided.draggableProps}
                                   {...provided.dragHandleProps}
                                   style={{ ...provided.draggableProps.style, borderLeftColor: subject.color }}
-                                  className={`group p-3 mb-2 rounded-xl text-sm border-y border-r border-l-[6px] shadow-sm transition-shadow transition-colors overflow-hidden ${snapshot.isDragging ? 'bg-white dark:bg-slate-800 border-y-blue-400 border-r-blue-400 dark:border-y-blue-500 dark:border-r-blue-500 shadow-lg z-50' : 'bg-white dark:bg-slate-800 border-y-slate-200 border-r-slate-200 dark:border-y-slate-700 dark:border-r-slate-700 hover:shadow-md'}`}
+                                  className={`group p-3 mb-2 rounded-2xl text-sm border-y border-r border-l-[4px] shadow-sm backdrop-blur-xl transition-all overflow-hidden ${snapshot.isDragging ? 'bg-white dark:bg-slate-800 border-y-blue-500 border-r-blue-500 shadow-xl z-50 ring-2 ring-blue-500/20' : 'bg-white/90 dark:bg-slate-900/80 border-y-slate-200/80 border-r-slate-200/80 dark:border-y-white/10 dark:border-r-white/10 hover:shadow-md'}`}
                                 >
                                   <div className="flex flex-col gap-1.5">
-                                    <div className="flex items-start gap-3">
+                                    <div className="flex items-start gap-2.5">
                                       <button onClick={() => handleToggleDone(col.dateStr, item.id)} className="mt-0.5 shrink-0 text-slate-400 hover:text-blue-500 transition-colors">
-                                        {item.done ? <CheckCircle2 className="w-5 h-5 text-blue-500" /> : <Circle className="w-5 h-5" />}
+                                        {item.done ? <CheckCircle2 className="w-4 h-4 text-blue-500" /> : <Circle className="w-4 h-4" />}
                                       </button>
                                       <div className="flex-1 min-w-0">
-                                        <p className={`font-semibold leading-snug ${item.done ? 'text-slate-400 line-through' : 'text-slate-700 dark:text-slate-200'}`}>
+                                        <p className={`font-medium text-xs sm:text-sm leading-snug ${item.done ? 'text-slate-400 line-through' : 'text-slate-800 dark:text-slate-100'}`}>
                                           {item.title}
                                         </p>
                                       </div>
                                       <button onClick={() => handleDelete(col.dateStr, item.id)} className="shrink-0 text-slate-300 hover:text-rose-500 opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <Trash2 className="w-4 h-4" />
+                                        <Trash2 className="w-3.5 h-3.5" />
                                       </button>
                                     </div>
-                                    <div className="pl-8 flex flex-wrap gap-1.5 items-center mt-0.5">
+                                    <div className="pl-6 flex flex-wrap gap-1.5 items-center mt-0.5">
                                       {(item.recurring || item.note?.includes('[recurring]')) && (
-                                        <span className="p-1 rounded-md bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-300 border border-purple-200 dark:border-purple-800/50 flex items-center justify-center shadow-sm" title="Daily Recurring Habit">
+                                        <span className="p-1 rounded-md bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 flex items-center justify-center shadow-sm" title="Daily Recurring Habit">
                                           <Repeat className="w-3 h-3" />
                                         </span>
                                       )}
                                       {!item.done && item.subjectId !== 'personal' && (
-                                        <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md" style={{ backgroundColor: `${subject.color}15`, color: subject.color }}>
+                                        <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full" style={{ backgroundColor: `${subject.color}15`, color: subject.color }}>
                                           {subject.name}
                                         </span>
                                       )}
                                       {!item.done && item.estimatedMinutes && (
-                                        <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-500 border border-slate-200 dark:border-slate-700">
+                                        <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200/80 dark:border-white/10">
                                           ⏳ {formatTime(item.estimatedMinutes)}
                                         </span>
                                       )}

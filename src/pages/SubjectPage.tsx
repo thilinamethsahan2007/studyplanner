@@ -178,7 +178,14 @@ const SubjectPage: React.FC<SubjectPageProps> = ({ syllabusData, subjects, onSyl
       {/* Unit List View */}
       <div className={`w-full lg:w-1/3 ${selectedUnit ? 'hidden lg:block' : 'block'}`}>
         <div className="flex justify-between items-center mb-4">
-          <h1 className="text-3xl sm:text-4xl font-black bg-gradient-to-r from-purple-400 via-purple-500 to-pink-500 bg-clip-text text-transparent drop-shadow-sm tracking-tight">{subject.name}</h1>
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wide uppercase bg-blue-500/10 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400 border border-blue-500/20">
+                Curriculum
+              </span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">{subject.name}</h1>
+          </div>
           {subjectId === 'combined' && <ToggleSwitch options={combinedToggleOptions} value={combinedMode} onChange={(val) => setCombinedMode(val as 'pure' | 'applied')} />}
         </div>
 
@@ -186,23 +193,25 @@ const SubjectPage: React.FC<SubjectPageProps> = ({ syllabusData, subjects, onSyl
             {progressElements}
         </div>
 
-        <div className="space-y-3 overflow-y-auto max-h-[calc(100vh-16rem)] pr-2 scrollbar-hide pb-20">
+        <div className="space-y-2.5 overflow-y-auto max-h-[calc(100vh-16rem)] pr-2 scrollbar-hide pb-20">
           {currentSyllabus.units.map(unit => (
             <button
               key={unit.id}
               onClick={() => handleUnitSelect(unit)}
-              className={`w-full text-left p-4 rounded-lg flex items-start gap-4 transition-all ${
-                selectedUnit?.id === unit.id ? 'bg-slate-50 dark:bg-slate-700/80 shadow-lg border-l-4 border-indigo-500 transform scale-[1.02]' : 'bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 hover:shadow-md border-l-4 border-transparent'
+              className={`w-full text-left p-3.5 sm:p-4 rounded-2xl flex items-start gap-3.5 backdrop-blur-md transition-all ${
+                selectedUnit?.id === unit.id 
+                  ? 'bg-blue-500/10 dark:bg-blue-500/20 border-l-4 border-blue-500 shadow-sm' 
+                  : 'bg-white/80 dark:bg-slate-900/60 hover:bg-white dark:hover:bg-slate-900/90 border border-slate-200/80 dark:border-white/10 hover:shadow-sm'
               }`}
             >
               <UnitSidePanel unit={unit} progress={calculateProgress(unit)}/>
               <div className="flex-grow">
                  <div className="flex items-center gap-2">
                     <span className={`h-1.5 w-1.5 rounded-full ${getStatusColor(getDerivedStatus(unit))}`}></span>
-                    <p className="font-semibold text-slate-800 dark:text-slate-200">{unit.name}</p>
+                    <p className="font-semibold text-slate-900 dark:text-slate-100 text-sm sm:text-base">{unit.name}</p>
                  </div>
-                 <p className="text-sm text-slate-500 dark:text-slate-400 ml-4">{unit.sinhala_name}</p>
-                 <p className="text-xs text-slate-400 dark:text-slate-500 mt-1 ml-4">{unit.subunits.length} subunits</p>
+                 <p className="text-xs text-slate-500 dark:text-slate-400 ml-3.5 mt-0.5">{unit.sinhala_name}</p>
+                 <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-1 ml-3.5">{unit.subunits.length} subunits</p>
               </div>
             </button>
           ))}
@@ -212,8 +221,8 @@ const SubjectPage: React.FC<SubjectPageProps> = ({ syllabusData, subjects, onSyl
       {/* Subunit Checklist View */}
       <div className={`w-full lg:w-2/3 ${selectedUnit ? 'block' : 'hidden lg:block'}`}>
         {selectedUnit ? (
-          <div className="bg-white dark:bg-slate-800/80 backdrop-blur-xl border border-slate-100 dark:border-slate-700/50 rounded-3xl shadow-xl shadow-slate-200/20 dark:shadow-black/20 p-4 sm:p-8 h-full relative overflow-hidden">
-            <button onClick={() => setSelectedUnit(null)} className="lg:hidden mb-4 flex items-center gap-2 text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400">
+          <div className="glass-panel border border-slate-200/80 dark:border-white/10 rounded-3xl shadow-sm p-4 sm:p-8 h-full relative overflow-hidden">
+            <button onClick={() => setSelectedUnit(null)} className="lg:hidden mb-4 flex items-center gap-2 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400">
                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
