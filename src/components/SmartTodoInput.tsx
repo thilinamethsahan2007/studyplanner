@@ -44,7 +44,7 @@ const SmartTodoInput: React.FC<SmartTodoInputProps> = ({ onAddTodos }) => {
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
             className="flex-1 min-w-0 bg-transparent border-0 px-2 py-2.5 sm:py-3 focus:outline-none focus:ring-0 text-sm sm:text-base text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 font-medium"
-            placeholder="Add task, e.g. 'finish physics tutorial' or '.mc python cert .est 1'..."
+            placeholder="Type tasks, e.g. 'mechanics tute 1.5h, 10 chem questions, 30m gym workout every day'..."
             disabled={isLoading}
           />
           <button
@@ -53,7 +53,10 @@ const SmartTodoInput: React.FC<SmartTodoInputProps> = ({ onAddTodos }) => {
             className="flex items-center gap-1.5 justify-center bg-blue-500 hover:bg-blue-600 text-white rounded-xl sm:rounded-full px-5 py-2.5 font-semibold text-xs sm:text-sm transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-sm shadow-blue-500/25 press-scale"
           >
             {isLoading ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span>Parsing...</span>
+              </>
             ) : (
               <>
                 <Plus className="w-4 h-4" />

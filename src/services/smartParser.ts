@@ -1,5 +1,6 @@
 import { TodoItem } from "../types";
 import { mockSyllabus } from "../mockData";
+import { parseTodosWithGroq, getGroqApiKey } from "./groqTodo";
 
 // Hardcoded base keywords for generic matching
 const categoryKeywords: Record<string, string[]> = {
@@ -41,7 +42,10 @@ const SHORTHAND_MAP: Record<string, string> = {
     'mc': 'microcredentials'
 };
 
-export const generateTodoSuggestions = async (text: string): Promise<Partial<TodoItem>[]> => {
+/**
+ * Local rule-based parser used as a fast, reliable offline fallback.
+ */
+export const generateLocalTodoSuggestions = (text: string): Partial<TodoItem>[] => {
     // Helper to extract .est
     const extractEst = (input: string): { cleanText: string, estimatedMinutes?: number } => {
         let estimatedMinutes: number | undefined = undefined;
@@ -74,9 +78,9 @@ export const generateTodoSuggestions = async (text: string): Promise<Partial<Tod
         if (/(?:^|\s)\.r(?:\s+|$)/i.test(cleanText)) {
             isRecurring = true;
             cleanText = cleanText.replace(/(?:^|\s)\.r(?:\s+|$)/gi, ' ').trim();
-        } else if (/\b(?:recurring|daily\s+habit)\b/i.test(cleanText)) {
+        } else if (/\b(?:recurring|daily\s+habit|every\s+day)\b/i.test(cleanText)) {
             isRecurring = true;
-            cleanText = cleanText.replace(/\b(?:recurring|daily\s+habit)\b/gi, ' ').trim();
+            cleanText = cleanText.replace(/\b(?:recurring|daily\s+habit|every\s+day)\b/gi, ' ').trim();
         }
 
         return { cleanText, isRecurring };
@@ -107,7 +111,8 @@ export const generateTodoSuggestions = async (text: string): Promise<Partial<Tod
                         subjectId: subjectId,
                         note: isItemRecurring ? '[recurring]' : '',
                         estimatedMinutes,
-                        recurring: isItemRecurring ? true : undefined
+                        recurring: isItemRecurring ? true : undefined,
+                        done: false
                     });
                 });
             }
@@ -118,11 +123,11 @@ export const generateTodoSuggestions = async (text: string): Promise<Partial<Tod
 
     // 1. Split the text into separate tasks.
     const splitRegex = /(?:\b(?:and|then|also)\b|\s*,\s*|\s*\.(?!est\b)(?!r\b)\s*|\s*;\s*)/i;
-    let rawTasks = globalCleanText.split(splitRegex)
+    const rawTasks = globalCleanText.split(splitRegex)
         .map(t => t.trim())
         .filter(t => t.length > 2); // Ignore empty fragments
 
-    const suggestions = rawTasks.map(taskText => {
+    return rawTasks.map(taskText => {
         const { cleanText: taskClean, isRecurring: taskRecurring } = extractRecurring(taskText);
         const isItemRecurring = globalRecurring || taskRecurring;
         const { cleanText, estimatedMinutes } = extractEst(taskClean);
@@ -152,10 +157,35 @@ export const generateTodoSuggestions = async (text: string): Promise<Partial<Tod
             subjectId: assignedCategory,
             note: isItemRecurring ? '[recurring]' : '',
             estimatedMinutes,
-            recurring: isItemRecurring ? true : undefined
+            recurring: isItemRecurring ? true : undefined,
+            done: false
         };
     });
+};
 
-    await new Promise(resolve => setTimeout(resolve, 400));
-    return suggestions;
+/**
+ * Main parser function:
+ * First attempts high-accuracy Groq AI natural language parsing.
+ * Gracefully falls back to local regex/syllabus matching if Groq is unavailable.
+ */
+export const generateTodoSuggestions = async (text: string): Promise<Partial<TodoItem>[]> => {
+    const trimmed = text?.trim();
+    if (!trimmed) return [];
+
+    const apiKey = getGroqApiKey();
+
+    if (apiKey) {
+        try {
+            const aiTodos = await parseTodosWithGroq(trimmed);
+            if (aiTodos && aiTodos.length > 0) {
+                return aiTodos;
+            }
+        } catch (err) {
+            console.warn('Groq AI todo parser unavailable, falling back to local engine:', err);
+        }
+    }
+
+    // Fallback: local engine with small delay for UI smoothness
+    await new Promise(resolve => setTimeout(resolve, 300));
+    return generateLocalTodoSuggestions(trimmed);
 };
